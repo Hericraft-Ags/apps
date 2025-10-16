@@ -1,0 +1,1452 @@
+<script src="https://cdn.tailwindcss.com"></script>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Resistencias</title>
+
+  <style>
+    body{
+        background: linear-gradient(145deg,rgba(31, 58, 138, 1) 35%, rgba(102, 39, 196, 1) 65%);
+    }
+    /* 🎨 Colores de bandas */
+    .color-black { background-color: #000000; }
+    .color-brown { background-color: #8B4513; }
+    .color-red { background-color: #FF0000; }
+    .color-orange { background-color: #FFA500; }
+    .color-yellow { background-color: #FFFF00; }
+    .color-green { background-color: #008000; }
+    .color-blue { background-color: #0000FF; }
+    .color-violet { background-color: #8A2BE2; }
+    .color-gray { background-color: #808080; }
+    .color-white { background-color: #FFFFFF; }
+    .color-gold { background-color: gold; }
+    .color-silver { background-color: silver; }
+
+    /* 🎚️ Estilo de las bandas */
+    .band {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 6%;
+      border-radius: 2px;
+    }
+
+    .band-1 { left: 7%; }
+    .band-2 { left: 16%; }
+    .band-3 { left: 25%; }
+    .band-4 { left: 87%; }
+
+    /* 🪫 Cuerpo de la resistencia */
+    .resistor-body {
+      background: linear-gradient(0deg,rgba(186, 139, 14, 1) 50%, rgba(210, 175, 52, 1) 100%);
+      border-radius: 8px;
+      border: 2px solid #ccc;
+    }
+  </style>
+</head>
+
+
+<div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <!-- Language Selector -->
+        <div class="flex justify-end mb-4">
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-1 flex">
+                <button id="lang-es" class="px-3 py-1 rounded-md bg-white/20 text-white font-medium text-sm">🇪🇸 ES</button>
+                <button id="lang-en" class="px-3 py-1 rounded-md text-white/70 font-medium text-sm">🇺🇸 EN</button>
+            </div>
+        </div>
+
+        <h1 class="text-4xl font-bold text-white mb-2" data-translate="title">🔌 Calculadora de Resistencias</h1>
+        <p class="text-blue-200 text-lg" data-translate="subtitle">Aprende a leer el código de colores de las resistencias eléctricas</p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+        <!-- Resistor Visualization -->
+        <div class="bg-white rounded-xl p-6 shadow-2xl">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center" data-translate="virtual-resistor">Resistencia Virtual</h2>
+
+            <!-- Resistor Display -->
+            <div class="flex justify-center mb-8">
+                <div class="resistor-body w-80 h-16 relative shadow-lg">
+                    <!-- Wire leads -->
+                    <div class="absolute -left-4 top-1/2 transform -translate-y-1/2 w-4 h-1 bg-gray-400"></div>
+                    <div class="absolute -right-4 top-1/2 transform -translate-y-1/2 w-4 h-1 bg-gray-400"></div>
+
+                    <!-- Color bands -->
+                    <div id="band1" class="band band-1 color-brown"></div>
+                    <div id="band2" class="band band-2 color-black"></div>
+                    <div id="band3" class="band band-3 color-red"></div>
+                    <div id="band4" class="band band-4 color-gold"></div>
+                </div>
+            </div>
+
+            <!-- Result Display -->
+            <div class="bg-gradient-to-r from-green-100 to-blue-100 rounded-lg p-6 mb-6" id="result-display">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-gray-800 mb-2" id="resistance-value">1.0 kΩ</div>
+                    <div class="text-lg text-gray-600" id="tolerance">±5%</div>
+                    <div class="text-sm text-gray-500 mt-2" id="calculation">1 × 10¹ × 100 = 1000Ω</div>
+                </div>
+            </div>
+
+            <!-- Hidden Result for Quiz -->
+            <div class="bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg p-6 mb-6 hidden" id="hidden-result">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-gray-500 mb-2" data-translate="what-value">❓ ¿Cuál es el valor?</div>
+                    <div class="text-sm text-gray-400" data-translate="observe-calculate">Observa los colores y calcula</div>
+                </div>
+            </div>
+
+            <!-- Mode Toggle -->
+            <div class="flex justify-center mb-4">
+                <div class="bg-gray-100 rounded-lg p-1 flex">
+                    <button id="learn-mode" class="px-4 py-2 rounded-md bg-blue-500 text-white font-medium" data-translate="learn">Aprender</button>
+                    <button id="quiz-mode" class="px-4 py-2 rounded-md text-gray-600 font-medium" data-translate="practice">Practicar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="bg-white rounded-xl p-6 shadow-2xl">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center" data-translate="select-colors">Selecciona los Colores</h2>
+
+            <!-- Band Selectors -->
+            <div class="space-y-6" id="band-controls">
+                <!-- First Band -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="first-band">1ª Banda (Primer dígito)</label>
+                    <div class="grid grid-cols-5 gap-2" id="band1-colors">
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-brown" data-band="1" data-color="brown" data-value="1"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-red" data-band="1" data-color="red" data-value="2"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-orange" data-band="1" data-color="orange" data-value="3"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-yellow" data-band="1" data-color="yellow" data-value="4"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-green" data-band="1" data-color="green" data-value="5"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-blue" data-band="1" data-color="blue" data-value="6"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-violet" data-band="1" data-color="violet" data-value="7"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-gray" data-band="1" data-color="gray" data-value="8"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-white" data-band="1" data-color="white" data-value="9"></button>
+                    </div>
+                </div>
+
+                <!-- Second Band -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="second-band">2ª Banda (Segundo dígito)</label>
+                    <div class="grid grid-cols-5 gap-2" id="band2-colors">
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-black" data-band="2" data-color="black" data-value="0"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-brown" data-band="2" data-color="brown" data-value="1"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-red" data-band="2" data-color="red" data-value="2"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-orange" data-band="2" data-color="orange" data-value="3"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-yellow" data-band="2" data-color="yellow" data-value="4"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-green" data-band="2" data-color="green" data-value="5"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-blue" data-band="2" data-color="blue" data-value="6"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-violet" data-band="2" data-color="violet" data-value="7"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-gray" data-band="2" data-color="gray" data-value="8"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-white" data-band="2" data-color="white" data-value="9"></button>
+                    </div>
+                </div>
+
+                <!-- Third Band -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="third-band">3ª Banda (Multiplicador)</label>
+                    <div class="grid grid-cols-5 gap-2" id="band3-colors">
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-black" data-band="3" data-color="black" data-value="1"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-brown" data-band="3" data-color="brown" data-value="10"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-red" data-band="3" data-color="red" data-value="100"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-orange" data-band="3" data-color="orange" data-value="1000"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-yellow" data-band="3" data-color="yellow" data-value="10000"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-green" data-band="3" data-color="green" data-value="100000"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-blue" data-band="3" data-color="blue" data-value="1000000"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-gold" data-band="3" data-color="gold" data-value="0.1"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-silver" data-band="3" data-color="silver" data-value="0.01"></button>
+                    </div>
+                </div>
+
+                <!-- Fourth Band -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="fourth-band">4ª Banda (Tolerancia)</label>
+                    <div class="grid grid-cols-4 gap-2" id="band4-colors">
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-brown" data-band="4" data-color="brown" data-value="1"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-red" data-band="4" data-color="red" data-value="2"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-gold" data-band="4" data-color="gold" data-value="5"></button>
+                        <button class="color-btn w-12 h-8 rounded border-2 border-gray-300 color-silver" data-band="4" data-color="silver" data-value="10"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quiz-section" class="hidden">
+                <!-- Quiz Type Selection -->
+                <div class="flex justify-center mb-6">
+                    <div class="bg-gray-100 rounded-lg p-1 flex">
+                        <button id="quiz-type-value" class="px-3 py-2 rounded-md bg-yellow-500 text-white font-medium text-sm" data-translate="quiz-resistor-to-value">Ver Resistencia → Valor</button>
+                        <button id="quiz-type-color" class="px-3 py-2 rounded-md text-gray-600 font-medium text-sm" data-translate="quiz-value-to-color">Ver Valor → Colores</button>
+                    </div>
+                </div>
+
+                <!-- Quiz Type 1: Resistor to Value -->
+                <div id="quiz-resistor-to-value">
+                    <div class="bg-yellow-50 rounded-lg p-4 mb-4">
+                        <h3 class="font-bold text-gray-800 mb-2" data-translate="challenge">🎯 Desafío</h3>
+                        <p class="text-gray-700" data-translate="quiz-question-1">¿Cuál es el valor de esta resistencia?</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4" id="quiz-value-options">
+                        <!-- Value options will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Quiz Type 2: Value to Resistor Colors -->
+                <div id="quiz-value-to-color" class="hidden">
+                    <div class="bg-yellow-50 rounded-lg p-4 mb-4">
+                        <h3 class="font-bold text-gray-800 mb-2" data-translate="challenge">🎯 Desafío</h3>
+                        <p class="text-gray-700" data-translate="quiz-question-2">Selecciona los colores correctos para esta resistencia:</p>
+                        <div class="text-2xl font-bold text-blue-600 mt-2" id="target-resistance">2.2 kΩ ±5%</div>
+                    </div>
+
+                    <!-- Color Selection for Quiz -->
+                    <div class="space-y-4" id="quiz-color-selection">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">1ª Banda</label>
+                            <div class="flex flex-wrap gap-2" id="quiz-band1-colors">
+                                <!-- Color options will be generated -->
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">2ª Banda</label>
+                            <div class="flex flex-wrap gap-2" id="quiz-band2-colors">
+                                <!-- Color options will be generated -->
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">3ª Banda</label>
+                            <div class="flex flex-wrap gap-2" id="quiz-band3-colors">
+                                <!-- Color options will be generated -->
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">4ª Banda</label>
+                            <div class="flex flex-wrap gap-2" id="quiz-band4-colors">
+                                <!-- Color options will be generated -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button id="check-color-answer" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium" data-translate="check-answer">Verificar Respuesta</button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button id="new-quiz" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium" data-translate="new-question">Nueva Pregunta</button>
+                </div>
+
+                <div id="quiz-result" class="mt-4 p-3 rounded-lg text-center hidden"></div>
+            </div>
+
+            <!-- Random Button -->
+            <div class="text-center mt-6" id="random-section">
+                <button id="random-resistor" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-medium" data-translate="random-resistor">
+                    🎲 Resistencia Aleatoria
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reference Table -->
+    <div class="mt-8 bg-white rounded-xl p-6 shadow-2xl">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center" data-translate="reference-guide">📚 Guía de Referencia Rápida</h2>
+
+        <!-- Color Values Table -->
+        <div class="mb-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center" data-translate="color-code">🎨 Código de Colores</h3>
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-4">
+                <p class="text-center text-gray-700 font-medium" data-translate="memorize">Memoriza: <span class="font-bold" data-translate="color-sequence">"Negro Marrón Rojo Naranja Amarillo Verde Azul Violeta Gris Blanco"</span></p>
+                <p class="text-center text-sm text-gray-600 mt-1" data-translate="mnemonic">Truco: "Nunca Mires Rápido, Necesitas Aprender Verdaderamente Antes Viendo Grandes Trabajos"</p>
+            </div>
+
+            <div class="grid grid-cols-5 md:grid-cols-10 gap-3">
+                <div class="bg-gray-50 rounded-lg p-3 text-center border-2 border-gray-200">
+                    <div class="w-8 h-8 mx-auto mb-2 rounded-full color-black border-2 border-gray-400"></div>
+                    <div class="font-bold text-2xl text-gray-800">0</div>
+                    <div class="text-xs font-medium text-gray-600">Negro</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center border-2 border-gray-200">
+                    <div class="w-8 h-8 mx-auto mb-2 rounded-full color-brown"></div>
+                    <div class="font-bold text-2xl text-gray-800">1</div>
+                    <div class="text-xs font-medium text-gray-600">Marrón</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center border-2 border-gray-200">
+                    <div class="w-8 h-8 mx-auto mb-2 rounded-full color-red"></div>
+                    <div class="font-bold text-2xl text-gray-800">2</div>
+                    <div class="text-xs font-medium text-gray-600">Rojo</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center border-2 border-gray-200">
+                    <div class="w-8 h-8 mx-auto mb-2 rounded-full color-orange"></div>
+                    <div class="font-bold text-2xl text-gray-800">3</div>
+                    <div class="text-xs font-medium text-gray-600">Naranja</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center border-2 border-gray-200">
+                    <div class="w-8 h-8 mx-auto mb-2 rounded-full color-yellow"></div>
+                    <div class="font-bold text-2xl text-gray-800">4</div>
+                    <div class="text-xs font-medium text-gray-600">Amarillo</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center border-2 border-gray-200">
+                    <div class="w-8 h-8 mx-auto mb-2 rounded-full color-green"></div>
+                    <div class="font-bold text-2xl text-gray-800">5</div>
+                    <div class="text-xs font-medium text-gray-600">Verde</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center border-2 border-gray-200">
+                    <div class="w-8 h-8 mx-auto mb-2 rounded-full color-blue"></div>
+                    <div class="font-bold text-2xl text-gray-800">6</div>
+                    <div class="text-xs font-medium text-gray-600">Azul</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center border-2 border-gray-200">
+                    <div class="w-8 h-8 mx-auto mb-2 rounded-full color-violet"></div>
+                    <div class="font-bold text-2xl text-gray-800">7</div>
+                    <div class="text-xs font-medium text-gray-600">Violeta</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center border-2 border-gray-200">
+                    <div class="w-8 h-8 mx-auto mb-2 rounded-full color-gray"></div>
+                    <div class="font-bold text-2xl text-gray-800">8</div>
+                    <div class="text-xs font-medium text-gray-600">Gris</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center border-2 border-gray-200">
+                    <div class="w-8 h-8 mx-auto mb-2 rounded-full color-white border-2 border-gray-400"></div>
+                    <div class="font-bold text-2xl text-gray-800">9</div>
+                    <div class="text-xs font-medium text-gray-600">Blanco</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multipliers and Tolerance -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <!-- Multipliers -->
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4">
+                <h3 class="text-lg font-bold text-gray-800 mb-3 text-center" data-translate="multipliers">⚡ Multiplicadores (3ª Banda)</h3>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between bg-white rounded p-2 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded color-black border"></div>
+                            <span class="font-medium text-sm">Negro</span>
+                        </div>
+                        <span class="font-bold text-blue-600">×1</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-white rounded p-2 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded color-brown"></div>
+                            <span class="font-medium text-sm">Marrón</span>
+                        </div>
+                        <span class="font-bold text-blue-600">×10</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-white rounded p-2 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded color-red"></div>
+                            <span class="font-medium text-sm">Rojo</span>
+                        </div>
+                        <span class="font-bold text-blue-600">×100</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-white rounded p-2 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded color-orange"></div>
+                            <span class="font-medium text-sm">Naranja</span>
+                        </div>
+                        <span class="font-bold text-blue-600">×1K</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-white rounded p-2 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded color-yellow"></div>
+                            <span class="font-medium text-sm">Amarillo</span>
+                        </div>
+                        <span class="font-bold text-blue-600">×10K</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-white rounded p-2 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded color-green"></div>
+                            <span class="font-medium text-sm">Verde</span>
+                        </div>
+                        <span class="font-bold text-blue-600">×100K</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-white rounded p-2 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 rounded color-blue"></div>
+                            <span class="font-medium text-sm">Azul</span>
+                        </div>
+                        <span class="font-bold text-blue-600">×1M</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tolerance -->
+            <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-4">
+                <h3 class="text-lg font-bold text-gray-800 mb-3 text-center" data-translate="tolerance">🎯 Tolerancia (4ª Banda)</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between bg-white rounded p-3 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded color-brown"></div>
+                            <span class="font-medium">Marrón</span>
+                        </div>
+                        <span class="font-bold text-green-600">±1%</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-white rounded p-3 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded color-red"></div>
+                            <span class="font-medium">Rojo</span>
+                        </div>
+                        <span class="font-bold text-green-600">±2%</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-white rounded p-3 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded color-gold"></div>
+                            <span class="font-medium">Dorado</span>
+                        </div>
+                        <span class="font-bold text-green-600">±5%</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-white rounded p-3 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded color-silver"></div>
+                            <span class="font-medium">Plateado</span>
+                        </div>
+                        <span class="font-bold text-green-600">±10%</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-yellow-100 rounded-lg">
+                    <p class="text-xs text-gray-700 text-center">
+                        <strong data-translate="tip">💡 Tip:</strong> <span data-translate="precision-tip">Menor tolerancia = Mayor precisión</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculation Guide -->
+        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center" data-translate="calculation-guide">🧮 Cómo Calcular el Valor</h3>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Formula -->
+                <div class="bg-white rounded-lg p-4 shadow-sm">
+                    <h4 class="font-bold text-gray-800 mb-3" data-translate="formula">📐 Fórmula</h4>
+                    <div class="bg-blue-100 p-3 rounded text-center">
+                        <div class="text-lg font-bold text-blue-800">(1ª × 10 + 2ª) × Multiplicador</div>
+                    </div>
+                    <div class="mt-3 text-sm text-gray-600">
+                        <div class="flex justify-between">
+                            <span>1ª banda:</span>
+                            <span class="font-medium" data-translate="first-digit">Primer dígito</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>2ª banda:</span>
+                            <span class="font-medium" data-translate="second-digit">Segundo dígito</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>3ª banda:</span>
+                            <span class="font-medium" data-translate="multiplier">Multiplicador</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>4ª banda:</span>
+                            <span class="font-medium" data-translate="tolerance-band">Tolerancia</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example -->
+                <div class="bg-white rounded-lg p-4 shadow-sm">
+                    <h4 class="font-bold text-gray-800 mb-3" data-translate="example">💡 Ejemplo Paso a Paso</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 color-red rounded"></div>
+                            <div class="w-4 h-4 color-violet rounded"></div>
+                            <div class="w-4 h-4 color-orange rounded"></div>
+                            <div class="w-4 h-4 color-gold rounded"></div>
+                            <span class="ml-2 text-sm font-medium">Rojo-Violeta-Naranja-Dorado</span>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded text-sm">
+                            <div>1ª banda (Rojo): <span class="font-bold">2</span></div>
+                            <div>2ª banda (Violeta): <span class="font-bold">7</span></div>
+                            <div>3ª banda (Naranja): <span class="font-bold">×1,000</span></div>
+                            <div>4ª banda (Dorado): <span class="font-bold">±5%</span></div>
+                        </div>
+
+                        <div class="bg-green-100 p-3 rounded">
+                            <div class="text-sm" data-translate="calculation">Cálculo:</div>
+                            <div class="font-bold">(2 × 10 + 7) × 1,000 = 27,000Ω</div>
+                            <div class="text-lg font-bold text-green-700">27kΩ ±5%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Color values and data
+    const colorValues = {
+        'black': 0,
+        'brown': 1,
+        'red': 2,
+        'orange': 3,
+        'yellow': 4,
+        'green': 5,
+        'blue': 6,
+        'violet': 7,
+        'gray': 8,
+        'white': 9
+    };
+
+    const multiplierValues = {
+        'black': 1,
+        'brown': 10,
+        'red': 100,
+        'orange': 1000,
+        'yellow': 10000,
+        'green': 100000,
+        'blue': 1000000,
+        'gold': 0.1,
+        'silver': 0.01
+    };
+
+    const toleranceValues = {
+        'brown': 1,
+        'red': 2,
+        'gold': 5,
+        'silver': 10
+    };
+
+    // Current resistor state
+    let currentResistor = {
+        band1: 'brown',
+        band2: 'black',
+        band3: 'red',
+        band4: 'gold'
+    };
+
+    let isQuizMode = false;
+    let currentQuizAnswer = null;
+    let quizType = 'value'; // 'value' or 'color'
+    let quizColorSelection = {
+        band1: null,
+        band2: null,
+        band3: null,
+        band4: null
+    };
+
+    // Initialize the app
+    function init() {
+        setupEventListeners();
+        updateResistor();
+    }
+
+    function setupEventListeners() {
+        // Color button clicks
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (!isQuizMode) {
+                    const band = e.target.dataset.band;
+                    const color = e.target.dataset.color;
+                    currentResistor[`band${band}`] = color;
+                    updateResistor();
+                    highlightSelectedButton(e.target, band);
+                }
+            });
+        });
+
+        // Mode toggle
+        document.getElementById('learn-mode').addEventListener('click', () => {
+            setMode('learn');
+        });
+
+        document.getElementById('quiz-mode').addEventListener('click', () => {
+            setMode('quiz');
+        });
+
+        // Random resistor
+        document.getElementById('random-resistor').addEventListener('click', generateRandomResistor);
+
+        // Quiz buttons
+        document.getElementById('new-quiz').addEventListener('click', generateQuiz);
+        document.getElementById('quiz-type-value').addEventListener('click', () => setQuizType('value'));
+        document.getElementById('quiz-type-color').addEventListener('click', () => setQuizType('color'));
+        document.getElementById('check-color-answer').addEventListener('click', checkColorQuizAnswer);
+
+        // Language buttons
+        document.getElementById('lang-es').addEventListener('click', () => setLanguage('es'));
+        document.getElementById('lang-en').addEventListener('click', () => setLanguage('en'));
+    }
+
+    function highlightSelectedButton(selectedBtn, band) {
+        // Remove previous selection
+        document.querySelectorAll(`[data-band="${band}"]`).forEach(btn => {
+            btn.classList.remove('ring-4', 'ring-blue-500');
+        });
+
+        // Highlight selected
+        selectedBtn.classList.add('ring-4', 'ring-blue-500');
+    }
+
+    function updateResistor() {
+        // Update visual bands
+        document.getElementById('band1').className = `band band-1 color-${currentResistor.band1}`;
+        document.getElementById('band2').className = `band band-2 color-${currentResistor.band2}`;
+        document.getElementById('band3').className = `band band-3 color-${currentResistor.band3}`;
+        document.getElementById('band4').className = `band band-4 color-${currentResistor.band4}`;
+
+        // Calculate resistance
+        const digit1 = colorValues[currentResistor.band1];
+        const digit2 = colorValues[currentResistor.band2];
+        const multiplier = multiplierValues[currentResistor.band3];
+        const tolerance = toleranceValues[currentResistor.band4];
+
+        const resistance = (digit1 * 10 + digit2) * multiplier;
+
+        // Format resistance value
+        let formattedValue;
+        let unit;
+        if (resistance >= 1000000) {
+            formattedValue = (resistance / 1000000).toFixed(1);
+            unit = 'MΩ';
+        } else if (resistance >= 1000) {
+            formattedValue = (resistance / 1000).toFixed(1);
+            unit = 'kΩ';
+        } else {
+            formattedValue = resistance.toFixed(1);
+            unit = 'Ω';
+        }
+
+        // Update display
+        document.getElementById('resistance-value').textContent = `${formattedValue} ${unit}`;
+        document.getElementById('tolerance').textContent = `±${tolerance}%`;
+        document.getElementById('calculation').textContent =
+            `${digit1} × 10 + ${digit2} = ${digit1 * 10 + digit2}, × ${multiplier} = ${resistance}Ω`;
+    }
+
+    function setMode(mode) {
+        isQuizMode = mode === 'quiz';
+
+        // Update button styles
+        const learnBtn = document.getElementById('learn-mode');
+        const quizBtn = document.getElementById('quiz-mode');
+
+        if (isQuizMode) {
+            learnBtn.className = 'px-4 py-2 rounded-md text-gray-600 font-medium';
+            quizBtn.className = 'px-4 py-2 rounded-md bg-blue-500 text-white font-medium';
+            document.getElementById('band-controls').classList.add('hidden');
+            document.getElementById('quiz-section').classList.remove('hidden');
+            document.getElementById('random-section').classList.add('hidden');
+
+            // Show/hide result displays based on quiz type
+            if (quizType === 'value') {
+                document.getElementById('result-display').classList.add('hidden');
+                document.getElementById('hidden-result').classList.remove('hidden');
+            } else {
+                document.getElementById('result-display').classList.remove('hidden');
+                document.getElementById('hidden-result').classList.add('hidden');
+            }
+
+            generateQuiz();
+        } else {
+            learnBtn.className = 'px-4 py-2 rounded-md bg-blue-500 text-white font-medium';
+            quizBtn.className = 'px-4 py-2 rounded-md text-gray-600 font-medium';
+            document.getElementById('band-controls').classList.remove('hidden');
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('random-section').classList.remove('hidden');
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('result-display').classList.remove('hidden');
+            document.getElementById('hidden-result').classList.add('hidden');
+        }
+    }
+
+    function setQuizType(type) {
+        quizType = type;
+
+        // Update quiz type buttons
+        const valueBtn = document.getElementById('quiz-type-value');
+        const colorBtn = document.getElementById('quiz-type-color');
+
+        if (type === 'value') {
+            valueBtn.className = 'px-3 py-2 rounded-md bg-yellow-500 text-white font-medium text-sm';
+            colorBtn.className = 'px-3 py-2 rounded-md text-gray-600 font-medium text-sm';
+            document.getElementById('quiz-resistor-to-value').classList.remove('hidden');
+            document.getElementById('quiz-value-to-color').classList.add('hidden');
+            document.getElementById('result-display').classList.add('hidden');
+            document.getElementById('hidden-result').classList.remove('hidden');
+        } else {
+            valueBtn.className = 'px-3 py-2 rounded-md text-gray-600 font-medium text-sm';
+            colorBtn.className = 'px-3 py-2 rounded-md bg-yellow-500 text-white font-medium text-sm';
+            document.getElementById('quiz-resistor-to-value').classList.add('hidden');
+            document.getElementById('quiz-value-to-color').classList.remove('hidden');
+            document.getElementById('result-display').classList.remove('hidden');
+            document.getElementById('hidden-result').classList.add('hidden');
+        }
+
+        if (isQuizMode) {
+            generateQuiz();
+        }
+    }
+
+    function generateRandomResistor() {
+        const colors = ['brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'gray'];
+        const allColors = ['black', ...colors, 'white'];
+        const multipliers = ['black', 'brown', 'red', 'orange', 'yellow', 'green'];
+        const tolerances = ['brown', 'red', 'gold', 'silver'];
+
+        currentResistor = {
+            band1: colors[Math.floor(Math.random() * colors.length)],
+            band2: allColors[Math.floor(Math.random() * allColors.length)],
+            band3: multipliers[Math.floor(Math.random() * multipliers.length)],
+            band4: tolerances[Math.floor(Math.random() * tolerances.length)]
+        };
+
+        updateResistor();
+
+        // Add pulse effect
+        document.querySelector('.resistor-body').classList.add('pulse');
+        setTimeout(() => {
+            document.querySelector('.resistor-body').classList.remove('pulse');
+        }, 2000);
+    }
+
+    function generateQuiz() {
+        if (quizType === 'value') {
+            generateValueQuiz();
+        } else {
+            generateColorQuiz();
+        }
+    }
+
+    function generateValueQuiz() {
+        generateRandomResistor();
+
+        // Calculate correct answer
+        const digit1 = colorValues[currentResistor.band1];
+        const digit2 = colorValues[currentResistor.band2];
+        const multiplier = multiplierValues[currentResistor.band3];
+        const tolerance = toleranceValues[currentResistor.band4];
+        const resistance = (digit1 * 10 + digit2) * multiplier;
+
+        let correctAnswer;
+        if (resistance >= 1000000) {
+            correctAnswer = `${(resistance / 1000000).toFixed(1)} MΩ ±${tolerance}%`;
+        } else if (resistance >= 1000) {
+            correctAnswer = `${(resistance / 1000).toFixed(1)} kΩ ±${tolerance}%`;
+        } else {
+            correctAnswer = `${resistance.toFixed(1)} Ω ±${tolerance}%`;
+        }
+
+        currentQuizAnswer = correctAnswer;
+
+        // Generate wrong answers
+        const wrongAnswers = generateWrongAnswers(resistance, tolerance);
+        const allAnswers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+
+        // Update quiz UI
+        const optionsContainer = document.getElementById('quiz-value-options');
+        optionsContainer.innerHTML = '';
+
+        allAnswers.forEach(answer => {
+            const button = document.createElement('button');
+            button.className = 'bg-gray-100 hover:bg-gray-200 border-2 border-gray-300 rounded-lg p-3 text-center font-medium transition-colors';
+            button.textContent = answer;
+            button.addEventListener('click', () => checkQuizAnswer(answer));
+            optionsContainer.appendChild(button);
+        });
+
+        document.getElementById('quiz-result').classList.add('hidden');
+    }
+
+    function generateColorQuiz() {
+        // Generate resistor values that can be properly represented with standard colors
+        const standardValues = [{
+                value: 10,
+                band1: 'brown',
+                band2: 'black',
+                band3: 'black'
+            }, // 1-0-x1
+            {
+                value: 12,
+                band1: 'brown',
+                band2: 'red',
+                band3: 'black'
+            }, // 1-2-x1
+            {
+                value: 15,
+                band1: 'brown',
+                band2: 'green',
+                band3: 'black'
+            }, // 1-5-x1
+            {
+                value: 18,
+                band1: 'brown',
+                band2: 'gray',
+                band3: 'black'
+            }, // 1-8-x1
+            {
+                value: 22,
+                band1: 'red',
+                band2: 'red',
+                band3: 'black'
+            }, // 2-2-x1
+            {
+                value: 27,
+                band1: 'red',
+                band2: 'violet',
+                band3: 'black'
+            }, // 2-7-x1
+            {
+                value: 33,
+                band1: 'orange',
+                band2: 'orange',
+                band3: 'black'
+            }, // 3-3-x1
+            {
+                value: 39,
+                band1: 'orange',
+                band2: 'white',
+                band3: 'black'
+            }, // 3-9-x1
+            {
+                value: 47,
+                band1: 'yellow',
+                band2: 'violet',
+                band3: 'black'
+            }, // 4-7-x1
+            {
+                value: 56,
+                band1: 'green',
+                band2: 'blue',
+                band3: 'black'
+            }, // 5-6-x1
+            {
+                value: 68,
+                band1: 'blue',
+                band2: 'gray',
+                band3: 'black'
+            }, // 6-8-x1
+            {
+                value: 82,
+                band1: 'gray',
+                band2: 'red',
+                band3: 'black'
+            }, // 8-2-x1
+            {
+                value: 100,
+                band1: 'brown',
+                band2: 'black',
+                band3: 'brown'
+            }, // 1-0-x10
+            {
+                value: 120,
+                band1: 'brown',
+                band2: 'red',
+                band3: 'brown'
+            }, // 1-2-x10
+            {
+                value: 150,
+                band1: 'brown',
+                band2: 'green',
+                band3: 'brown'
+            }, // 1-5-x10
+            {
+                value: 220,
+                band1: 'red',
+                band2: 'red',
+                band3: 'brown'
+            }, // 2-2-x10
+            {
+                value: 270,
+                band1: 'red',
+                band2: 'violet',
+                band3: 'brown'
+            }, // 2-7-x10
+            {
+                value: 330,
+                band1: 'orange',
+                band2: 'orange',
+                band3: 'brown'
+            }, // 3-3-x10
+            {
+                value: 470,
+                band1: 'yellow',
+                band2: 'violet',
+                band3: 'brown'
+            }, // 4-7-x10
+            {
+                value: 560,
+                band1: 'green',
+                band2: 'blue',
+                band3: 'brown'
+            }, // 5-6-x10
+            {
+                value: 680,
+                band1: 'blue',
+                band2: 'gray',
+                band3: 'brown'
+            }, // 6-8-x10
+            {
+                value: 820,
+                band1: 'gray',
+                band2: 'red',
+                band3: 'brown'
+            }, // 8-2-x10
+            {
+                value: 1000,
+                band1: 'brown',
+                band2: 'black',
+                band3: 'red'
+            }, // 1-0-x100
+            {
+                value: 1200,
+                band1: 'brown',
+                band2: 'red',
+                band3: 'red'
+            }, // 1-2-x100
+            {
+                value: 1500,
+                band1: 'brown',
+                band2: 'green',
+                band3: 'red'
+            }, // 1-5-x100
+            {
+                value: 2200,
+                band1: 'red',
+                band2: 'red',
+                band3: 'red'
+            }, // 2-2-x100
+            {
+                value: 2700,
+                band1: 'red',
+                band2: 'violet',
+                band3: 'red'
+            }, // 2-7-x100
+            {
+                value: 3300,
+                band1: 'orange',
+                band2: 'orange',
+                band3: 'red'
+            }, // 3-3-x100
+            {
+                value: 4700,
+                band1: 'yellow',
+                band2: 'violet',
+                band3: 'red'
+            }, // 4-7-x100
+            {
+                value: 5600,
+                band1: 'green',
+                band2: 'blue',
+                band3: 'red'
+            }, // 5-6-x100
+            {
+                value: 6800,
+                band1: 'blue',
+                band2: 'gray',
+                band3: 'red'
+            }, // 6-8-x100
+            {
+                value: 8200,
+                band1: 'gray',
+                band2: 'red',
+                band3: 'red'
+            }, // 8-2-x100
+            {
+                value: 10000,
+                band1: 'brown',
+                band2: 'black',
+                band3: 'orange'
+            }, // 1-0-x1k
+            {
+                value: 12000,
+                band1: 'brown',
+                band2: 'red',
+                band3: 'orange'
+            }, // 1-2-x1k
+            {
+                value: 15000,
+                band1: 'brown',
+                band2: 'green',
+                band3: 'orange'
+            }, // 1-5-x1k
+            {
+                value: 22000,
+                band1: 'red',
+                band2: 'red',
+                band3: 'orange'
+            }, // 2-2-x1k
+            {
+                value: 27000,
+                band1: 'red',
+                band2: 'violet',
+                band3: 'orange'
+            }, // 2-7-x1k
+            {
+                value: 33000,
+                band1: 'orange',
+                band2: 'orange',
+                band3: 'orange'
+            }, // 3-3-x1k
+            {
+                value: 47000,
+                band1: 'yellow',
+                band2: 'violet',
+                band3: 'orange'
+            }, // 4-7-x1k
+            {
+                value: 56000,
+                band1: 'green',
+                band2: 'blue',
+                band3: 'orange'
+            }, // 5-6-x1k
+            {
+                value: 68000,
+                band1: 'blue',
+                band2: 'gray',
+                band3: 'orange'
+            }, // 6-8-x1k
+            {
+                value: 82000,
+                band1: 'gray',
+                band2: 'red',
+                band3: 'orange'
+            }, // 8-2-x1k
+            {
+                value: 100000,
+                band1: 'brown',
+                band2: 'black',
+                band3: 'yellow'
+            }, // 1-0-x10k
+            {
+                value: 220000,
+                band1: 'red',
+                band2: 'red',
+                band3: 'yellow'
+            }, // 2-2-x10k
+            {
+                value: 470000,
+                band1: 'yellow',
+                band2: 'violet',
+                band3: 'yellow'
+            }, // 4-7-x10k
+            {
+                value: 1000000,
+                band1: 'brown',
+                band2: 'black',
+                band3: 'green'
+            }, // 1-0-x100k
+            {
+                value: 2200000,
+                band1: 'red',
+                band2: 'red',
+                band3: 'green'
+            }, // 2-2-x100k
+            {
+                value: 4700000,
+                band1: 'yellow',
+                band2: 'violet',
+                band3: 'green'
+            }, // 4-7-x100k
+            {
+                value: 10000000,
+                band1: 'brown',
+                band2: 'black',
+                band3: 'blue'
+            } // 1-0-x1M
+        ];
+
+        const tolerances = [1, 2, 5, 10];
+        const toleranceColors = ['brown', 'red', 'gold', 'silver'];
+
+        // Select random standard value and tolerance
+        const selectedValue = standardValues[Math.floor(Math.random() * standardValues.length)];
+        const toleranceIndex = Math.floor(Math.random() * tolerances.length);
+        const tolerance = tolerances[toleranceIndex];
+        const toleranceColor = toleranceColors[toleranceIndex];
+
+        const targetResistance = selectedValue.value;
+
+        // Format target resistance
+        let formattedTarget;
+        if (targetResistance >= 1000000) {
+            formattedTarget = `${(targetResistance / 1000000).toFixed(1)} MΩ ±${tolerance}%`;
+        } else if (targetResistance >= 1000) {
+            formattedTarget = `${(targetResistance / 1000).toFixed(1)} kΩ ±${tolerance}%`;
+        } else {
+            formattedTarget = `${targetResistance.toFixed(0)} Ω ±${tolerance}%`;
+        }
+
+        document.getElementById('target-resistance').textContent = formattedTarget;
+
+        // Set correct answer from the predefined standard value
+        currentQuizAnswer = {
+            band1: selectedValue.band1,
+            band2: selectedValue.band2,
+            band3: selectedValue.band3,
+            band4: toleranceColor
+        };
+
+        // Reset selection
+        quizColorSelection = {
+            band1: null,
+            band2: null,
+            band3: null,
+            band4: null
+        };
+
+        // Generate color options for each band
+        generateColorOptions();
+
+        document.getElementById('quiz-result').classList.add('hidden');
+    }
+
+    function generateColorOptions() {
+        const band1Colors = ['brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'gray', 'white'];
+        const band2Colors = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'gray', 'white'];
+        const band3Colors = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'gold', 'silver'];
+        const band4Colors = ['brown', 'red', 'gold', 'silver'];
+
+        createColorButtons('quiz-band1-colors', band1Colors, 1);
+        createColorButtons('quiz-band2-colors', band2Colors, 2);
+        createColorButtons('quiz-band3-colors', band3Colors, 3);
+        createColorButtons('quiz-band4-colors', band4Colors, 4);
+    }
+
+    function createColorButtons(containerId, colors, bandNumber) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        colors.forEach(color => {
+            const button = document.createElement('button');
+            button.className = `w-8 h-8 rounded border-2 border-gray-300 color-${color} quiz-color-btn`;
+            button.dataset.color = color;
+            button.dataset.band = bandNumber;
+            button.addEventListener('click', (e) => selectQuizColor(e.target, bandNumber, color));
+            container.appendChild(button);
+        });
+    }
+
+    function selectQuizColor(button, bandNumber, color) {
+        // Remove previous selection for this band
+        const container = button.parentElement;
+        container.querySelectorAll('.quiz-color-btn').forEach(btn => {
+            btn.classList.remove('ring-4', 'ring-blue-500');
+        });
+
+        // Highlight selected
+        button.classList.add('ring-4', 'ring-blue-500');
+
+        // Update selection
+        quizColorSelection[`band${bandNumber}`] = color;
+
+        // Update resistor display
+        currentResistor[`band${bandNumber}`] = color;
+        updateResistor();
+    }
+
+    function checkColorQuizAnswer() {
+        const isCorrect =
+            quizColorSelection.band1 === currentQuizAnswer.band1 &&
+            quizColorSelection.band2 === currentQuizAnswer.band2 &&
+            quizColorSelection.band3 === currentQuizAnswer.band3 &&
+            quizColorSelection.band4 === currentQuizAnswer.band4;
+
+        const resultDiv = document.getElementById('quiz-result');
+
+        if (isCorrect) {
+            resultDiv.className = 'mt-4 p-3 rounded-lg text-center bg-green-100 text-green-800';
+            resultDiv.innerHTML = getTranslation('correct-colors');
+        } else {
+            const correctColors = `${translations[currentLanguage].colors[currentQuizAnswer.band1]}, ${translations[currentLanguage].colors[currentQuizAnswer.band2]}, ${translations[currentLanguage].colors[currentQuizAnswer.band3]}, ${translations[currentLanguage].colors[currentQuizAnswer.band4]}`;
+            resultDiv.className = 'mt-4 p-3 rounded-lg text-center bg-red-100 text-red-800';
+            resultDiv.innerHTML = `${getTranslation('incorrect-colors')} ${correctColors}`;
+        }
+
+        resultDiv.classList.remove('hidden');
+    }
+
+    function generateWrongAnswers(correctValue, tolerance) {
+        const answers = [];
+        const factors = [0.1, 0.5, 2, 5, 10];
+        const tolerances = [1, 2, 5, 10];
+
+        factors.forEach(factor => {
+            const wrongValue = correctValue * factor;
+            const wrongTolerance = tolerances[Math.floor(Math.random() * tolerances.length)];
+            let formatted;
+            if (wrongValue >= 1000000) {
+                formatted = `${(wrongValue / 1000000).toFixed(1)} MΩ ±${wrongTolerance}%`;
+            } else if (wrongValue >= 1000) {
+                formatted = `${(wrongValue / 1000).toFixed(1)} kΩ ±${wrongTolerance}%`;
+            } else {
+                formatted = `${wrongValue.toFixed(1)} Ω ±${wrongTolerance}%`;
+            }
+            answers.push(formatted);
+        });
+
+        return answers.slice(0, 3);
+    }
+
+    function checkQuizAnswer(selectedAnswer) {
+        const resultDiv = document.getElementById('quiz-result');
+        const isCorrect = selectedAnswer === currentQuizAnswer;
+
+        if (isCorrect) {
+            resultDiv.className = 'mt-4 p-3 rounded-lg text-center bg-green-100 text-green-800';
+            resultDiv.innerHTML = getTranslation('correct');
+        } else {
+            resultDiv.className = 'mt-4 p-3 rounded-lg text-center bg-red-100 text-red-800';
+            resultDiv.innerHTML = `${getTranslation('incorrect')} ${currentQuizAnswer}`;
+        }
+
+        resultDiv.classList.remove('hidden');
+
+        // Disable option buttons
+        document.querySelectorAll('#quiz-options button').forEach(btn => {
+            btn.disabled = true;
+            if (btn.textContent === currentQuizAnswer) {
+                btn.classList.add('bg-green-200', 'border-green-400');
+            } else if (btn.textContent === selectedAnswer && !isCorrect) {
+                btn.classList.add('bg-red-200', 'border-red-400');
+            }
+        });
+    }
+
+    // Translation system
+    const translations = {
+        es: {
+            'title': '🔌 Calculadora de Resistencias',
+            'subtitle': 'Aprende a leer el código de colores de las resistencias eléctricas',
+            'virtual-resistor': 'Resistencia Virtual',
+            'select-colors': 'Selecciona los Colores',
+            'first-band': '1ª Banda (Primer dígito)',
+            'second-band': '2ª Banda (Segundo dígito)',
+            'third-band': '3ª Banda (Multiplicador)',
+            'fourth-band': '4ª Banda (Tolerancia)',
+            'learn': 'Aprender',
+            'practice': 'Practicar',
+            'quiz-resistor-to-value': 'Ver Resistencia → Valor',
+            'quiz-value-to-color': 'Ver Valor → Colores',
+            'challenge': '🎯 Desafío',
+            'quiz-question-1': '¿Cuál es el valor de esta resistencia?',
+            'quiz-question-2': 'Selecciona los colores correctos para esta resistencia:',
+            'check-answer': 'Verificar Respuesta',
+            'new-question': 'Nueva Pregunta',
+            'random-resistor': '🎲 Resistencia Aleatoria',
+            'reference-guide': '📚 Guía de Referencia Rápida',
+            'color-code': '🎨 Código de Colores',
+            'memorize': 'Memoriza:',
+            'color-sequence': '"Negro Marrón Rojo Naranja Amarillo Verde Azul Violeta Gris Blanco"',
+            'mnemonic': 'Truco: "Nunca Mires Rápido, Necesitas Aprender Verdaderamente Antes Viendo Grandes Trabajos"',
+            'multipliers': '⚡ Multiplicadores (3ª Banda)',
+            'tolerance': '🎯 Tolerancia (4ª Banda)',
+            'calculation-guide': '🧮 Cómo Calcular el Valor',
+            'formula': '📐 Fórmula',
+            'example': '💡 Ejemplo Paso a Paso',
+            'calculation': 'Cálculo:',
+            'what-value': '❓ ¿Cuál es el valor?',
+            'observe-calculate': 'Observa los colores y calcula',
+            'correct': '🎉 ¡Correcto! Excelente trabajo.',
+            'incorrect': '❌ Incorrecto. La respuesta correcta es:',
+            'correct-colors': '🎉 ¡Correcto! Has seleccionado los colores correctos.',
+            'incorrect-colors': '❌ Incorrecto. Los colores correctos son:',
+            'tip': '💡 Tip:',
+            'precision-tip': 'Menor tolerancia = Mayor precisión',
+            'first-digit': 'Primer dígito',
+            'second-digit': 'Segundo dígito',
+            'multiplier': 'Multiplicador',
+            'tolerance-band': 'Tolerancia',
+            'step-by-step': 'Paso a Paso',
+            'colors': {
+                'black': 'Negro',
+                'brown': 'Marrón',
+                'red': 'Rojo',
+                'orange': 'Naranja',
+                'yellow': 'Amarillo',
+                'green': 'Verde',
+                'blue': 'Azul',
+                'violet': 'Violeta',
+                'gray': 'Gris',
+                'white': 'Blanco',
+                'gold': 'Dorado',
+                'silver': 'Plateado'
+            }
+        },
+        en: {
+            'title': '🔌 Resistor Calculator',
+            'subtitle': 'Learn to read electrical resistor color codes',
+            'virtual-resistor': 'Virtual Resistor',
+            'select-colors': 'Select Colors',
+            'first-band': '1st Band (First digit)',
+            'second-band': '2nd Band (Second digit)',
+            'third-band': '3rd Band (Multiplier)',
+            'fourth-band': '4th Band (Tolerance)',
+            'learn': 'Learn',
+            'practice': 'Practice',
+            'quiz-resistor-to-value': 'See Resistor → Value',
+            'quiz-value-to-color': 'See Value → Colors',
+            'challenge': '🎯 Challenge',
+            'quiz-question-1': 'What is the value of this resistor?',
+            'quiz-question-2': 'Select the correct colors for this resistor:',
+            'check-answer': 'Check Answer',
+            'new-question': 'New Question',
+            'random-resistor': '🎲 Random Resistor',
+            'reference-guide': '📚 Quick Reference Guide',
+            'color-code': '🎨 Color Code',
+            'memorize': 'Memorize:',
+            'color-sequence': '"Black Brown Red Orange Yellow Green Blue Violet Gray White"',
+            'mnemonic': 'Trick: "Bad Boys Race Our Young Girls But Violet Generally Wins"',
+            'multipliers': '⚡ Multipliers (3rd Band)',
+            'tolerance': '🎯 Tolerance (4th Band)',
+            'calculation-guide': '🧮 How to Calculate Value',
+            'formula': '📐 Formula',
+            'example': '💡 Step by Step Example',
+            'calculation': 'Calculation:',
+            'what-value': '❓ What is the value?',
+            'observe-calculate': 'Observe the colors and calculate',
+            'correct': '🎉 Correct! Excellent work.',
+            'incorrect': '❌ Incorrect. The correct answer is:',
+            'correct-colors': '🎉 Correct! You have selected the right colors.',
+            'incorrect-colors': '❌ Incorrect. The correct colors are:',
+            'tip': '💡 Tip:',
+            'precision-tip': 'Lower tolerance = Higher precision',
+            'first-digit': 'First digit',
+            'second-digit': 'Second digit',
+            'multiplier': 'Multiplier',
+            'tolerance-band': 'Tolerance',
+            'step-by-step': 'Step by Step',
+            'colors': {
+                'black': 'Black',
+                'brown': 'Brown',
+                'red': 'Red',
+                'orange': 'Orange',
+                'yellow': 'Yellow',
+                'green': 'Green',
+                'blue': 'Blue',
+                'violet': 'Violet',
+                'gray': 'Gray',
+                'white': 'White',
+                'gold': 'Gold',
+                'silver': 'Silver'
+            }
+        }
+    };
+
+    let currentLanguage = 'es';
+
+    function setLanguage(lang) {
+        currentLanguage = lang;
+
+        // Update language buttons
+        const esBtn = document.getElementById('lang-es');
+        const enBtn = document.getElementById('lang-en');
+
+        if (lang === 'es') {
+            esBtn.className = 'px-3 py-1 rounded-md bg-white/20 text-white font-medium text-sm';
+            enBtn.className = 'px-3 py-1 rounded-md text-white/70 font-medium text-sm';
+        } else {
+            esBtn.className = 'px-3 py-1 rounded-md text-white/70 font-medium text-sm';
+            enBtn.className = 'px-3 py-1 rounded-md bg-white/20 text-white font-medium text-sm';
+        }
+
+        // Update document language
+        document.documentElement.lang = lang;
+
+        // Translate all elements
+        translateElements();
+
+        // Update dynamic content
+        updateResistor();
+        if (isQuizMode) {
+            generateQuiz();
+        }
+    }
+
+    function translateElements() {
+        const elements = document.querySelectorAll('[data-translate]');
+        elements.forEach(element => {
+            const key = element.getAttribute('data-translate');
+            if (translations[currentLanguage][key]) {
+                element.textContent = translations[currentLanguage][key];
+            }
+        });
+
+        // Update color reference table
+        updateColorReferenceTable();
+    }
+
+    function updateColorReferenceTable() {
+        const colorNames = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'gray', 'white'];
+        const colorElements = document.querySelectorAll('.grid.grid-cols-5.md\\:grid-cols-10 .text-xs.font-medium.text-gray-600');
+
+        colorElements.forEach((element, index) => {
+            if (index < colorNames.length) {
+                element.textContent = translations[currentLanguage].colors[colorNames[index]];
+            }
+        });
+
+        // Update multiplier and tolerance tables
+        updateMultiplierTable();
+        updateToleranceTable();
+    }
+
+    function updateMultiplierTable() {
+        const multiplierColors = ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue'];
+        const multiplierElements = document.querySelectorAll('.bg-gradient-to-br.from-green-50 .font-medium.text-sm');
+
+        multiplierElements.forEach((element, index) => {
+            if (index < multiplierColors.length) {
+                element.textContent = translations[currentLanguage].colors[multiplierColors[index]];
+            }
+        });
+    }
+
+    function updateToleranceTable() {
+        const toleranceColors = ['brown', 'red', 'gold', 'silver'];
+        const toleranceElements = document.querySelectorAll('.bg-gradient-to-br.from-yellow-50 .font-medium');
+
+        toleranceElements.forEach((element, index) => {
+            if (index < toleranceColors.length) {
+                element.textContent = translations[currentLanguage].colors[toleranceColors[index]];
+            }
+        });
+    }
+
+    function getTranslation(key) {
+        return translations[currentLanguage][key] || key;
+    }
+
+    // Initialize the application
+    init();
+</script>
+<script>
+    (function() {
+        function c() {
+            var b = a.contentDocument || a.contentWindow.document;
+            if (b) {
+                var d = b.createElement('script');
+                d.innerHTML = "window.__CF$cv$params={r:'98864003032feac1',t:'MTc1OTQyOTYwNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+                b.getElementsByTagName('head')[0].appendChild(d)
+            }
+        }
+        if (document.body) {
+            var a = document.createElement('iframe');
+            a.height = 1;
+            a.width = 1;
+            a.style.position = 'absolute';
+            a.style.top = 0;
+            a.style.left = 0;
+            a.style.border = 'none';
+            a.style.visibility = 'hidden';
+            document.body.appendChild(a);
+            if ('loading' !== document.readyState) c();
+            else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c);
+            else {
+                var e = document.onreadystatechange || function() {};
+                document.onreadystatechange = function(b) {
+                    e(b);
+                    'loading' !== document.readyState && (document.onreadystatechange = e, c())
+                }
+            }
+        }
+    })();
+</script>

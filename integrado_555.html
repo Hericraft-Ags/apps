@@ -1,0 +1,3288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprende el CI 555 - Electrónica Interactiva</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 10px;
+            background: #e5e7eb; /* gris claro */
+            color: #111827;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            }
+
+            .tab-btn:hover {
+            background: #d1d5db;
+            }
+
+            .tab-btn.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(118, 75, 162, 0.5);
+            transform: scale(1.05);
+            }
+
+
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .teen-friendly-intro {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .ic555-diagram-enhanced {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .pin-legend {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            min-width: 200px;
+        }
+
+        .pin-legend h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .legend-color.power { background: #e74c3c; }
+        .legend-color.input { background: #3498db; }
+        .legend-color.output { background: #2ecc71; }
+        .legend-color.control { background: #f39c12; }
+
+        .ic555-chip-enhanced {
+            width: 250px;
+            height: 350px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chip-body {
+            width: 180px;
+            height: 280px;
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border-radius: 15px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chip-logo {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .chip-notch {
+            position: absolute;
+            top: 10px;
+            width: 30px;
+            height: 15px;
+            background: #1a252f;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .pin-enhanced {
+            position: absolute;
+            width: 45px;
+            height: 25px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            border: 2px solid white;
+        }
+
+        .pin-enhanced:hover {
+            transform: scale(1.15);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+        }
+
+        .pin-enhanced.power { background: #e74c3c; }
+        .pin-enhanced.input { background: #3498db; }
+        .pin-enhanced.output { background: #2ecc71; }
+        .pin-enhanced.control { background: #f39c12; }
+
+        .pin-number {
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .pin-label {
+            font-size: 8px;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .pin-left {
+            left: -25px;
+        }
+
+        .pin-right {
+            right: -25px;
+        }
+
+        .pin-info-enhanced {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            min-height: 200px;
+        }
+
+        .pin-placeholder {
+            text-align: center;
+            color: #7f8c8d;
+        }
+
+        .pin-placeholder h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .fun-fact {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            color: #2c3e50;
+        }
+
+        .pin-info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .pin-header {
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .power-card .pin-header { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .input-card .pin-header { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .output-card .pin-header { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .control-card .pin-header { background: linear-gradient(135deg, #f39c12, #e67e22); }
+
+        .pin-emoji {
+            font-size: 24px;
+        }
+
+        .pin-header h3 {
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .pin-type {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .pin-content {
+            padding: 25px;
+            color: #2c3e50;
+        }
+
+        .pin-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .pin-tip {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 20px;
+        }
+
+        .led-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #95a5a6;
+            margin: 10px auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .led-on {
+            background: #e74c3c;
+            box-shadow: 0 0 20px #e74c3c;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .circuit-simulator {
+            background: #ecf0f1;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .quiz-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+
+        .option.selected {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+
+        .option.correct {
+            border-color: #27ae60;
+            background: #d5f4e6;
+        }
+
+        .option.incorrect {
+            border-color: #e74c3c;
+            background: #fdeaea;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+
+        .feedback.incorrect {
+            background: #fdeaea;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+        }
+
+        .info-card h3 {
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+
+        .formula {
+            background: #2d3436;
+            color: #00b894;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .circuit-example {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 3px solid #e9ecef;
+        }
+
+        .step-container {
+            display: grid;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .circuit-diagram {
+            background: white;
+            border: 2px solid #bdc3c7;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .circuit-diagram-enhanced {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 3px solid #dee2e6;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px 0;
+            position: relative;
+            min-height: 500px;
+            overflow: hidden;
+        }
+
+        .circuit-diagram-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(116, 185, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 154, 158, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Chip 555 mejorado */
+        .chip-555-diagram {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .chip-body-diagram {
+            width: 120px;
+            height: 160px;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 12px;
+            position: relative;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .chip-555-diagram:hover .chip-body-diagram {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+        }
+
+        .chip-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .chip-notch-diagram {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 8px;
+            background: #1a252f;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .pin-diagram {
+            position: absolute;
+            width: 35px;
+            height: 20px;
+            background: #95a5a6;
+            color: #2c3e50;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .pin-1 { left: -35px; top: 20px; }
+        .pin-2 { left: -35px; top: 50px; }
+        .pin-3 { left: -35px; top: 80px; }
+        .pin-4 { left: -35px; top: 110px; }
+        .pin-5 { right: -35px; top: 110px; }
+        .pin-6 { right: -35px; top: 80px; }
+        .pin-7 { right: -35px; top: 50px; }
+        .pin-8 { right: -35px; top: 20px; }
+
+        /* Componentes externos */
+        .component-diagram {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 5;
+        }
+
+        .component-diagram:hover {
+            transform: scale(1.1);
+        }
+
+        .component-label {
+            text-align: center;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 5px;
+            font-size: 12px;
+            background: rgba(255,255,255,0.9);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* LED */
+        .led-diagram {
+            top: 120px;
+            right: 80px;
+        }
+
+        .led-symbol {
+            width: 50px;
+            height: 50px;
+            position: relative;
+        }
+
+        .led-body {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .led-anode {
+            position: absolute;
+            top: 0;
+            left: 20px;
+            width: 2px;
+            height: 15px;
+            background: #95a5a6;
+            font-size: 8px;
+            color: #2c3e50;
+        }
+
+        .led-cathode {
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            width: 2px;
+            height: 15px;
+            background: #95a5a6;
+            font-size: 8px;
+            color: #2c3e50;
+        }
+
+        .led-arrows {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 16px;
+        }
+
+        /* Resistencias */
+        .resistor1-diagram {
+            top: 80px;
+            right: 200px;
+        }
+
+        .resistor2-diagram {
+            top: 200px;
+            left: 80px;
+        }
+
+        .resistor-symbol {
+            width: 60px;
+            height: 20px;
+            position: relative;
+        }
+
+        .resistor-body {
+            width: 50px;
+            height: 15px;
+            background: #f4d03f;
+            border-radius: 3px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .resistor-band {
+            width: 3px;
+            height: 15px;
+            border-radius: 1px;
+        }
+
+        .band-yellow { background: #f1c40f; }
+        .band-violet { background: #9b59b6; }
+        .band-brown { background: #8b4513; }
+        .band-black { background: #2c3e50; }
+        .band-red { background: #e74c3c; }
+
+        /* Capacitor */
+        .capacitor-diagram {
+            bottom: 120px;
+            left: 150px;
+        }
+
+        .capacitor-symbol {
+            width: 40px;
+            height: 60px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .capacitor-plate {
+            width: 15px;
+            height: 40px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .capacitor-plate.positive {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+        }
+
+        .capacitor-plate.negative {
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+        }
+
+        /* Batería */
+        .battery-diagram {
+            bottom: 80px;
+            right: 100px;
+        }
+
+        .battery-symbol {
+            width: 60px;
+            height: 40px;
+            background: linear-gradient(145deg, #27ae60, #229954);
+            border-radius: 8px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .battery-positive {
+            position: absolute;
+            top: -8px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background: #e74c3c;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .battery-negative {
+            position: absolute;
+            top: -8px;
+            left: 10px;
+            width: 8px;
+            height: 8px;
+            background: #2c3e50;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Cables SVG */
+        .circuit-wires {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Etiquetas de conexión */
+        .connection-label {
+            position: absolute;
+            background: rgba(52, 73, 94, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 15;
+        }
+
+        .vcc-label {
+            top: 30px;
+            right: 120px;
+        }
+
+        .gnd-label {
+            bottom: 30px;
+            right: 120px;
+        }
+
+        .output-label {
+            top: 100px;
+            right: 150px;
+        }
+
+        .component {
+            position: absolute;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .component:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .ic555-component {
+            width: 80px;
+            height: 100px;
+            background: #2c3e50;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .led-component {
+            width: 40px;
+            height: 40px;
+            background: #e74c3c;
+            border-radius: 50%;
+            top: 50px;
+            right: 80px;
+        }
+
+        .resistor-component {
+            width: 60px;
+            height: 20px;
+            background: #f39c12;
+            top: 80px;
+            right: 150px;
+        }
+
+        .battery-component {
+            width: 50px;
+            height: 30px;
+            background: #27ae60;
+            bottom: 50px;
+            left: 50px;
+        }
+
+        .capacitor-component {
+            width: 30px;
+            height: 50px;
+            background: #8e44ad;
+            top: 120px;
+            left: 30%;
+        }
+
+        .wire {
+            position: absolute;
+            background: #34495e;
+            z-index: 1;
+        }
+
+        .wire-h {
+            height: 3px;
+        }
+
+        .wire-v {
+            width: 3px;
+        }
+
+        .connection-point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #e74c3c;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .materials-list {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        /* Estilos para las tarjetas de componentes */
+        .components-explanation {
+            display: grid;
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .component-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .component-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .brain-card { border-color: #9b59b6; }
+        .brain-card:hover { border-color: #8e44ad; }
+
+        .output-card { border-color: #e74c3c; }
+        .output-card:hover { border-color: #c0392b; }
+
+        .protection-card { border-color: #f39c12; }
+        .protection-card:hover { border-color: #e67e22; }
+
+        .timing-card { border-color: #3498db; }
+        .timing-card:hover { border-color: #2980b9; }
+
+        .storage-card { border-color: #2ecc71; }
+        .storage-card:hover { border-color: #27ae60; }
+
+        .power-card { border-color: #e67e22; }
+        .power-card:hover { border-color: #d35400; }
+
+        .component-header {
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .component-icon {
+            font-size: 48px;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .component-title h3 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+            font-size: 1.4rem;
+        }
+
+        .component-role {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .component-body {
+            padding: 30px;
+            display: grid;
+            gap: 25px;
+        }
+
+        .component-function,
+        .component-analogy,
+        .component-specs {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #3498db;
+        }
+
+        .component-function h4,
+        .component-analogy h4,
+        .component-specs h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .component-function p,
+        .component-analogy p {
+            margin: 0;
+            line-height: 1.6;
+            color: #34495e;
+        }
+
+        .component-specs ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #34495e;
+        }
+
+        .component-specs li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        /* Sección de trabajo en equipo */
+        .teamwork-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin: 40px 0;
+        }
+
+        .teamwork-section h3 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .teamwork-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .flow-step {
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 150px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .step-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .step-content h4 {
+            margin: 0 0 8px 0;
+            font-size: 1rem;
+        }
+
+        .step-content p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        @media (max-width: 768px) {
+            .teamwork-flow {
+                flex-direction: column;
+            }
+            
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+            
+            .component-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .component-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 36px;
+            }
+        }
+
+        .materials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .material-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .material-emoji {
+            font-size: 24px;
+        }
+
+        .safety-warning {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #d63031;
+        }
+
+        .interactive-circuit {
+            background: #2c3e50;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            position: relative;
+            min-height: 300px;
+        }
+
+        .breadboard {
+            background: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+            width: 100%;
+            height: 250px;
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .breadboard-holes {
+            display: grid;
+            grid-template-columns: repeat(30, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2px;
+            padding: 10px;
+            height: 100%;
+        }
+
+        .hole {
+            background: #34495e;
+            border-radius: 50%;
+            width: 6px;
+            height: 6px;
+            margin: auto;
+        }
+
+        .component-placed {
+            position: absolute;
+            z-index: 10;
+        }
+
+        .test-button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .test-button:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .result-display {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .led-simulation {
+            width: 50px;
+            height: 50px;
+            background: #95a5a6;
+            border-radius: 50%;
+            margin: 20px auto;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        .led-simulation.active {
+            background: #e74c3c;
+            box-shadow: 0 0 30px #e74c3c, 0 0 60px #e74c3c;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .ic555-chip-enhanced {
+                width: 200px;
+                height: 280px;
+            }
+            
+            .chip-body {
+                width: 150px;
+                height: 220px;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .ic555-diagram-enhanced {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 data-es="⚡ Crea Circuitos Increíbles con el Chip 555" data-en="⚡ Create Amazing Circuits with the 555 Chip">⚡ Crea Circuitos Increíbles con el Chip 555</h1>
+            <p data-es="Domina la electrónica con simulaciones interactivas" data-en="Master electronics with interactive simulations">Domina la electrónica con simulaciones interactivas</p>
+        </div>
+
+        <div class="language-selector">
+            <button class="lang-btn active" onclick="changeLanguage('es')" data-lang="es">🇪🇸 Español</button>
+            <button class="lang-btn" onclick="changeLanguage('en')" data-lang="en">🇺🇸 English</button>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="showTab('intro')" data-es="Introducción" data-en="Introduction">Introducción</button>
+            <button class="tab-btn" onclick="showTab('pinout')" data-es="Pines del 555" data-en="555 Pinout">Pines del 555</button>
+            <button class="tab-btn" onclick="showTab('examples')" data-es="Construye tu Circuito" data-en="Build Your Circuit">Construye tu Circuito</button>
+            <button class="tab-btn" onclick="showTab('astable')" data-es="Modo Astable" data-en="Astable Mode">Modo Astable</button>
+            <button class="tab-btn" onclick="showTab('monostable')" data-es="Modo Monoestable" data-en="Monostable Mode">Modo Monoestable</button>
+            <button class="tab-btn" onclick="showTab('quiz')" data-es="Evaluación" data-en="Quiz">Evaluación</button>
+        </div>
+
+        <!-- Introducción -->
+        <div id="intro" class="content-section active">
+            <div class="teen-friendly-intro">
+                <h2 data-es="🚀 ¡Bienvenido al mundo de la electrónica!" data-en="🚀 Welcome to the world of electronics!">🚀 ¡Bienvenido al mundo de la electrónica!</h2>
+                <p data-es="¿Alguna vez te has preguntado cómo funcionan las luces que parpadean en tu teléfono, las alarmas de los autos, o los temporizadores? ¡Hoy vas a descubrirlo y crear tus propios circuitos increíbles!" data-en="Have you ever wondered how the blinking lights on your phone, car alarms, or timers work? Today you're going to find out and create your own amazing circuits!">¿Alguna vez te has preguntado cómo funcionan las luces que parpadean en tu teléfono, las alarmas de los autos, o los temporizadores? ¡Hoy vas a descubrirlo y crear tus propios circuitos increíbles!</p>
+            </div>
+
+            <div class="info-card">
+                <h3 data-es="🤔 ¿Qué es el Circuito Integrado 555?" data-en="🤔 What is the 555 Integrated Circuit?">🤔 ¿Qué es el Circuito Integrado 555?</h3>
+                <p data-es="<strong>Imagínate que es como un cerebro súper pequeño</strong> que puede controlar luces, sonidos y tiempos. Es del tamaño de una uña, pero puede hacer cosas asombrosas:" data-en="<strong>Imagine it's like a super small brain</strong> that can control lights, sounds and timing. It's the size of a fingernail, but can do amazing things:"><strong>Imagínate que es como un cerebro súper pequeño</strong> que puede controlar luces, sonidos y tiempos. Es del tamaño de una uña, pero puede hacer cosas asombrosas:</p>
+                <ul>
+                    <li data-es="🎄 <strong>Hacer parpadear LEDs</strong> como las luces de Navidad" data-en="🎄 <strong>Make LEDs blink</strong> like Christmas lights">🎄 <strong>Hacer parpadear LEDs</strong> como las luces de Navidad</li>
+                    <li data-es="⏰ <strong>Crear temporizadores</strong> que encienden algo por un tiempo específico" data-en="⏰ <strong>Create timers</strong> that turn something on for a specific time">⏰ <strong>Crear temporizadores</strong> que encienden algo por un tiempo específico</li>
+                    <li data-es="🚨 <strong>Generar sonidos</strong> para alarmas y sirenas" data-en="🚨 <strong>Generate sounds</strong> for alarms and sirens">🚨 <strong>Generar sonidos</strong> para alarmas y sirenas</li>
+                    <li data-es="🎮 <strong>Controlar juegos</strong> y efectos especiales" data-en="🎮 <strong>Control games</strong> and special effects">🎮 <strong>Controlar juegos</strong> y efectos especiales</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3 data-es="🎯 ¿Por qué es tan genial el 555?" data-en="🎯 Why is the 555 so awesome?">🎯 ¿Por qué es tan genial el 555?</h3>
+                <div class="materials-grid">
+                    <div class="material-item">
+                        <span class="material-emoji">💪</span>
+                        <div>
+                            <strong data-es="Súper resistente" data-en="Super durable">Súper resistente</strong><br>
+                            <small data-es="Funciona desde hace más de 50 años" data-en="Working for over 50 years">Funciona desde hace más de 50 años</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🔋</span>
+                        <div>
+                            <strong data-es="Fácil de alimentar" data-en="Easy to power">Fácil de alimentar</strong><br>
+                            <small data-es="Con una batería de 9V ya funciona" data-en="Works with just a 9V battery">Con una batería de 9V ya funciona</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🎛️</span>
+                        <div>
+                            <strong data-es="Muy versátil" data-en="Very versatile">Muy versátil</strong><br>
+                            <small data-es="Un chip, mil posibilidades" data-en="One chip, thousand possibilities">Un chip, mil posibilidades</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">💰</span>
+                        <div>
+                            <strong data-es="Súper barato" data-en="Super cheap">Súper barato</strong><br>
+                            <small data-es="Cuesta menos que un chicle" data-en="Costs less than gum">Cuesta menos que un chicle</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3 data-es="🌟 ¿Dónde lo encuentras en la vida real?" data-en="🌟 Where do you find it in real life?">🌟 ¿Dónde lo encuentras en la vida real?</h3>
+                <p data-es="¡El 555 está en todas partes! Probablemente lo usas todos los días sin saberlo:" data-en="The 555 is everywhere! You probably use it every day without knowing it:">¡El 555 está en todas partes! Probablemente lo usas todos los días sin saberlo:</p>
+                <ul>
+                    <li data-es="📱 <strong>En tu celular:</strong> Para hacer parpadear la luz de notificaciones" data-en="📱 <strong>In your phone:</strong> To make notification lights blink">📱 <strong>En tu celular:</strong> Para hacer parpadear la luz de notificaciones</li>
+                    <li data-es="🚗 <strong>En los autos:</strong> Para las luces direccionales (intermitentes)" data-en="🚗 <strong>In cars:</strong> For turn signals (blinkers)">🚗 <strong>En los autos:</strong> Para las luces direccionales (intermitentes)</li>
+                    <li data-es="🏠 <strong>En tu casa:</strong> Detectores de humo, timbres, luces automáticas" data-en="🏠 <strong>In your home:</strong> Smoke detectors, doorbells, automatic lights">🏠 <strong>En tu casa:</strong> Detectores de humo, timbres, luces automáticas</li>
+                    <li data-es="🎮 <strong>En videojuegos:</strong> Para crear efectos de sonido y luces" data-en="🎮 <strong>In video games:</strong> To create sound and light effects">🎮 <strong>En videojuegos:</strong> Para crear efectos de sonido y luces</li>
+                    <li data-es="🎄 <strong>En decoraciones:</strong> Luces de Navidad que parpadean" data-en="🎄 <strong>In decorations:</strong> Blinking Christmas lights">🎄 <strong>En decoraciones:</strong> Luces de Navidad que parpadean</li>
+                    <li data-es="⏰ <strong>En relojes:</strong> Para marcar los segundos" data-en="⏰ <strong>In clocks:</strong> To mark the seconds">⏰ <strong>En relojes:</strong> Para marcar los segundos</li>
+                </ul>
+            </div>
+
+            <div class="safety-warning">
+                <h3 data-es="🎓 ¿Qué vas a aprender hoy?" data-en="🎓 What will you learn today?">🎓 ¿Qué vas a aprender hoy?</h3>
+                <p data-es="<strong>¡No necesitas ser un experto!</strong> Te vamos a enseñar paso a paso:" data-en="<strong>You don't need to be an expert!</strong> We'll teach you step by step:"><strong>¡No necesitas ser un experto!</strong> Te vamos a enseñar paso a paso:</p>
+                <ul>
+                    <li data-es="✅ <strong>Cómo funciona</strong> el 555 (de manera súper fácil)" data-en="✅ <strong>How the 555 works</strong> (in a super easy way)">✅ <strong>Cómo funciona</strong> el 555 (de manera súper fácil)</li>
+                    <li data-es="✅ <strong>Qué hace cada pin</strong> (son como las patas de una araña, cada una tiene su trabajo)" data-en="✅ <strong>What each pin does</strong> (they're like spider legs, each has its job)">✅ <strong>Qué hace cada pin</strong> (son como las patas de una araña, cada una tiene su trabajo)</li>
+                    <li data-es="✅ <strong>Cómo construir</strong> tu primer circuito LED parpadeante" data-en="✅ <strong>How to build</strong> your first blinking LED circuit">✅ <strong>Cómo construir</strong> tu primer circuito LED parpadeante</li>
+                    <li data-es="✅ <strong>Cómo cambiar</strong> la velocidad del parpadeo" data-en="✅ <strong>How to change</strong> the blinking speed">✅ <strong>Cómo cambiar</strong> la velocidad del parpadeo</li>
+                    <li data-es="✅ <strong>Cómo solucionar problemas</strong> si algo no funciona" data-en="✅ <strong>How to troubleshoot</strong> if something doesn't work">✅ <strong>Cómo solucionar problemas</strong> si algo no funciona</li>
+                </ul>
+            </div>
+
+            <div class="teen-friendly-intro">
+                <h3 data-es="🚀 ¿Listo para la aventura?" data-en="🚀 Ready for the adventure?">🚀 ¿Listo para la aventura?</h3>
+                <p data-es="<strong>¡Perfecto!</strong> Al final de esta experiencia, vas a poder:" data-en="<strong>Perfect!</strong> At the end of this experience, you'll be able to:"><strong>¡Perfecto!</strong> Al final de esta experiencia, vas a poder:</p>
+                <ul>
+                    <li data-es="🎯 Crear tu propio LED parpadeante" data-en="🎯 Create your own blinking LED">🎯 Crear tu propio LED parpadeante</li>
+                    <li data-es="🧠 Entender cómo funcionan los temporizadores" data-en="🧠 Understand how timers work">🧠 Entender cómo funcionan los temporizadores</li>
+                    <li data-es="🔧 Modificar circuitos para que hagan lo que tú quieras" data-en="🔧 Modify circuits to do what you want">🔧 Modificar circuitos para que hagan lo que tú quieras</li>
+                    <li data-es="🏆 ¡Impresionar a tus amigos con tus conocimientos de electrónica!" data-en="🏆 Impress your friends with your electronics knowledge!">🏆 ¡Impresionar a tus amigos con tus conocimientos de electrónica!</li>
+                </ul>
+                <p data-es="<strong>💡 Consejo:</strong> No te preocupes si algo no entiendes al principio. ¡La electrónica es como aprender a andar en bicicleta: al principio parece difícil, pero una vez que lo entiendes, es súper divertido!" data-en="<strong>💡 Tip:</strong> Don't worry if you don't understand something at first. Electronics is like learning to ride a bike: at first it seems difficult, but once you get it, it's super fun!"><strong>💡 Consejo:</strong> No te preocupes si algo no entiendes al principio. ¡La electrónica es como aprender a andar en bicicleta: al principio parece difícil, pero una vez que lo entiendes, es súper divertido!</p>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 20%;"></div>
+            </div>
+        </div>
+
+        <!-- Construye tu Circuito -->
+        <div id="examples" class="content-section">
+            <h2 data-es="🔧 Construye tu Primer Circuito con el 555" data-en="🔧 Build Your First Circuit with the 555">🔧 Construye tu Primer Circuito con el 555</h2>
+            <div class="teen-friendly-intro">
+                <p data-es="¡Vamos a construir un LED parpadeante! Es como hacer que una luz de Navidad parpadee automáticamente 🎄✨" data-en="Let's build a blinking LED! It's like making a Christmas light blink automatically 🎄✨">¡Vamos a construir un LED parpadeante! Es como hacer que una luz de Navidad parpadee automáticamente 🎄✨</p>
+            </div>
+
+            <!-- Lista de Materiales -->
+            <div class="materials-list">
+                <h3 data-es="🛠️ ¿Qué necesitas? (Lista de Compras)" data-en="🛠️ What do you need? (Shopping List)">🛠️ ¿Qué necesitas? (Lista de Compras)</h3>
+                <div class="materials-grid">
+                    <div class="material-item">
+                        <span class="material-emoji">🔌</span>
+                        <div>
+                            <strong data-es="Circuito Integrado 555" data-en="555 Integrated Circuit">Circuito Integrado 555</strong><br>
+                            <small data-es="El cerebro de nuestro circuito" data-en="The brain of our circuit">El cerebro de nuestro circuito</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">💡</span>
+                        <div>
+                            <strong data-es="LED (cualquier color)" data-en="LED (any color)">LED (cualquier color)</strong><br>
+                            <small data-es="La luz que va a parpadear" data-en="The light that will blink">La luz que va a parpadear</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🎛️</span>
+                        <div>
+                            <strong data-es="Resistencia 470Ω" data-en="470Ω Resistor">Resistencia 470Ω</strong><br>
+                            <small data-es="Protege el LED (amarillo-violeta-marrón)" data-en="Protects the LED (yellow-violet-brown)">Protege el LED (amarillo-violeta-marrón)</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🔋</span>
+                        <div>
+                            <strong data-es="Resistencia 1kΩ" data-en="1kΩ Resistor">Resistencia 1kΩ</strong><br>
+                            <small data-es="Para el timing (marrón-negro-rojo)" data-en="For timing (brown-black-red)">Para el timing (marrón-negro-rojo)</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">⚡</span>
+                        <div>
+                            <strong data-es="Capacitor 10μF" data-en="10μF Capacitor">Capacitor 10μF</strong><br>
+                            <small data-es="Controla la velocidad del parpadeo" data-en="Controls blinking speed">Controla la velocidad del parpadeo</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🔋</span>
+                        <div>
+                            <strong data-es="Batería 9V" data-en="9V Battery">Batería 9V</strong><br>
+                            <small data-es="La fuente de energía" data-en="The power source">La fuente de energía</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🍞</span>
+                        <div>
+                            <strong data-es="Protoboard" data-en="Breadboard">Protoboard</strong><br>
+                            <small data-es="Donde conectamos todo" data-en="Where we connect everything">Donde conectamos todo</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🌈</span>
+                        <div>
+                            <strong data-es="Cables de colores" data-en="Colored wires">Cables de colores</strong><br>
+                            <small data-es="Para hacer las conexiones" data-en="To make connections">Para hacer las conexiones</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advertencia de Seguridad -->
+            <div class="safety-warning">
+                <h3 data-es="⚠️ ¡Seguridad Primero!" data-en="⚠️ Safety First!">⚠️ ¡Seguridad Primero!</h3>
+                <ul>
+                    <li><strong data-es="Siempre desconecta la batería" data-en="Always disconnect the battery">Siempre desconecta la batería</strong> <span data-es="antes de cambiar conexiones" data-en="before changing connections">antes de cambiar conexiones</span></li>
+                    <li><strong data-es="Verifica las conexiones" data-en="Check connections">Verifica las conexiones</strong> <span data-es="antes de encender" data-en="before turning on">antes de encender</span></li>
+                    <li><strong data-es="No toques" data-en="Don't touch">No toques</strong> <span data-es="los componentes cuando esté encendido" data-en="components when it's on">los componentes cuando esté encendido</span></li>
+                    <li><strong data-es="Pide ayuda" data-en="Ask for help">Pide ayuda</strong> <span data-es="a un adulto si no estás seguro" data-en="from an adult if you're not sure">a un adulto si no estás seguro</span></li>
+                </ul>
+            </div>
+
+            <!-- Pasos de Construcción -->
+            <div class="step-container">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title" data-es="Prepara el Protoboard" data-en="Prepare the Breadboard">Prepara el Protoboard</h3>
+                    </div>
+                    <p><strong data-es="¿Qué hacer?" data-en="What to do?">¿Qué hacer?</strong> <span data-es="Coloca el chip 555 en el centro del protoboard, asegurándote de que la muesca (pequeña hendidura) apunte hacia arriba." data-en="Place the 555 chip in the center of the breadboard, making sure the notch (small indentation) points upward.">Coloca el chip 555 en el centro del protoboard, asegurándote de que la muesca (pequeña hendidura) apunte hacia arriba.</span></p>
+                    <p><strong data-es="💡 Tip:" data-en="💡 Tip:">💡 Tip:</strong> <span data-es="El protoboard tiene filas conectadas internamente. Los agujeros de la misma fila están conectados entre sí." data-en="The breadboard has internally connected rows. Holes in the same row are connected to each other.">El protoboard tiene filas conectadas internamente. Los agujeros de la misma fila están conectados entre sí.</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title" data-es="Conecta la Alimentación" data-en="Connect the Power">Conecta la Alimentación</h3>
+                    </div>
+                    <p><strong data-es="Pin 8 (VCC):" data-en="Pin 8 (VCC):">Pin 8 (VCC):</strong> <span data-es="Conecta al positivo (+) de la batería usando un cable rojo." data-en="Connect to the positive (+) of the battery using a red wire.">Conecta al positivo (+) de la batería usando un cable rojo.</span></p>
+                    <p><strong data-es="Pin 1 (GND):" data-en="Pin 1 (GND):">Pin 1 (GND):</strong> <span data-es="Conecta al negativo (-) de la batería usando un cable negro." data-en="Connect to the negative (-) of the battery using a black wire.">Conecta al negativo (-) de la batería usando un cable negro.</span></p>
+                    <p><strong data-es="🔋 Recuerda:" data-en="🔋 Remember:">🔋 Recuerda:</strong> <span data-es="Rojo = positivo, Negro = negativo. ¡Como en los autos!" data-en="Red = positive, Black = negative. Just like in cars!">Rojo = positivo, Negro = negativo. ¡Como en los autos!</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title" data-es="Configura el Modo Astable" data-en="Configure Astable Mode">Configura el Modo Astable</h3>
+                    </div>
+                    <p><strong data-es="Pin 2 y Pin 6:" data-en="Pin 2 and Pin 6:">Pin 2 y Pin 6:</strong> <span data-es="Conecta estos dos pines juntos con un cable corto." data-en="Connect these two pins together with a short wire.">Conecta estos dos pines juntos con un cable corto.</span></p>
+                    <p><strong data-es="Pin 4 y Pin 8:" data-en="Pin 4 and Pin 8:">Pin 4 y Pin 8:</strong> <span data-es="Conecta el pin 4 al positivo (igual que el pin 8)." data-en="Connect pin 4 to positive (same as pin 8).">Conecta el pin 4 al positivo (igual que el pin 8).</span></p>
+                    <p><strong data-es="🎯 ¿Por qué?" data-en="🎯 Why?">🎯 ¿Por qué?</strong> <span data-es="Esto le dice al 555 que funcione en modo \"parpadeo automático\"." data-en="This tells the 555 to work in \"automatic blinking\" mode.">Esto le dice al 555 que funcione en modo "parpadeo automático".</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">4</div>
+                        <h3 class="step-title" data-es="Agrega el Capacitor de Timing" data-en="Add the Timing Capacitor">Agrega el Capacitor de Timing</h3>
+                    </div>
+                    <p><strong data-es="Capacitor 10μF:" data-en="10μF Capacitor:">Capacitor 10μF:</strong> <span data-es="Conecta el lado positivo (+) a los pines 2 y 6, y el lado negativo (-) a tierra (GND)." data-en="Connect the positive (+) side to pins 2 and 6, and the negative (-) side to ground (GND).">Conecta el lado positivo (+) a los pines 2 y 6, y el lado negativo (-) a tierra (GND).</span></p>
+                    <p><strong data-es="⚠️ Importante:" data-en="⚠️ Important:">⚠️ Importante:</strong> <span data-es="Los capacitores electrolíticos tienen polaridad. El lado más largo es positivo (+)." data-en="Electrolytic capacitors have polarity. The longer side is positive (+).">Los capacitores electrolíticos tienen polaridad. El lado más largo es positivo (+).</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">5</div>
+                        <h3 class="step-title" data-es="Conecta las Resistencias" data-en="Connect the Resistors">Conecta las Resistencias</h3>
+                    </div>
+                    <p><strong data-es="Resistencia 1kΩ:" data-en="1kΩ Resistor:">Resistencia 1kΩ:</strong> <span data-es="Conecta entre el pin 7 y el positivo (+)." data-en="Connect between pin 7 and positive (+).">Conecta entre el pin 7 y el positivo (+).</span></p>
+                    <p><strong data-es="¿Para qué sirve?" data-en="What is it for?">¿Para qué sirve?</strong> <span data-es="Esta resistencia controla qué tan rápido se carga el capacitor, y por tanto, qué tan rápido parpadea el LED." data-en="This resistor controls how fast the capacitor charges, and therefore, how fast the LED blinks.">Esta resistencia controla qué tan rápido se carga el capacitor, y por tanto, qué tan rápido parpadea el LED.</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">6</div>
+                        <h3 class="step-title" data-es="Conecta el LED" data-en="Connect the LED">Conecta el LED</h3>
+                    </div>
+                    <p><strong data-es="Resistencia 470Ω:" data-en="470Ω Resistor:">Resistencia 470Ω:</strong> <span data-es="Conecta entre el pin 3 (salida) y el lado positivo del LED." data-en="Connect between pin 3 (output) and the positive side of the LED.">Conecta entre el pin 3 (salida) y el lado positivo del LED.</span></p>
+                    <p><strong data-es="LED:" data-en="LED:">LED:</strong> <span data-es="El lado negativo (más corto) va a tierra (GND)." data-en="The negative side (shorter) goes to ground (GND).">El lado negativo (más corto) va a tierra (GND).</span></p>
+                    <p><strong data-es="🚨 Cuidado:" data-en="🚨 Careful:">🚨 Cuidado:</strong> <span data-es="Si conectas el LED al revés, no se dañará, pero no encenderá." data-en="If you connect the LED backwards, it won't be damaged, but it won't light up.">Si conectas el LED al revés, no se dañará, pero no encenderá.</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">7</div>
+                        <h3 class="step-title" data-es="¡Prueba tu Circuito!" data-en="Test Your Circuit!">¡Prueba tu Circuito!</h3>
+                    </div>
+                    <p><strong data-es="Revisa todas las conexiones" data-en="Check all connections">Revisa todas las conexiones</strong> <span data-es="comparando con el diagrama." data-en="comparing with the diagram.">comparando con el diagrama.</span></p>
+                    <p><strong data-es="Conecta la batería" data-en="Connect the battery">Conecta la batería</strong> <span data-es="y... ¡tu LED debería empezar a parpadear!" data-en="and... your LED should start blinking!">y... ¡tu LED debería empezar a parpadear!</span></p>
+                    <p><strong data-es="🎉 ¡Felicidades!" data-en="🎉 Congratulations!">🎉 ¡Felicidades!</strong> <span data-es="Acabas de crear tu primer circuito con el 555." data-en="You just created your first circuit with the 555.">Acabas de crear tu primer circuito con el 555.</span></p>
+                </div>
+            </div>
+
+            <!-- Explicación de Componentes -->
+            <div class="circuit-example">
+                <h3 data-es="🔧 ¿Para qué sirve cada componente?" data-en="🔧 What is each component for?">🔧 ¿Para qué sirve cada componente?</h3>
+                <p data-es="Cada pieza tiene un trabajo específico. ¡Descubre cómo trabajan en equipo!" data-en="Each piece has a specific job. Discover how they work as a team!">Cada pieza tiene un trabajo específico. ¡Descubre cómo trabajan en equipo!</p>
+                
+                <div class="components-explanation">
+                    <!-- Chip 555 -->
+                    <div class="component-card brain-card">
+                        <div class="component-header">
+                            <div class="component-icon">🧠</div>
+                            <div class="component-title">
+                                <h3 data-es="Circuito Integrado 555" data-en="555 Integrated Circuit">Circuito Integrado 555</h3>
+                                <span class="component-role" data-es="El Cerebro" data-en="The Brain">El Cerebro</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-function">
+                                <h4 data-es="🎯 ¿Qué hace?" data-en="🎯 What does it do?">🎯 ¿Qué hace?</h4>
+                                <p data-es="Es el \"director de orquesta\" del circuito que contiene 25 transistores, 2 diodos y 15 resistencias en un espacio diminuto. Funciona como un temporizador inteligente que puede generar pulsos precisos, detectar señales y controlar otros componentes. Su diseño interno incluye comparadores de voltaje que monitorean constantemente las señales de entrada y toman decisiones automáticas sobre cuándo activar o desactivar la salida." data-en="It's the \"conductor\" of the circuit containing 25 transistors, 2 diodes and 15 resistors in a tiny space. It works as an intelligent timer that can generate precise pulses, detect signals and control other components. Its internal design includes voltage comparators that constantly monitor input signals and make automatic decisions about when to activate or deactivate the output.">Es el "director de orquesta" del circuito que contiene 25 transistores, 2 diodos y 15 resistencias en un espacio diminuto. Funciona como un temporizador inteligente que puede generar pulsos precisos, detectar señales y controlar otros componentes. Su diseño interno incluye comparadores de voltaje que monitorean constantemente las señales de entrada y toman decisiones automáticas sobre cuándo activar o desactivar la salida.</p>
+                            </div>
+                            <div class="component-analogy">
+                                <h4 data-es="🏠 Analogía Detallada" data-en="🏠 Detailed Analogy">🏠 Analogía Detallada</h4>
+                                <p data-es="Imagínalo como el cerebro de un semáforo inteligente: tiene sensores (pines de entrada) que detectan cuándo llegan autos, un procesador interno que calcula los tiempos perfectos, y controladores (pin de salida) que encienden las luces correctas. Igual que un semáforo puede funcionar en modo automático (astable) cambiando luces continuamente, o en modo manual (monoestable) activándose solo cuando alguien presiona el botón peatonal." data-en="Imagine it as the brain of an intelligent traffic light: it has sensors (input pins) that detect when cars arrive, an internal processor that calculates perfect timing, and controllers (output pin) that turn on the correct lights. Just like a traffic light can work in automatic mode (astable) changing lights continuously, or in manual mode (monostable) activating only when someone presses the pedestrian button.">Imagínalo como el cerebro de un semáforo inteligente: tiene sensores (pines de entrada) que detectan cuándo llegan autos, un procesador interno que calcula los tiempos perfectos, y controladores (pin de salida) que encienden las luces correctas. Igual que un semáforo puede funcionar en modo automático (astable) cambiando luces continuamente, o en modo manual (monoestable) activándose solo cuando alguien presiona el botón peatonal.</p>
+                            </div>
+                            <div class="component-specs">
+                                <h4 data-es="📊 Especificaciones Técnicas" data-en="📊 Technical Specifications">📊 Especificaciones Técnicas</h4>
+                                <ul>
+                                    <li><strong data-es="Voltaje de operación:" data-en="Operating voltage:">Voltaje de operación:</strong> 4.5V - 15V <span data-es="(ideal: 5V-12V)" data-en="(ideal: 5V-12V)">(ideal: 5V-12V)</span></li>
+                                    <li><strong data-es="Corriente de salida:" data-en="Output current:">Corriente de salida:</strong> 200mA <span data-es="(suficiente para múltiples LEDs)" data-en="(enough for multiple LEDs)">(suficiente para múltiples LEDs)</span></li>
+                                    <li><strong data-es="Frecuencia máxima:" data-en="Maximum frequency:">Frecuencia máxima:</strong> 500kHz <span data-es="(desde muy lento hasta muy rápido)" data-en="(from very slow to very fast)">(desde muy lento hasta muy rápido)</span></li>
+                                    <li><strong data-es="Temperatura de trabajo:" data-en="Operating temperature:">Temperatura de trabajo:</strong> -55°C <span data-es="a +125°C (súper resistente)" data-en="to +125°C (super resistant)">a +125°C (súper resistente)</span></li>
+                                    <li><strong data-es="Consumo de corriente:" data-en="Current consumption:">Consumo de corriente:</strong> 3-6mA <span data-es="(muy eficiente)" data-en="(very efficient)">(muy eficiente)</span></li>
+                                    <li><strong data-es="Precisión del timing:" data-en="Timing accuracy:">Precisión del timing:</strong> ±1% <span data-es="(muy preciso)" data-en="(very precise)">(muy preciso)</span></li>
+                                    <li><strong data-es="Arquitectura interna:" data-en="Internal architecture:">Arquitectura interna:</strong> <span data-es="25 transistores + 15 resistencias + 2 diodos" data-en="25 transistors + 15 resistors + 2 diodes">25 transistores + 15 resistencias + 2 diodos</span></li>
+                                    <li><strong data-es="Modos de operación:" data-en="Operating modes:">Modos de operación:</strong> <span data-es="Astable, Monoestable, Biestable" data-en="Astable, Monostable, Bistable">Astable, Monoestable, Biestable</span></li>
+                                </ul>
+                            </div>
+                            <div class="component-function" style="margin-top: 20px;">
+                                <h4 data-es="🔬 ¿Cómo funciona internamente?" data-en="🔬 How does it work internally?">🔬 ¿Cómo funciona internamente?</h4>
+                                <p data-es="El 555 tiene dos comparadores de voltaje que actúan como 'detectores inteligentes'. El primer comparador vigila el pin TRIGGER (pin 2) y cuando detecta que el voltaje baja de 1/3 de la alimentación, enciende la salida. El segundo comparador vigila el pin THRESHOLD (pin 6) y cuando el voltaje sube a 2/3 de la alimentación, apaga la salida. Entre estos dos comparadores hay un flip-flop (memoria) que 'recuerda' el estado actual y un transistor de descarga que ayuda a vaciar los capacitores cuando es necesario." data-en="The 555 has two voltage comparators that act as 'intelligent detectors'. The first comparator watches the TRIGGER pin (pin 2) and when it detects voltage drops below 1/3 of supply, it turns on the output. The second comparator watches the THRESHOLD pin (pin 6) and when voltage rises to 2/3 of supply, it turns off the output. Between these two comparators there's a flip-flop (memory) that 'remembers' the current state and a discharge transistor that helps empty capacitors when needed.">El 555 tiene dos comparadores de voltaje que actúan como "detectores inteligentes". El primer comparador vigila el pin TRIGGER (pin 2) y cuando detecta que el voltaje baja de 1/3 de la alimentación, enciende la salida. El segundo comparador vigila el pin THRESHOLD (pin 6) y cuando el voltaje sube a 2/3 de la alimentación, apaga la salida. Entre estos dos comparadores hay un flip-flop (memoria) que "recuerda" el estado actual y un transistor de descarga que ayuda a vaciar los capacitores cuando es necesario.</p>
+                            </div>
+                            <div class="component-function" style="margin-top: 15px;">
+                                <h4 data-es="🌟 ¿Por qué es tan popular?" data-en="🌟 Why is it so popular?">🌟 ¿Por qué es tan popular?</h4>
+                                <p data-es="Inventado en 1971 por Hans Camenzind, el 555 se convirtió en el chip más vendido de la historia (más de mil millones de unidades). Su éxito se debe a su simplicidad, versatilidad y robustez. Puede funcionar con componentes baratos, es muy difícil de dañar, y con solo cambiar unas resistencias y capacitores puedes crear desde un simple parpadeo hasta complejos generadores de señales. ¡Es como el 'cuchillo suizo' de la electrónica!" data-en="Invented in 1971 by Hans Camenzind, the 555 became the best-selling chip in history (over one billion units). Its success is due to its simplicity, versatility and robustness. It can work with cheap components, is very hard to damage, and by just changing some resistors and capacitors you can create from simple blinking to complex signal generators. It's like the 'Swiss Army knife' of electronics!">Inventado en 1971 por Hans Camenzind, el 555 se convirtió en el chip más vendido de la historia (más de mil millones de unidades). Su éxito se debe a su simplicidad, versatilidad y robustez. Puede funcionar con componentes baratos, es muy difícil de dañar, y con solo cambiar unas resistencias y capacitores puedes crear desde un simple parpadeo hasta complejos generadores de señales. ¡Es como el "cuchillo suizo" de la electrónica!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LED -->
+                    <div class="component-card output-card">
+                        <div class="component-header">
+                            <div class="component-icon">💡</div>
+                            <div class="component-title">
+                                <h3 data-es="LED (Diodo Emisor de Luz)" data-en="LED (Light Emitting Diode)">LED (Diodo Emisor de Luz)</h3>
+                                <span class="component-role" data-es="La Salida Visual" data-en="The Visual Output">La Salida Visual</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-function">
+                                <h4 data-es="🎯 ¿Qué hace?" data-en="🎯 What does it do?">🎯 ¿Qué hace?</h4>
+                                <p data-es="Convierte la electricidad en luz visible. Es súper eficiente y dura muchísimo tiempo comparado con las bombillas tradicionales." data-en="Converts electricity into visible light. It's super efficient and lasts much longer compared to traditional bulbs.">Convierte la electricidad en luz visible. Es súper eficiente y dura muchísimo tiempo comparado con las bombillas tradicionales.</p>
+                            </div>
+                            <div class="component-analogy">
+                                <h4 data-es="🏠 Analogía" data-en="🏠 Analogy">🏠 Analogía</h4>
+                                <p data-es="Es como una bombilla inteligente que solo necesita muy poca energía para brillar intensamente." data-en="It's like a smart bulb that only needs very little energy to shine brightly.">Es como una bombilla inteligente que solo necesita muy poca energía para brillar intensamente.</p>
+                            </div>
+                            <div class="component-specs">
+                                <h4 data-es="📊 Especificaciones" data-en="📊 Specifications">📊 Especificaciones</h4>
+                                <ul>
+                                    <li><strong data-es="Voltaje típico:" data-en="Typical voltage:">Voltaje típico:</strong> 2V - 3.3V</li>
+                                    <li><strong data-es="Corriente:" data-en="Current:">Corriente:</strong> 10mA - 20mA</li>
+                                    <li><strong data-es="Polaridad:" data-en="Polarity:">Polaridad:</strong> <span data-es="Pata larga (+), pata corta (-)" data-en="Long leg (+), short leg (-)">Pata larga (+), pata corta (-)</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resistencia de protección -->
+                    <div class="component-card protection-card">
+                        <div class="component-header">
+                            <div class="component-icon">🛡️</div>
+                            <div class="component-title">
+                                <h3 data-es="Resistencia 470Ω" data-en="470Ω Resistor">Resistencia 470Ω</h3>
+                                <span class="component-role" data-es="El Guardaespaldas" data-en="The Bodyguard">El Guardaespaldas</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-function">
+                                <h4 data-es="🎯 ¿Qué hace?" data-en="🎯 What does it do?">🎯 ¿Qué hace?</h4>
+                                <p data-es="Protege el LED limitando la cantidad de corriente que pasa por él. Sin esta resistencia, el LED se quemaría instantáneamente." data-en="Protects the LED by limiting the amount of current flowing through it. Without this resistor, the LED would burn out instantly.">Protege el LED limitando la cantidad de corriente que pasa por él. Sin esta resistencia, el LED se quemaría instantáneamente.</p>
+                            </div>
+                            <div class="component-analogy">
+                                <h4 data-es="🏠 Analogía" data-en="🏠 Analogy">🏠 Analogía</h4>
+                                <p data-es="Es como un regulador de presión de agua que evita que la manguera se reviente por demasiada presión." data-en="It's like a water pressure regulator that prevents the hose from bursting due to too much pressure.">Es como un regulador de presión de agua que evita que la manguera se reviente por demasiada presión.</p>
+                            </div>
+                            <div class="component-specs">
+                                <h4 data-es="📊 Especificaciones" data-en="📊 Specifications">📊 Especificaciones</h4>
+                                <ul>
+                                    <li><strong data-es="Valor:" data-en="Value:">Valor:</strong> <span data-es="470 ohmios" data-en="470 ohms">470 ohmios</span></li>
+                                    <li><strong data-es="Colores:" data-en="Colors:">Colores:</strong> <span data-es="Amarillo-Violeta-Marrón" data-en="Yellow-Violet-Brown">Amarillo-Violeta-Marrón</span></li>
+                                    <li><strong data-es="Función:" data-en="Function:">Función:</strong> <span data-es="Limita corriente a ~15mA" data-en="Limits current to ~15mA">Limita corriente a ~15mA</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resistencia de timing -->
+                    <div class="component-card timing-card">
+                        <div class="component-header">
+                            <div class="component-icon">⏱️</div>
+                            <div class="component-title">
+                                <h3 data-es="Resistencia 1kΩ" data-en="1kΩ Resistor">Resistencia 1kΩ</h3>
+                                <span class="component-role" data-es="El Controlador de Velocidad" data-en="The Speed Controller">El Controlador de Velocidad</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-function">
+                                <h4 data-es="🎯 ¿Qué hace?" data-en="🎯 What does it do?">🎯 ¿Qué hace?</h4>
+                                <p data-es="Controla qué tan rápido se carga el capacitor, y por tanto, qué tan rápido parpadea el LED. Más resistencia = parpadeo más lento." data-en="Controls how fast the capacitor charges, and therefore, how fast the LED blinks. More resistance = slower blinking.">Controla qué tan rápido se carga el capacitor, y por tanto, qué tan rápido parpadea el LED. Más resistencia = parpadeo más lento.</p>
+                            </div>
+                            <div class="component-analogy">
+                                <h4 data-es="🏠 Analogía" data-en="🏠 Analogy">🏠 Analogía</h4>
+                                <p data-es="Es como el grifo que controla qué tan rápido se llena un vaso de agua. Más cerrado = se llena más lento." data-en="It's like the faucet that controls how fast a glass of water fills. More closed = fills slower.">Es como el grifo que controla qué tan rápido se llena un vaso de agua. Más cerrado = se llena más lento.</p>
+                            </div>
+                            <div class="component-specs">
+                                <h4 data-es="📊 Especificaciones" data-en="📊 Specifications">📊 Especificaciones</h4>
+                                <ul>
+                                    <li><strong data-es="Valor:" data-en="Value:">Valor:</strong> <span data-es="1000 ohmios (1kΩ)" data-en="1000 ohms (1kΩ)">1000 ohmios (1kΩ)</span></li>
+                                    <li><strong data-es="Colores:" data-en="Colors:">Colores:</strong> <span data-es="Marrón-Negro-Rojo" data-en="Brown-Black-Red">Marrón-Negro-Rojo</span></li>
+                                    <li><strong data-es="Función:" data-en="Function:">Función:</strong> <span data-es="Controla tiempo de carga" data-en="Controls charging time">Controla tiempo de carga</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Capacitor -->
+                    <div class="component-card storage-card">
+                        <div class="component-header">
+                            <div class="component-icon">🔋</div>
+                            <div class="component-title">
+                                <h3 data-es="Capacitor 10μF" data-en="10μF Capacitor">Capacitor 10μF</h3>
+                                <span class="component-role" data-es="El Temporizador" data-en="The Timer">El Temporizador</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-function">
+                                <h4 data-es="🎯 ¿Qué hace?" data-en="🎯 What does it do?">🎯 ¿Qué hace?</h4>
+                                <p data-es="Se carga y descarga como una batería temporal. El tiempo que tarda en cargarse determina cuánto tiempo está encendido/apagado el LED." data-en="It charges and discharges like a temporary battery. The time it takes to charge determines how long the LED is on/off.">Se carga y descarga como una batería temporal. El tiempo que tarda en cargarse determina cuánto tiempo está encendido/apagado el LED.</p>
+                            </div>
+                            <div class="component-analogy">
+                                <h4 data-es="🏠 Analogía" data-en="🏠 Analogy">🏠 Analogía</h4>
+                                <p data-es="Es como un globo que se infla y desinfla. El tamaño del globo determina cuánto tiempo tarda en llenarse." data-en="It's like a balloon that inflates and deflates. The size of the balloon determines how long it takes to fill.">Es como un globo que se infla y desinfla. El tamaño del globo determina cuánto tiempo tarda en llenarse.</p>
+                            </div>
+                            <div class="component-specs">
+                                <h4 data-es="📊 Especificaciones" data-en="📊 Specifications">📊 Especificaciones</h4>
+                                <ul>
+                                    <li><strong data-es="Capacidad:" data-en="Capacity:">Capacidad:</strong> <span data-es="10 microfaradios" data-en="10 microfarads">10 microfaradios</span></li>
+                                    <li><strong data-es="Voltaje:" data-en="Voltage:">Voltaje:</strong> <span data-es="Mínimo 16V" data-en="Minimum 16V">Mínimo 16V</span></li>
+                                    <li><strong data-es="Polaridad:" data-en="Polarity:">Polaridad:</strong> <span data-es="Pata larga (+), pata corta (-)" data-en="Long leg (+), short leg (-)">Pata larga (+), pata corta (-)</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Batería -->
+                    <div class="component-card power-card">
+                        <div class="component-header">
+                            <div class="component-icon">⚡</div>
+                            <div class="component-title">
+                                <h3 data-es="Batería 9V" data-en="9V Battery">Batería 9V</h3>
+                                <span class="component-role" data-es="La Fuente de Energía" data-en="The Power Source">La Fuente de Energía</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-function">
+                                <h4 data-es="🎯 ¿Qué hace?" data-en="🎯 What does it do?">🎯 ¿Qué hace?</h4>
+                                <p data-es="Proporciona la energía eléctrica que necesitan todos los componentes para funcionar. Es como el corazón que bombea energía por todo el circuito." data-en="Provides the electrical energy that all components need to function. It's like the heart that pumps energy throughout the circuit.">Proporciona la energía eléctrica que necesitan todos los componentes para funcionar. Es como el corazón que bombea energía por todo el circuito.</p>
+                            </div>
+                            <div class="component-analogy">
+                                <h4 data-es="🏠 Analogía" data-en="🏠 Analogy">🏠 Analogía</h4>
+                                <p data-es="Es como la fuente de agua de una ciudad que suministra agua a todas las casas a través de las tuberías." data-en="It's like a city's water source that supplies water to all houses through pipes.">Es como la fuente de agua de una ciudad que suministra agua a todas las casas a través de las tuberías.</p>
+                            </div>
+                            <div class="component-specs">
+                                <h4 data-es="📊 Especificaciones" data-en="📊 Specifications">📊 Especificaciones</h4>
+                                <ul>
+                                    <li><strong data-es="Voltaje:" data-en="Voltage:">Voltaje:</strong> <span data-es="9 voltios" data-en="9 volts">9 voltios</span></li>
+                                    <li><strong data-es="Tipo:" data-en="Type:">Tipo:</strong> <span data-es="Alcalina (dura más)" data-en="Alkaline (lasts longer)">Alcalina (dura más)</span></li>
+                                    <li><strong data-es="Duración:" data-en="Duration:">Duración:</strong> <span data-es="Varias horas de parpadeo" data-en="Several hours of blinking">Varias horas de parpadeo</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cómo trabajan juntos -->
+                <div class="teamwork-section">
+                    <h3 data-es="🤝 ¿Cómo trabajan en equipo?" data-en="🤝 How do they work as a team?">🤝 ¿Cómo trabajan en equipo?</h3>
+                    <div class="teamwork-flow">
+                        <div class="flow-step">
+                            <div class="step-icon">1️⃣</div>
+                            <div class="step-content">
+                                <h4 data-es="La batería da energía" data-en="The battery provides energy">La batería da energía</h4>
+                                <p data-es="Proporciona 9V a todo el circuito" data-en="Provides 9V to the entire circuit">Proporciona 9V a todo el circuito</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">➡️</div>
+                        <div class="flow-step">
+                            <div class="step-icon">2️⃣</div>
+                            <div class="step-content">
+                                <h4 data-es="El capacitor se carga" data-en="The capacitor charges">El capacitor se carga</h4>
+                                <p data-es="A través de la resistencia de 1kΩ" data-en="Through the 1kΩ resistor">A través de la resistencia de 1kΩ</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">➡️</div>
+                        <div class="flow-step">
+                            <div class="step-icon">3️⃣</div>
+                            <div class="step-content">
+                                <h4 data-es="El 555 detecta la carga" data-en="The 555 detects the charge">El 555 detecta la carga</h4>
+                                <p data-es="Y enciende su salida (pin 3)" data-en="And turns on its output (pin 3)">Y enciende su salida (pin 3)</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">➡️</div>
+                        <div class="flow-step">
+                            <div class="step-icon">4️⃣</div>
+                            <div class="step-content">
+                                <h4 data-es="El LED se enciende" data-en="The LED lights up">El LED se enciende</h4>
+                                <p data-es="Protegido por la resistencia de 470Ω" data-en="Protected by the 470Ω resistor">Protegido por la resistencia de 470Ω</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">➡️</div>
+                        <div class="flow-step">
+                            <div class="step-icon">5️⃣</div>
+                            <div class="step-content">
+                                <h4 data-es="El capacitor se descarga" data-en="The capacitor discharges">El capacitor se descarga</h4>
+                                <p data-es="El 555 apaga la salida y se repite el ciclo" data-en="The 555 turns off the output and the cycle repeats">El 555 apaga la salida y se repite el ciclo</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Solución de Problemas -->
+            <div class="info-card">
+                <h3 data-es="🔧 ¿No funciona? ¡No te preocupes!" data-en="🔧 Not working? Don't worry!">🔧 ¿No funciona? ¡No te preocupes!</h3>
+                <ul>
+                    <li><strong data-es="LED no enciende:" data-en="LED doesn't light up:">LED no enciende:</strong> <span data-es="Verifica que esté conectado correctamente (lado largo al positivo)" data-en="Check that it's connected correctly (long side to positive)">Verifica que esté conectado correctamente (lado largo al positivo)</span></li>
+                    <li><strong data-es="LED no parpadea:" data-en="LED doesn't blink:">LED no parpadea:</strong> <span data-es="Revisa las conexiones de los pines 2 y 6" data-en="Check the connections of pins 2 and 6">Revisa las conexiones de los pines 2 y 6</span></li>
+                    <li><strong data-es="Parpadea muy rápido/lento:" data-en="Blinks too fast/slow:">Parpadea muy rápido/lento:</strong> <span data-es="Cambia el valor del capacitor (más grande = más lento)" data-en="Change the capacitor value (bigger = slower)">Cambia el valor del capacitor (más grande = más lento)</span></li>
+                    <li><strong data-es="No pasa nada:" data-en="Nothing happens:">No pasa nada:</strong> <span data-es="Verifica que la batería esté conectada y tenga carga" data-en="Check that the battery is connected and has charge">Verifica que la batería esté conectada y tenga carga</span></li>
+                </ul>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 50%;"></div>
+            </div>
+        </div>
+
+        <!-- Pines del 555 -->
+        <div id="pinout" class="content-section">
+            <h2 data-es="🔌 Conoce los Pines del 555" data-en="🔌 Meet the 555 Pins">🔌 Conoce los Pines del 555</h2>
+            <div class="teen-friendly-intro">
+                <p data-es="¡Es como conocer las partes de tu celular! Cada pin tiene una función específica. <strong>Haz clic en los pines de colores</strong> para descubrir qué hace cada uno 👇" data-en="It's like knowing the parts of your phone! Each pin has a specific function. <strong>Click on the colored pins</strong> to discover what each one does 👇">¡Es como conocer las partes de tu celular! Cada pin tiene una función específica. <strong>Haz clic en los pines de colores</strong> para descubrir qué hace cada uno 👇</p>
+            </div>
+            
+            <div class="ic555-diagram-enhanced">
+                <div class="pin-legend">
+                    <h3 data-es="🎨 Código de Colores" data-en="🎨 Color Code">🎨 Código de Colores</h3>
+                    <div class="legend-item">
+                        <div class="legend-color power"></div>
+                        <span data-es="Alimentación" data-en="Power">Alimentación</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color input"></div>
+                        <span data-es="Entradas" data-en="Inputs">Entradas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color output"></div>
+                        <span data-es="Salidas" data-en="Outputs">Salidas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color control"></div>
+                        <span data-es="Control" data-en="Control">Control</span>
+                    </div>
+                </div>
+
+                <div class="ic555-chip-enhanced">
+                    <!-- Pines izquierdos -->
+                    <div class="pin-enhanced pin-left power" style="top: 30px;" onclick="showPinInfo(1)" data-pin="1">
+                        <span class="pin-number">1</span>
+                        <div class="pin-label">GND</div>
+                    </div>
+                    <div class="pin-enhanced pin-left input" style="top: 80px;" onclick="showPinInfo(2)" data-pin="2">
+                        <span class="pin-number">2</span>
+                        <div class="pin-label">TRIGGER</div>
+                    </div>
+                    <div class="pin-enhanced pin-left output" style="top: 130px;" onclick="showPinInfo(3)" data-pin="3">
+                        <span class="pin-number">3</span>
+                        <div class="pin-label">OUTPUT</div>
+                    </div>
+                    <div class="pin-enhanced pin-left control" style="top: 180px;" onclick="showPinInfo(4)" data-pin="4">
+                        <span class="pin-number">4</span>
+                        <div class="pin-label">RESET</div>
+                    </div>
+                    
+                    <!-- Pines derechos -->
+                    <div class="pin-enhanced pin-right control" style="top: 180px;" onclick="showPinInfo(5)" data-pin="5">
+                        <span class="pin-number">5</span>
+                        <div class="pin-label">CONTROL</div>
+                    </div>
+                    <div class="pin-enhanced pin-right input" style="top: 130px;" onclick="showPinInfo(6)" data-pin="6">
+                        <span class="pin-number">6</span>
+                        <div class="pin-label">THRESHOLD</div>
+                    </div>
+                    <div class="pin-enhanced pin-right output" style="top: 80px;" onclick="showPinInfo(7)" data-pin="7">
+                        <span class="pin-number">7</span>
+                        <div class="pin-label">DISCHARGE</div>
+                    </div>
+                    <div class="pin-enhanced pin-right power" style="top: 30px;" onclick="showPinInfo(8)" data-pin="8">
+                        <span class="pin-number">8</span>
+                        <div class="pin-label">VCC</div>
+                    </div>
+                    
+                    <!-- Chip body -->
+                    <div class="chip-body">
+                        <div class="chip-logo">NE555</div>
+                        <div class="chip-notch"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de pines mejorada -->
+            <div class="pin-info-enhanced" id="pin-display">
+                <div class="pin-placeholder">
+                    <h3 data-es="👆 ¡Haz clic en un pin!" data-en="👆 Click on a pin!">👆 ¡Haz clic en un pin!</h3>
+                    <p data-es="Selecciona cualquier pin del chip para ver qué hace y cómo usarlo" data-en="Select any pin on the chip to see what it does and how to use it">Selecciona cualquier pin del chip para ver qué hace y cómo usarlo</p>
+                    <div class="fun-fact">
+                        💡 <strong data-es="Dato curioso:" data-en="Fun fact:">Dato curioso:</strong> <span data-es="El 555 fue inventado en 1971 y sigue siendo uno de los chips más populares del mundo" data-en="The 555 was invented in 1971 and remains one of the world's most popular chips">El 555 fue inventado en 1971 y sigue siendo uno de los chips más populares del mundo</span>
+                    </div>
+                </div>
+                <div id="pin-info-1" class="pin-info-card power-card" style="display: none;">
+                <div class="pin-header">
+                    <span class="pin-emoji">⚡</span>
+                    <h3 data-es="Pin 1 - GND (Tierra)" data-en="Pin 1 - GND (Ground)">Pin 1 - GND (Tierra)</h3>
+                    <span class="pin-type" data-es="Alimentación" data-en="Power">Alimentación</span>
+                </div>
+                <div class="pin-content">
+                    <p><strong data-es="¿Qué hace?" data-en="What does it do?">¿Qué hace?</strong> <span data-es="Es como el 'polo negativo' de una pila. Toda la electricidad regresa por aquí." data-en="It's like the 'negative pole' of a battery. All electricity returns through here.">Es como el "polo negativo" de una pila. Toda la electricidad regresa por aquí.</span></p>
+                    <p><strong data-es="¿Cómo se conecta?" data-en="How to connect it?">¿Cómo se conecta?</strong> <span data-es="Siempre va al negativo (-) de tu fuente de poder o batería." data-en="Always goes to the negative (-) of your power source or battery.">Siempre va al negativo (-) de tu fuente de poder o batería.</span></p>
+                    <div class="pin-tip">
+                        <strong>💡 <span data-es="Tip:" data-en="Tip:">Tip:</span></strong> <span data-es="¡NUNCA olvides conectar este pin! Sin él, tu circuito no funcionará." data-en="NEVER forget to connect this pin! Without it, your circuit won't work.">¡NUNCA olvides conectar este pin! Sin él, tu circuito no funcionará.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pin-info-2" class="pin-info-card input-card" style="display: none;">
+                <div class="pin-header">
+                    <span class="pin-emoji">🎯</span>
+                    <h3 data-es="Pin 2 - TRIGGER (Disparo)" data-en="Pin 2 - TRIGGER (Trigger)">Pin 2 - TRIGGER (Disparo)</h3>
+                    <span class="pin-type" data-es="Entrada" data-en="Input">Entrada</span>
+                </div>
+                <div class="pin-content">
+                    <p><strong data-es="¿Qué hace?" data-en="What does it do?">¿Qué hace?</strong> <span data-es="Es como el 'botón de encendido'. Cuando recibe poca electricidad, ¡activa el chip!" data-en="It's like the 'power button'. When it receives low electricity, it activates the chip!">Es como el "botón de encendido". Cuando recibe poca electricidad, ¡activa el chip!</span></p>
+                    <p><strong data-es="¿Cuándo se activa?" data-en="When does it activate?">¿Cuándo se activa?</strong> <span data-es="Cuando el voltaje baja de 1/3 del voltaje total (si usas 9V, se activa con menos de 3V)." data-en="When voltage drops below 1/3 of total voltage (if using 9V, it activates with less than 3V).">Cuando el voltaje baja de 1/3 del voltaje total (si usas 9V, se activa con menos de 3V).</span></p>
+                    <div class="pin-tip">
+                        <strong>🔥 <span data-es="Ejemplo:" data-en="Example:">Ejemplo:</span></strong> <span data-es="Conecta un botón aquí para encender un LED por un tiempo determinado." data-en="Connect a button here to turn on an LED for a specific time.">Conecta un botón aquí para encender un LED por un tiempo determinado.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pin-info-3" class="pin-info-card output-card" style="display: none;">
+                <div class="pin-header">
+                    <span class="pin-emoji">🚀</span>
+                    <h3 data-es="Pin 3 - OUTPUT (Salida)" data-en="Pin 3 - OUTPUT (Output)">Pin 3 - OUTPUT (Salida)</h3>
+                    <span class="pin-type" data-es="Salida" data-en="Output">Salida</span>
+                </div>
+                <div class="pin-content">
+                    <p><strong data-es="¿Qué hace?" data-en="What does it do?">¿Qué hace?</strong> <span data-es="¡Aquí sale la magia! Es donde conectas LEDs, buzzers, o lo que quieras controlar." data-en="Here's where the magic happens! This is where you connect LEDs, buzzers, or whatever you want to control.">¡Aquí sale la magia! Es donde conectas LEDs, buzzers, o lo que quieras controlar.</span></p>
+                    <p><strong data-es="¿Qué puede hacer?" data-en="What can it do?">¿Qué puede hacer?</strong> <span data-es="Puede dar hasta 200mA, suficiente para encender varios LEDs." data-en="It can provide up to 200mA, enough to light up several LEDs.">Puede dar hasta 200mA, suficiente para encender varios LEDs.</span></p>
+                    <div class="pin-tip">
+                        <strong>⚡ <span data-es="Súper poder:" data-en="Super power:">Súper poder:</span></strong> <span data-es="Puede encender (HIGH) o apagar (LOW) según lo que programe el chip." data-en="It can turn on (HIGH) or off (LOW) according to what the chip programs.">Puede encender (HIGH) o apagar (LOW) según lo que programe el chip.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pin-info-4" class="pin-info-card control-card" style="display: none;">
+                <div class="pin-header">
+                    <span class="pin-emoji">🔄</span>
+                    <h3 data-es="Pin 4 - RESET (Reinicio)" data-en="Pin 4 - RESET (Reset)">Pin 4 - RESET (Reinicio)</h3>
+                    <span class="pin-type" data-es="Control" data-en="Control">Control</span>
+                </div>
+                <div class="pin-content">
+                    <p><strong data-es="¿Qué hace?" data-en="What does it do?">¿Qué hace?</strong> <span data-es="Es como el botón de 'reiniciar' de tu computadora. Detiene todo y vuelve al inicio." data-en="It's like your computer's 'restart' button. It stops everything and returns to the beginning.">Es como el botón de "reiniciar" de tu computadora. Detiene todo y vuelve al inicio.</span></p>
+                    <p><strong data-es="¿Cómo usarlo?" data-en="How to use it?">¿Cómo usarlo?</strong> <span data-es="Normalmente se conecta al positivo (+). Si lo conectas a negativo (-), reinicia el chip." data-en="Normally connected to positive (+). If you connect it to negative (-), it resets the chip.">Normalmente se conecta al positivo (+). Si lo conectas a negativo (-), reinicia el chip.</span></p>
+                    <div class="pin-tip">
+                        <strong>🛡️ <span data-es="Protección:" data-en="Protection:">Protección:</span></strong> <span data-es="Úsalo como 'botón de emergencia' para detener tu circuito." data-en="Use it as an 'emergency button' to stop your circuit.">Úsalo como "botón de emergencia" para detener tu circuito.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pin-info-5" class="pin-info-card control-card" style="display: none;">
+                <div class="pin-header">
+                    <span class="pin-emoji">🎛️</span>
+                    <h3 data-es="Pin 5 - CONTROL (Ajuste)" data-en="Pin 5 - CONTROL (Control)">Pin 5 - CONTROL (Ajuste)</h3>
+                    <span class="pin-type" data-es="Control" data-en="Control">Control</span>
+                </div>
+                <div class="pin-content">
+                    <p><strong data-es="¿Qué hace?" data-en="What does it do?">¿Qué hace?</strong> <span data-es="Te permite 'afinar' el comportamiento del chip, como ajustar el volumen de una radio." data-en="It lets you 'fine-tune' the chip's behavior, like adjusting a radio's volume.">Te permite "afinar" el comportamiento del chip, como ajustar el volumen de una radio.</span></p>
+                    <p><strong data-es="¿Cómo se usa?" data-en="How is it used?">¿Cómo se usa?</strong> <span data-es="Normalmente se conecta a tierra con un capacitor de 10nF para estabilizar." data-en="Usually connected to ground with a 10nF capacitor for stabilization.">Normalmente se conecta a tierra con un capacitor de 10nF para estabilizar.</span></p>
+                    <div class="pin-tip">
+                        <strong>🎚️ <span data-es="Avanzado:" data-en="Advanced:">Avanzado:</span></strong> <span data-es="Los expertos lo usan para cambiar los tiempos de activación." data-en="Experts use it to change activation times.">Los expertos lo usan para cambiar los tiempos de activación.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pin-info-6" class="pin-info-card input-card" style="display: none;">
+                <div class="pin-header">
+                    <span class="pin-emoji">📏</span>
+                    <h3 data-es="Pin 6 - THRESHOLD (Límite)" data-en="Pin 6 - THRESHOLD (Threshold)">Pin 6 - THRESHOLD (Límite)</h3>
+                    <span class="pin-type" data-es="Entrada" data-en="Input">Entrada</span>
+                </div>
+                <div class="pin-content">
+                    <p><strong data-es="¿Qué hace?" data-en="What does it do?">¿Qué hace?</strong> <span data-es="Es como un 'detector de límite'. Cuando el voltaje sube mucho, le dice al chip que se detenga." data-en="It's like a 'limit detector'. When voltage rises too high, it tells the chip to stop.">Es como un "detector de límite". Cuando el voltaje sube mucho, le dice al chip que se detenga.</span></p>
+                    <p><strong data-es="¿Cuándo actúa?" data-en="When does it act?">¿Cuándo actúa?</strong> <span data-es="Cuando el voltaje supera 2/3 del voltaje total (con 9V, actúa con más de 6V)." data-en="When voltage exceeds 2/3 of total voltage (with 9V, it acts with more than 6V).">Cuando el voltaje supera 2/3 del voltaje total (con 9V, actúa con más de 6V).</span></p>
+                    <div class="pin-tip">
+                        <strong>⏰ <span data-es="Temporización:" data-en="Timing:">Temporización:</span></strong> <span data-es="Junto con un capacitor, controla cuánto tiempo está encendido el chip." data-en="Together with a capacitor, it controls how long the chip stays on.">Junto con un capacitor, controla cuánto tiempo está encendido el chip.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pin-info-7" class="pin-info-card output-card" style="display: none;">
+                <div class="pin-header">
+                    <span class="pin-emoji">🔋</span>
+                    <h3 data-es="Pin 7 - DISCHARGE (Descarga)" data-en="Pin 7 - DISCHARGE (Discharge)">Pin 7 - DISCHARGE (Descarga)</h3>
+                    <span class="pin-type" data-es="Salida" data-en="Output">Salida</span>
+                </div>
+                <div class="pin-content">
+                    <p><strong data-es="¿Qué hace?" data-en="What does it do?">¿Qué hace?</strong> <span data-es="Es como un 'desagüe' para los capacitores. Los ayuda a descargarse cuando es necesario." data-en="It's like a 'drain' for capacitors. It helps them discharge when needed.">Es como un "desagüe" para los capacitores. Los ayuda a descargarse cuando es necesario.</span></p>
+                    <p><strong data-es="¿Por qué es importante?" data-en="Why is it important?">¿Por qué es importante?</strong> <span data-es="Sin él, los capacitores no se descargarían y el timing no funcionaría bien." data-en="Without it, capacitors wouldn't discharge and timing wouldn't work properly.">Sin él, los capacitores no se descargarían y el timing no funcionaría bien.</span></p>
+                    <div class="pin-tip">
+                        <strong>🔄 <span data-es="Ciclo:" data-en="Cycle:">Ciclo:</span></strong> <span data-es="Se abre y cierra automáticamente para controlar la carga del capacitor." data-en="It opens and closes automatically to control capacitor charging.">Se abre y cierra automáticamente para controlar la carga del capacitor.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pin-info-8" class="pin-info-card power-card" style="display: none;">
+                <div class="pin-header">
+                    <span class="pin-emoji">🔌</span>
+                    <h3 data-es="Pin 8 - VCC (Alimentación)" data-en="Pin 8 - VCC (Power Supply)">Pin 8 - VCC (Alimentación)</h3>
+                    <span class="pin-type" data-es="Alimentación" data-en="Power">Alimentación</span>
+                </div>
+                <div class="pin-content">
+                    <p><strong data-es="¿Qué hace?" data-en="What does it do?">¿Qué hace?</strong> <span data-es="Es como el 'polo positivo' de una pila. Por aquí entra toda la energía que necesita el chip." data-en="It's like the 'positive pole' of a battery. All the energy the chip needs enters through here.">Es como el "polo positivo" de una pila. Por aquí entra toda la energía que necesita el chip.</span></p>
+                    <p><strong data-es="¿Qué voltaje usar?" data-en="What voltage to use?">¿Qué voltaje usar?</strong> <span data-es="Entre 4.5V y 15V. ¡Una batería de 9V es perfecta para empezar!" data-en="Between 4.5V and 15V. A 9V battery is perfect to start with!">Entre 4.5V y 15V. ¡Una batería de 9V es perfecta para empezar!</span></p>
+                    <div class="pin-tip">
+                        <strong>⚠️ <span data-es="Importante:" data-en="Important:">Importante:</span></strong> <span data-es="No uses más de 15V o podrías dañar el chip permanentemente." data-en="Don't use more than 15V or you could permanently damage the chip.">No uses más de 15V o podrías dañar el chip permanentemente.</span>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 40%;"></div>
+            </div>
+        </div>
+
+        <!-- Modo Astable -->
+        <div id="astable" class="content-section">
+            <div class="teen-friendly-intro">
+                <h2 data-es="🔄 Modo Astable - ¡El Parpadeo Automático!" data-en="🔄 Astable Mode - Automatic Blinking!">🔄 Modo Astable - ¡El Parpadeo Automático!</h2>
+                <p data-es="¿Alguna vez has visto las luces de Navidad que parpadean solas? ¡Eso es exactamente lo que hace el modo astable! Es como tener un interruptor automático que se enciende y apaga sin parar 🎄✨" data-en="Have you ever seen Christmas lights that blink by themselves? That's exactly what astable mode does! It's like having an automatic switch that turns on and off non-stop 🎄✨">¿Alguna vez has visto las luces de Navidad que parpadean solas? ¡Eso es exactamente lo que hace el modo astable! Es como tener un interruptor automático que se enciende y apaga sin parar 🎄✨</p>
+            </div>
+
+            <div class="info-card">
+                <h3 data-es="🤔 ¿Qué significa 'Astable'?" data-en="🤔 What does 'Astable' mean?">🤔 ¿Qué significa "Astable"?</h3>
+                <p><strong data-es="'A-stable' = 'No estable'" data-en="'A-stable' = 'Not stable'">"A-stable" = "No estable"</strong> - <span data-es="¡Nunca se queda quieto! Siempre está cambiando entre encendido y apagado." data-en="It never stays still! It's always switching between on and off.">¡Nunca se queda quieto! Siempre está cambiando entre encendido y apagado.</span></p>
+                <div class="materials-grid">
+                    <div class="material-item">
+                        <span class="material-emoji">🔄</span>
+                        <div>
+                            <strong data-es="Siempre en movimiento" data-en="Always in motion">Siempre en movimiento</strong><br>
+                            <small data-es="Nunca se queda en una posición fija" data-en="Never stays in a fixed position">Nunca se queda en una posición fija</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">⚡</span>
+                        <div>
+                            <strong data-es="Automático" data-en="Automatic">Automático</strong><br>
+                            <small data-es="No necesitas presionar botones" data-en="You don't need to press buttons">No necesitas presionar botones</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🎛️</span>
+                        <div>
+                            <strong data-es="Ajustable" data-en="Adjustable">Ajustable</strong><br>
+                            <small data-es="Puedes cambiar la velocidad" data-en="You can change the speed">Puedes cambiar la velocidad</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🔁</span>
+                        <div>
+                            <strong data-es="Infinito" data-en="Infinite">Infinito</strong><br>
+                            <small data-es="Funciona hasta que lo desconectes" data-en="Works until you disconnect it">Funciona hasta que lo desconectes</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="safety-warning">
+                <h3 data-es="🎯 ¿Dónde lo usas en la vida real?" data-en="🎯 Where do you use it in real life?">🎯 ¿Dónde lo usas en la vida real?</h3>
+                <ul>
+                    <li>🚨 <strong data-es="Luces de emergencia" data-en="Emergency lights">Luces de emergencia</strong> <span data-es="de ambulancias y policía" data-en="of ambulances and police">de ambulancias y policía</span></li>
+                    <li>🎄 <strong data-es="Decoraciones navideñas" data-en="Christmas decorations">Decoraciones navideñas</strong> <span data-es="que parpadean" data-en="that blink">que parpadean</span></li>
+                    <li>⏰ <strong data-es="Relojes digitales" data-en="Digital clocks">Relojes digitales</strong> <span data-es="(para marcar los segundos)" data-en="(to mark the seconds)">(para marcar los segundos)</span></li>
+                    <li>🎮 <strong data-es="Videojuegos" data-en="Video games">Videojuegos</strong> <span data-es="(efectos de luces parpadeantes)" data-en="(blinking light effects)">(efectos de luces parpadeantes)</span></li>
+                    <li>🚗 <strong data-es="Direccionales del auto" data-en="Car turn signals">Direccionales del auto</strong> <span data-es="(izquierda/derecha)" data-en="(left/right)">(izquierda/derecha)</span></li>
+                    <li>📱 <strong data-es="Notificaciones del celular" data-en="Phone notifications">Notificaciones del celular</strong> <span data-es="(luz que parpadea)" data-en="(blinking light)">(luz que parpadea)</span></li>
+                </ul>
+            </div>
+
+            <!-- Configuración paso a paso -->
+            <div class="step-container">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title" data-es="Conecta los Pines Básicos" data-en="Connect the Basic Pins">Conecta los Pines Básicos</h3>
+                    </div>
+                    <p><strong data-es="Pin 8 (VCC):" data-en="Pin 8 (VCC):">Pin 8 (VCC):</strong> <span data-es="Al positivo (+) de la batería" data-en="To the positive (+) of the battery">Al positivo (+) de la batería</span></p>
+                    <p><strong data-es="Pin 1 (GND):" data-en="Pin 1 (GND):">Pin 1 (GND):</strong> <span data-es="Al negativo (-) de la batería" data-en="To the negative (-) of the battery">Al negativo (-) de la batería</span></p>
+                    <p><strong data-es="Pin 4 (RESET):" data-en="Pin 4 (RESET):">Pin 4 (RESET):</strong> <span data-es="También al positivo (+)" data-en="Also to positive (+)">También al positivo (+)</span></p>
+                    <p><strong data-es="💡 ¿Por qué?" data-en="💡 Why?">💡 ¿Por qué?</strong> <span data-es="Estos son como 'encender' el chip y darle energía." data-en="These are like 'turning on' the chip and giving it power.">Estos son como "encender" el chip y darle energía.</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title" data-es="Haz la Conexión Mágica" data-en="Make the Magic Connection">Haz la Conexión Mágica</h3>
+                    </div>
+                    <p><strong data-es="Pin 2 y Pin 6:" data-en="Pin 2 and Pin 6:">Pin 2 y Pin 6:</strong> <span data-es="¡Conecta estos dos juntos con un cable!" data-en="Connect these two together with a wire!">¡Conecta estos dos juntos con un cable!</span></p>
+                    <p><strong data-es="🎯 ¿Por qué es mágico?" data-en="🎯 Why is it magic?">🎯 ¿Por qué es mágico?</strong> <span data-es="Esta conexión le dice al 555: '¡Quiero que parpadees automáticamente!'" data-en="This connection tells the 555: 'I want you to blink automatically!'">Esta conexión le dice al 555: "¡Quiero que parpadees automáticamente!"</span></p>
+                    <p><strong data-es="🔮 Sin esta conexión:" data-en="🔮 Without this connection:">🔮 Sin esta conexión:</strong> <span data-es="El chip no sabría que quieres modo astable." data-en="The chip wouldn't know you want astable mode.">El chip no sabría que quieres modo astable.</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title" data-es="Agrega el 'Reloj' (Capacitor)" data-en="Add the 'Clock' (Capacitor)">Agrega el "Reloj" (Capacitor)</h3>
+                    </div>
+                    <p><strong data-es="Capacitor:" data-en="Capacitor:">Capacitor:</strong> <span data-es="Conecta entre los pines 2-6 (unidos) y tierra (GND)" data-en="Connect between pins 2-6 (joined) and ground (GND)">Conecta entre los pines 2-6 (unidos) y tierra (GND)</span></p>
+                    <p><strong data-es="⏰ ¿Qué hace?" data-en="⏰ What does it do?">⏰ ¿Qué hace?</strong> <span data-es="Es como un reloj de arena que se llena y se vacía para marcar el tiempo." data-en="It's like an hourglass that fills and empties to mark time.">Es como un reloj de arena que se llena y se vacía para marcar el tiempo.</span></p>
+                    <p><strong data-es="📏 Tamaño importa:" data-en="📏 Size matters:">📏 Tamaño importa:</strong> <span data-es="Más grande = parpadeo más lento, más pequeño = parpadeo más rápido." data-en="Bigger = slower blinking, smaller = faster blinking.">Más grande = parpadeo más lento, más pequeño = parpadeo más rápido.</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">4</div>
+                        <h3 class="step-title" data-es="Conecta la 'Válvula' (Resistencia)" data-en="Connect the 'Valve' (Resistor)">Conecta la "Válvula" (Resistencia)</h3>
+                    </div>
+                    <p><strong data-es="Resistencia:" data-en="Resistor:">Resistencia:</strong> <span data-es="Entre el pin 7 y el positivo (+)" data-en="Between pin 7 and positive (+)">Entre el pin 7 y el positivo (+)</span></p>
+                    <p><strong data-es="🚰 ¿Qué hace?" data-en="🚰 What does it do?">🚰 ¿Qué hace?</strong> <span data-es="Es como una válvula que controla qué tan rápido se llena el 'reloj de arena' (capacitor)." data-en="It's like a valve that controls how fast the 'hourglass' (capacitor) fills.">Es como una válvula que controla qué tan rápido se llena el "reloj de arena" (capacitor).</span></p>
+                    <p><strong data-es="🎛️ Control de velocidad:" data-en="🎛️ Speed control:">🎛️ Control de velocidad:</strong> <span data-es="Más resistencia = más lento, menos resistencia = más rápido." data-en="More resistance = slower, less resistance = faster.">Más resistencia = más lento, menos resistencia = más rápido.</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">5</div>
+                        <h3 class="step-title" data-es="Conecta tu LED" data-en="Connect your LED">Conecta tu LED</h3>
+                    </div>
+                    <p><strong data-es="Pin 3 (OUTPUT):" data-en="Pin 3 (OUTPUT):">Pin 3 (OUTPUT):</strong> <span data-es="A través de una resistencia de 470Ω al LED" data-en="Through a 470Ω resistor to the LED">A través de una resistencia de 470Ω al LED</span></p>
+                    <p><strong data-es="LED:" data-en="LED:">LED:</strong> <span data-es="El lado negativo (-) va a tierra" data-en="The negative side (-) goes to ground">El lado negativo (-) va a tierra</span></p>
+                    <p><strong data-es="🎉 ¡Listo!" data-en="🎉 Ready!">🎉 ¡Listo!</strong> <span data-es="¡Tu LED debería empezar a parpadear automáticamente!" data-en="Your LED should start blinking automatically!">¡Tu LED debería empezar a parpadear automáticamente!</span></p>
+                </div>
+            </div>
+
+            <!-- Simulador mejorado -->
+            <div class="circuit-simulator">
+                <h3 data-es="🔬 ¡Prueba el Simulador Interactivo!" data-en="🔬 Try the Interactive Simulator!">🔬 ¡Prueba el Simulador Interactivo!</h3>
+                <p data-es="Experimenta con diferentes configuraciones y ve cómo cambia el parpadeo:" data-en="Experiment with different configurations and see how the blinking changes:">Experimenta con diferentes configuraciones y ve cómo cambia el parpadeo:</p>
+                
+                <div class="led-simulation" id="astable-led"></div>
+                
+                <div class="control-panel">
+                    <button class="control-btn" onclick="startAstable()" style="background: #27ae60;" data-es="▶️ ¡Encender!" data-en="▶️ Turn On!">▶️ ¡Encender!</button>
+                    <button class="control-btn" onclick="stopAstable()" style="background: #e74c3c;" data-es="⏹️ Apagar" data-en="⏹️ Turn Off">⏹️ Apagar</button>
+                </div>
+
+                <div class="control-panel">
+                    <button class="control-btn" onclick="changeSpeed('fast')" style="background: #f39c12;" data-es="⚡ Súper Rápido" data-en="⚡ Super Fast">⚡ Súper Rápido</button>
+                    <button class="control-btn" onclick="changeSpeed('normal')" style="background: #3498db;" data-es="🚶 Normal" data-en="🚶 Normal">🚶 Normal</button>
+                    <button class="control-btn" onclick="changeSpeed('slow')" style="background: #9b59b6;" data-es="🐌 Súper Lento" data-en="🐌 Super Slow">🐌 Súper Lento</button>
+                </div>
+                
+                <div class="result-display" id="frequency-display" data-es="Velocidad: Normal - Como las luces de Navidad 🎄" data-en="Speed: Normal - Like Christmas lights 🎄">
+                    Velocidad: Normal - Como las luces de Navidad 🎄
+                </div>
+            </div>
+
+            <!-- Explicación de la fórmula de manera simple -->
+            <div class="info-card">
+                <h3 data-es="🧮 ¿Cómo calcular la velocidad? (¡Súper fácil!)" data-en="🧮 How to calculate speed? (Super easy!)">🧮 ¿Cómo calcular la velocidad? (¡Súper fácil!)</h3>
+                <p data-es="No te preocupes por las matemáticas complicadas. Aquí tienes una guía súper simple:" data-en="Don't worry about complicated math. Here's a super simple guide:">No te preocupes por las matemáticas complicadas. Aquí tienes una guía súper simple:</p>
+                
+                <div class="materials-grid">
+                    <div class="material-item">
+                        <span class="material-emoji">🔋</span>
+                        <div>
+                            <strong data-es="Capacitor más grande" data-en="Bigger capacitor">Capacitor más grande</strong><br>
+                            <small data-es="= Parpadeo más lento" data-en="= Slower blinking">= Parpadeo más lento</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">⚡</span>
+                        <div>
+                            <strong data-es="Capacitor más pequeño" data-en="Smaller capacitor">Capacitor más pequeño</strong><br>
+                            <small data-es="= Parpadeo más rápido" data-en="= Faster blinking">= Parpadeo más rápido</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🎛️</span>
+                        <div>
+                            <strong data-es="Resistencia más grande" data-en="Bigger resistor">Resistencia más grande</strong><br>
+                            <small data-es="= Parpadeo más lento" data-en="= Slower blinking">= Parpadeo más lento</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🚀</span>
+                        <div>
+                            <strong data-es="Resistencia más pequeña" data-en="Smaller resistor">Resistencia más pequeña</strong><br>
+                            <small data-es="= Parpadeo más rápido" data-en="= Faster blinking">= Parpadeo más rápido</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de valores prácticos -->
+            <div class="circuit-example">
+                <h3 data-es="📊 Tabla de Valores Prácticos" data-en="📊 Practical Values Table">📊 Tabla de Valores Prácticos</h3>
+                <p data-es="¡Usa estos valores probados para diferentes efectos!" data-en="Use these tested values for different effects!">¡Usa estos valores probados para diferentes efectos!</p>
+                
+                <div class="components-explanation">
+                    <div class="component-card timing-card">
+                        <div class="component-header">
+                            <div class="component-icon">🐌</div>
+                            <div class="component-title">
+                                <h3 data-es="Parpadeo Lento" data-en="Slow Blinking">Parpadeo Lento</h3>
+                                <span class="component-role" data-es="Como semáforo" data-en="Like traffic light">Como semáforo</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-specs">
+                                <ul>
+                                    <li><strong data-es="Resistencia:" data-en="Resistor:">Resistencia:</strong> <span data-es="100kΩ (marrón-negro-amarillo)" data-en="100kΩ (brown-black-yellow)">100kΩ (marrón-negro-amarillo)</span></li>
+                                    <li><strong data-es="Capacitor:" data-en="Capacitor:">Capacitor:</strong> 100μF</li>
+                                    <li><strong data-es="Resultado:" data-en="Result:">Resultado:</strong> <span data-es="1 parpadeo cada 7 segundos" data-en="1 blink every 7 seconds">1 parpadeo cada 7 segundos</span></li>
+                                    <li><strong data-es="Perfecto para:" data-en="Perfect for:">Perfecto para:</strong> <span data-es="Luces de advertencia" data-en="Warning lights">Luces de advertencia</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="component-card output-card">
+                        <div class="component-header">
+                            <div class="component-icon">🚶</div>
+                            <div class="component-title">
+                                <h3 data-es="Parpadeo Normal" data-en="Normal Blinking">Parpadeo Normal</h3>
+                                <span class="component-role" data-es="Como luces navideñas" data-en="Like Christmas lights">Como luces navideñas</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-specs">
+                                <ul>
+                                    <li><strong data-es="Resistencia:" data-en="Resistor:">Resistencia:</strong> <span data-es="10kΩ (marrón-negro-naranja)" data-en="10kΩ (brown-black-orange)">10kΩ (marrón-negro-naranja)</span></li>
+                                    <li><strong data-es="Capacitor:" data-en="Capacitor:">Capacitor:</strong> 10μF</li>
+                                    <li><strong data-es="Resultado:" data-en="Result:">Resultado:</strong> <span data-es="1 parpadeo por segundo" data-en="1 blink per second">1 parpadeo por segundo</span></li>
+                                    <li><strong data-es="Perfecto para:" data-en="Perfect for:">Perfecto para:</strong> <span data-es="Decoraciones" data-en="Decorations">Decoraciones</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="component-card protection-card">
+                        <div class="component-header">
+                            <div class="component-icon">⚡</div>
+                            <div class="component-title">
+                                <h3 data-es="Parpadeo Rápido" data-en="Fast Blinking">Parpadeo Rápido</h3>
+                                <span class="component-role" data-es="Como alarma" data-en="Like alarm">Como alarma</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-specs">
+                                <ul>
+                                    <li><strong data-es="Resistencia:" data-en="Resistor:">Resistencia:</strong> <span data-es="1kΩ (marrón-negro-rojo)" data-en="1kΩ (brown-black-red)">1kΩ (marrón-negro-rojo)</span></li>
+                                    <li><strong data-es="Capacitor:" data-en="Capacitor:">Capacitor:</strong> 1μF</li>
+                                    <li><strong data-es="Resultado:" data-en="Result:">Resultado:</strong> <span data-es="10 parpadeos por segundo" data-en="10 blinks per second">10 parpadeos por segundo</span></li>
+                                    <li><strong data-es="Perfecto para:" data-en="Perfect for:">Perfecto para:</strong> <span data-es="Alarmas y efectos" data-en="Alarms and effects">Alarmas y efectos</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consejos prácticos -->
+            <div class="safety-warning">
+                <h3 data-es="💡 Consejos de Experto" data-en="💡 Expert Tips">💡 Consejos de Experto</h3>
+                <ul>
+                    <li><strong data-es="🔧 Experimenta:" data-en="🔧 Experiment:">🔧 Experimenta:</strong> <span data-es="¡Prueba diferentes valores! Es la mejor manera de aprender." data-en="Try different values! It's the best way to learn.">¡Prueba diferentes valores! Es la mejor manera de aprender.</span></li>
+                    <li><strong data-es="📝 Anota:" data-en="📝 Take notes:">📝 Anota:</strong> <span data-es="Guarda los valores que más te gusten para futuros proyectos." data-en="Save the values you like most for future projects.">Guarda los valores que más te gusten para futuros proyectos.</span></li>
+                    <li><strong data-es="🔍 Observa:" data-en="🔍 Observe:">🔍 Observa:</strong> <span data-es="Fíjate cómo cada cambio afecta el parpadeo." data-en="Notice how each change affects the blinking.">Fíjate cómo cada cambio afecta el parpadeo.</span></li>
+                    <li><strong data-es="🎯 Empieza simple:" data-en="🎯 Start simple:">🎯 Empieza simple:</strong> <span data-es="Usa los valores de la tabla 'Normal' primero." data-en="Use the 'Normal' table values first.">Usa los valores de la tabla "Normal" primero.</span></li>
+                    <li><strong data-es="⚠️ Cuidado:" data-en="⚠️ Careful:">⚠️ Cuidado:</strong> <span data-es="Valores muy pequeños pueden hacer que parpadee tan rápido que no lo veas." data-en="Very small values can make it blink so fast you can't see it.">Valores muy pequeños pueden hacer que parpadee tan rápido que no lo veas.</span></li>
+                </ul>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 60%;"></div>
+            </div>
+        </div>
+
+        <!-- Modo Monoestable -->
+        <div id="monostable" class="content-section">
+            <div class="teen-friendly-intro">
+                <h2 data-es="⏱️ Modo Monoestable - ¡El Temporizador Inteligente!" data-en="⏱️ Monostable Mode - The Smart Timer!">⏱️ Modo Monoestable - ¡El Temporizador Inteligente!</h2>
+                <p data-es="¿Alguna vez has presionado el botón de la luz del baño y se apaga sola después de un tiempo? ¡Eso es exactamente lo que hace el modo monoestable! Es como tener un temporizador que se activa con un botón y cuenta hacia atrás ⏰✨" data-en="Have you ever pressed the bathroom light button and it turns off by itself after a while? That's exactly what monostable mode does! It's like having a timer that activates with a button and counts down ⏰✨">¿Alguna vez has presionado el botón de la luz del baño y se apaga sola después de un tiempo? ¡Eso es exactamente lo que hace el modo monoestable! Es como tener un temporizador que se activa con un botón y cuenta hacia atrás ⏰✨</p>
+            </div>
+
+            <div class="info-card">
+                <h3 data-es="🤔 ¿Qué significa 'Monoestable'?" data-en="🤔 What does 'Monostable' mean?">🤔 ¿Qué significa "Monoestable"?</h3>
+                <p><strong data-es="'Mono-stable' = 'Un solo estado estable'" data-en="'Mono-stable' = 'One stable state'">"Mono-stable" = "Un solo estado estable"</strong> - <span data-es="Normalmente está apagado, pero cuando lo activas, se enciende por un tiempo específico y luego regresa a apagado automáticamente." data-en="It's normally off, but when you activate it, it turns on for a specific time and then automatically returns to off.">Normalmente está apagado, pero cuando lo activas, se enciende por un tiempo específico y luego regresa a apagado automáticamente.</span></p>
+                <div class="materials-grid">
+                    <div class="material-item">
+                        <span class="material-emoji">🔘</span>
+                        <div>
+                            <strong data-es="Se activa con un botón" data-en="Activated with a button">Se activa con un botón</strong><br>
+                            <small data-es="Necesitas presionar algo para que funcione" data-en="You need to press something for it to work">Necesitas presionar algo para que funcione</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">⏰</span>
+                        <div>
+                            <strong data-es="Tiempo controlado" data-en="Controlled time">Tiempo controlado</strong><br>
+                            <small data-es="Tú decides cuánto tiempo estará encendido" data-en="You decide how long it will be on">Tú decides cuánto tiempo estará encendido</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🔄</span>
+                        <div>
+                            <strong data-es="Regresa solo" data-en="Returns by itself">Regresa solo</strong><br>
+                            <small data-es="Se apaga automáticamente al terminar" data-en="Turns off automatically when finished">Se apaga automáticamente al terminar</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🎯</span>
+                        <div>
+                            <strong data-es="Una sola vez" data-en="Just once">Una sola vez</strong><br>
+                            <small data-es="Un botón = un ciclo completo" data-en="One button = one complete cycle">Un botón = un ciclo completo</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="safety-warning">
+                <h3 data-es="🎯 ¿Dónde lo usas en la vida real?" data-en="🎯 Where do you use it in real life?">🎯 ¿Dónde lo usas en la vida real?</h3>
+                <ul>
+                    <li>💡 <strong data-es="Luces automáticas" data-en="Automatic lights">Luces automáticas</strong> <span data-es="del baño o escaleras" data-en="in bathrooms or stairs">del baño o escaleras</span></li>
+                    <li>🚪 <strong data-es="Puertas automáticas" data-en="Automatic doors">Puertas automáticas</strong> <span data-es="que se cierran solas" data-en="that close by themselves">que se cierran solas</span></li>
+                    <li>🔔 <strong data-es="Timbres" data-en="Doorbells">Timbres</strong> <span data-es="que suenan por unos segundos" data-en="that ring for a few seconds">que suenan por unos segundos</span></li>
+                    <li>🚗 <strong data-es="Limpiaparabrisas" data-en="Windshield wipers">Limpiaparabrisas</strong> <span data-es="de los autos (una pasada)" data-en="in cars (one sweep)">de los autos (una pasada)</span></li>
+                    <li>📷 <strong data-es="Flash de cámaras" data-en="Camera flash">Flash de cámaras</strong> <span data-es="(destello por milisegundos)" data-en="(flash for milliseconds)">(destello por milisegundos)</span></li>
+                    <li>🎮 <strong data-es="Efectos en videojuegos" data-en="Video game effects">Efectos en videojuegos</strong> <span data-es="(power-ups temporales)" data-en="(temporary power-ups)">(power-ups temporales)</span></li>
+                    <li>⏰ <strong data-es="Alarmas de cocina" data-en="Kitchen alarms">Alarmas de cocina</strong> <span data-es="(suenan por un tiempo y se apagan)" data-en="(ring for a while and turn off)">(suenan por un tiempo y se apagan)</span></li>
+                </ul>
+            </div>
+
+            <!-- Configuración paso a paso -->
+            <div class="step-container">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title" data-es="Conecta la Alimentación Básica" data-en="Connect Basic Power">Conecta la Alimentación Básica</h3>
+                    </div>
+                    <p><strong data-es="Pin 8 (VCC):" data-en="Pin 8 (VCC):">Pin 8 (VCC):</strong> <span data-es="Al positivo (+) de la batería" data-en="To the positive (+) of the battery">Al positivo (+) de la batería</span></p>
+                    <p><strong data-es="Pin 1 (GND):" data-en="Pin 1 (GND):">Pin 1 (GND):</strong> <span data-es="Al negativo (-) de la batería" data-en="To the negative (-) of the battery">Al negativo (-) de la batería</span></p>
+                    <p><strong data-es="Pin 4 (RESET):" data-en="Pin 4 (RESET):">Pin 4 (RESET):</strong> <span data-es="También al positivo (+)" data-en="Also to positive (+)">También al positivo (+)</span></p>
+                    <p><strong data-es="💡 ¿Por qué?" data-en="💡 Why?">💡 ¿Por qué?</strong> <span data-es="Igual que en astable, necesitamos 'encender' el chip." data-en="Just like in astable, we need to 'turn on' the chip.">Igual que en astable, necesitamos "encender" el chip.</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title" data-es="Configura el Pin de Activación" data-en="Configure the Trigger Pin">Configura el Pin de Activación</h3>
+                    </div>
+                    <p><strong data-es="Pin 2 (TRIGGER):" data-en="Pin 2 (TRIGGER):">Pin 2 (TRIGGER):</strong> <span data-es="Conecta a través de un botón pulsador a tierra (GND)" data-en="Connect through a push button to ground (GND)">Conecta a través de un botón pulsador a tierra (GND)</span></p>
+                    <p><strong data-es="Resistencia pull-up:" data-en="Pull-up resistor:">Resistencia pull-up:</strong> <span data-es="Conecta una resistencia de 10kΩ entre el pin 2 y el positivo (+)" data-en="Connect a 10kΩ resistor between pin 2 and positive (+)">Conecta una resistencia de 10kΩ entre el pin 2 y el positivo (+)</span></p>
+                    <p><strong data-es="🎯 ¿Cómo funciona?" data-en="🎯 How does it work?">🎯 ¿Cómo funciona?</strong> <span data-es="Cuando presionas el botón, el pin 2 se conecta a tierra y ¡activa el temporizador!" data-en="When you press the button, pin 2 connects to ground and activates the timer!">Cuando presionas el botón, el pin 2 se conecta a tierra y ¡activa el temporizador!</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title" data-es="Conecta el Pin de Control" data-en="Connect the Control Pin">Conecta el Pin de Control</h3>
+                    </div>
+                    <p><strong data-es="Pin 6 (THRESHOLD):" data-en="Pin 6 (THRESHOLD):">Pin 6 (THRESHOLD):</strong> <span data-es="Conecta al pin 7 (DISCHARGE)" data-en="Connect to pin 7 (DISCHARGE)">Conecta al pin 7 (DISCHARGE)</span></p>
+                    <p><strong data-es="🔗 ¿Por qué juntos?" data-en="🔗 Why together?">🔗 ¿Por qué juntos?</strong> <span data-es="Esta conexión le dice al 555: 'Cuando el capacitor se cargue completamente, apágate automáticamente'." data-en="This connection tells the 555: 'When the capacitor is fully charged, turn off automatically'.">Esta conexión le dice al 555: "Cuando el capacitor se cargue completamente, apágate automáticamente".</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">4</div>
+                        <h3 class="step-title" data-es="Agrega el 'Cronómetro' (Capacitor)" data-en="Add the 'Stopwatch' (Capacitor)">Agrega el "Cronómetro" (Capacitor)</h3>
+                    </div>
+                    <p><strong data-es="Capacitor:" data-en="Capacitor:">Capacitor:</strong> <span data-es="Conecta entre los pines 6-7 (unidos) y tierra (GND)" data-en="Connect between pins 6-7 (joined) and ground (GND)">Conecta entre los pines 6-7 (unidos) y tierra (GND)</span></p>
+                    <p><strong data-es="⏱️ ¿Qué hace?" data-en="⏱️ What does it do?">⏱️ ¿Qué hace?</strong> <span data-es="Es como un reloj de arena que determina cuánto tiempo estará encendido el LED." data-en="It's like an hourglass that determines how long the LED will be on.">Es como un reloj de arena que determina cuánto tiempo estará encendido el LED.</span></p>
+                    <p><strong data-es="📏 Tamaño = Tiempo:" data-en="📏 Size = Time:">📏 Tamaño = Tiempo:</strong> <span data-es="Más grande = más tiempo encendido, más pequeño = menos tiempo." data-en="Bigger = more time on, smaller = less time.">Más grande = más tiempo encendido, más pequeño = menos tiempo.</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">5</div>
+                        <h3 class="step-title" data-es="Conecta la 'Válvula de Tiempo' (Resistencia)" data-en="Connect the 'Time Valve' (Resistor)">Conecta la "Válvula de Tiempo" (Resistencia)</h3>
+                    </div>
+                    <p><strong data-es="Resistencia de timing:" data-en="Timing resistor:">Resistencia de timing:</strong> <span data-es="Entre el positivo (+) y los pines 6-7 unidos" data-en="Between positive (+) and pins 6-7 joined">Entre el positivo (+) y los pines 6-7 unidos</span></p>
+                    <p><strong data-es="🚰 ¿Qué hace?" data-en="🚰 What does it do?">🚰 ¿Qué hace?</strong> <span data-es="Controla qué tan rápido se 'llena' el capacitor, y por tanto, cuánto dura el temporizador." data-en="Controls how fast the capacitor 'fills up', and therefore, how long the timer lasts.">Controla qué tan rápido se "llena" el capacitor, y por tanto, cuánto dura el temporizador.</span></p>
+                    <p><strong data-es="🎛️ Control de duración:" data-en="🎛️ Duration control:">🎛️ Control de duración:</strong> <span data-es="Más resistencia = más tiempo, menos resistencia = menos tiempo." data-en="More resistance = more time, less resistance = less time.">Más resistencia = más tiempo, menos resistencia = menos tiempo.</span></p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">6</div>
+                        <h3 class="step-title" data-es="Conecta tu LED de Salida" data-en="Connect your Output LED">Conecta tu LED de Salida</h3>
+                    </div>
+                    <p><strong data-es="Pin 3 (OUTPUT):" data-en="Pin 3 (OUTPUT):">Pin 3 (OUTPUT):</strong> <span data-es="A través de una resistencia de 470Ω al LED" data-en="Through a 470Ω resistor to the LED">A través de una resistencia de 470Ω al LED</span></p>
+                    <p><strong data-es="LED:" data-en="LED:">LED:</strong> <span data-es="El lado negativo (-) va a tierra" data-en="The negative side (-) goes to ground">El lado negativo (-) va a tierra</span></p>
+                    <p><strong data-es="🎉 ¡Pruébalo!" data-en="🎉 Test it!">🎉 ¡Pruébalo!</strong> <span data-es="Presiona el botón y el LED se encenderá por el tiempo programado." data-en="Press the button and the LED will turn on for the programmed time.">Presiona el botón y el LED se encenderá por el tiempo programado.</span></p>
+                </div>
+            </div>
+
+            <!-- Simulador mejorado -->
+            <div class="circuit-simulator">
+                <h3 data-es="🔬 ¡Simulador de Temporizador Interactivo!" data-en="🔬 Interactive Timer Simulator!">🔬 ¡Simulador de Temporizador Interactivo!</h3>
+                <p data-es="Presiona los botones para probar diferentes duraciones de temporizador:" data-en="Press the buttons to test different timer durations:">Presiona los botones para probar diferentes duraciones de temporizador:</p>
+                
+                <div class="led-simulation" id="monostable-led"></div>
+                
+                <div class="control-panel">
+                    <button class="control-btn" onclick="triggerMonostable(1)" style="background: #e74c3c;" data-es="⚡ Rápido (1s)" data-en="⚡ Fast (1s)">⚡ Rápido (1s)</button>
+                    <button class="control-btn" onclick="triggerMonostable(3)" style="background: #f39c12;" data-es="🚶 Normal (3s)" data-en="🚶 Normal (3s)">🚶 Normal (3s)</button>
+                    <button class="control-btn" onclick="triggerMonostable(5)" style="background: #9b59b6;" data-es="🐌 Lento (5s)" data-en="🐌 Slow (5s)">🐌 Lento (5s)</button>
+                </div>
+                
+                <div class="result-display" id="timer-display" data-es="Presiona cualquier botón para activar el temporizador ⏰" data-en="Press any button to activate the timer ⏰">
+                    Presiona cualquier botón para activar el temporizador ⏰
+                </div>
+            </div>
+
+            <!-- Explicación de la fórmula de manera simple -->
+            <div class="info-card">
+                <h3 data-es="🧮 ¿Cómo calcular el tiempo? (¡Súper fácil!)" data-en="🧮 How to calculate time? (Super easy!)">🧮 ¿Cómo calcular el tiempo? (¡Súper fácil!)</h3>
+                <p data-es="La fórmula mágica es súper simple. No te asustes por las matemáticas:" data-en="The magic formula is super simple. Don't be scared by the math:">La fórmula mágica es súper simple. No te asustes por las matemáticas:</p>
+                
+                <div class="formula" data-es="Tiempo (segundos) = 1.1 × Resistencia × Capacitor" data-en="Time (seconds) = 1.1 × Resistor × Capacitor">
+                    Tiempo (segundos) = 1.1 × Resistencia × Capacitor
+                </div>
+                
+                <div class="materials-grid">
+                    <div class="material-item">
+                        <span class="material-emoji">🔋</span>
+                        <div>
+                            <strong data-es="Capacitor más grande" data-en="Bigger capacitor">Capacitor más grande</strong><br>
+                            <small data-es="= Temporizador más largo" data-en="= Longer timer">= Temporizador más largo</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">⚡</span>
+                        <div>
+                            <strong data-es="Capacitor más pequeño" data-en="Smaller capacitor">Capacitor más pequeño</strong><br>
+                            <small data-es="= Temporizador más corto" data-en="= Shorter timer">= Temporizador más corto</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🎛️</span>
+                        <div>
+                            <strong data-es="Resistencia más grande" data-en="Bigger resistor">Resistencia más grande</strong><br>
+                            <small data-es="= Temporizador más largo" data-en="= Longer timer">= Temporizador más largo</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🚀</span>
+                        <div>
+                            <strong data-es="Resistencia más pequeña" data-en="Smaller resistor">Resistencia más pequeña</strong><br>
+                            <small data-es="= Temporizador más corto" data-en="= Shorter timer">= Temporizador más corto</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de valores prácticos -->
+            <div class="circuit-example">
+                <h3 data-es="📊 Tabla de Valores Prácticos" data-en="📊 Practical Values Table">📊 Tabla de Valores Prácticos</h3>
+                <p data-es="¡Usa estos valores probados para diferentes aplicaciones!" data-en="Use these tested values for different applications!">¡Usa estos valores probados para diferentes aplicaciones!</p>
+                
+                <div class="components-explanation">
+                    <div class="component-card timing-card">
+                        <div class="component-header">
+                            <div class="component-icon">⚡</div>
+                            <div class="component-title">
+                                <h3 data-es="Temporizador Corto" data-en="Short Timer">Temporizador Corto</h3>
+                                <span class="component-role" data-es="Como flash de cámara" data-en="Like camera flash">Como flash de cámara</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-specs">
+                                <ul>
+                                    <li><strong data-es="Resistencia:" data-en="Resistor:">Resistencia:</strong> <span data-es="10kΩ (marrón-negro-naranja)" data-en="10kΩ (brown-black-orange)">10kΩ (marrón-negro-naranja)</span></li>
+                                    <li><strong data-es="Capacitor:" data-en="Capacitor:">Capacitor:</strong> 10μF</li>
+                                    <li><strong data-es="Resultado:" data-en="Result:">Resultado:</strong> <span data-es="0.11 segundos (muy rápido)" data-en="0.11 seconds (very fast)">0.11 segundos (muy rápido)</span></li>
+                                    <li><strong data-es="Perfecto para:" data-en="Perfect for:">Perfecto para:</strong> <span data-es="Efectos de flash, señales rápidas" data-en="Flash effects, quick signals">Efectos de flash, señales rápidas</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="component-card output-card">
+                        <div class="component-header">
+                            <div class="component-icon">💡</div>
+                            <div class="component-title">
+                                <h3 data-es="Temporizador Medio" data-en="Medium Timer">Temporizador Medio</h3>
+                                <span class="component-role" data-es="Como luz de escalera" data-en="Like stair light">Como luz de escalera</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-specs">
+                                <ul>
+                                    <li><strong data-es="Resistencia:" data-en="Resistor:">Resistencia:</strong> <span data-es="100kΩ (marrón-negro-amarillo)" data-en="100kΩ (brown-black-yellow)">100kΩ (marrón-negro-amarillo)</span></li>
+                                    <li><strong data-es="Capacitor:" data-en="Capacitor:">Capacitor:</strong> 47μF</li>
+                                    <li><strong data-es="Resultado:" data-en="Result:">Resultado:</strong> <span data-es="5.2 segundos" data-en="5.2 seconds">5.2 segundos</span></li>
+                                    <li><strong data-es="Perfecto para:" data-en="Perfect for:">Perfecto para:</strong> <span data-es="Luces automáticas, timbres" data-en="Automatic lights, doorbells">Luces automáticas, timbres</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="component-card protection-card">
+                        <div class="component-header">
+                            <div class="component-icon">🐌</div>
+                            <div class="component-title">
+                                <h3 data-es="Temporizador Largo" data-en="Long Timer">Temporizador Largo</h3>
+                                <span class="component-role" data-es="Como luz de baño" data-en="Like bathroom light">Como luz de baño</span>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="component-specs">
+                                <ul>
+                                    <li><strong data-es="Resistencia:" data-en="Resistor:">Resistencia:</strong> <span data-es="1MΩ (marrón-negro-verde)" data-en="1MΩ (brown-black-green)">1MΩ (marrón-negro-verde)</span></li>
+                                    <li><strong data-es="Capacitor:" data-en="Capacitor:">Capacitor:</strong> 100μF</li>
+                                    <li><strong data-es="Resultado:" data-en="Result:">Resultado:</strong> <span data-es="110 segundos (casi 2 minutos)" data-en="110 seconds (almost 2 minutes)">110 segundos (casi 2 minutos)</span></li>
+                                    <li><strong data-es="Perfecto para:" data-en="Perfect for:">Perfecto para:</strong> <span data-es="Luces de seguridad, ventiladores" data-en="Security lights, fans">Luces de seguridad, ventiladores</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diferencias con el modo astable -->
+            <div class="teamwork-section">
+                <h3 data-es="🤝 ¿En qué se diferencia del Modo Astable?" data-en="🤝 How is it different from Astable Mode?">🤝 ¿En qué se diferencia del Modo Astable?</h3>
+                <div class="teamwork-flow">
+                    <div class="flow-step">
+                        <div class="step-icon">🔄</div>
+                        <div class="step-content">
+                            <h4 data-es="Modo Astable" data-en="Astable Mode">Modo Astable</h4>
+                            <p data-es="Parpadea automáticamente sin parar" data-en="Blinks automatically non-stop">Parpadea automáticamente sin parar</p>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">VS</div>
+                    <div class="flow-step">
+                        <div class="step-icon">⏱️</div>
+                        <div class="step-content">
+                            <h4 data-es="Modo Monoestable" data-en="Monostable Mode">Modo Monoestable</h4>
+                            <p data-es="Se activa con botón y se apaga solo" data-en="Activates with button and turns off by itself">Se activa con botón y se apaga solo</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="teamwork-flow" style="margin-top: 20px;">
+                    <div class="flow-step">
+                        <div class="step-icon">🎄</div>
+                        <div class="step-content">
+                            <h4 data-es="Astable = Luces navideñas" data-en="Astable = Christmas lights">Astable = Luces navideñas</h4>
+                            <p data-es="Parpadean solas todo el tiempo" data-en="Blink by themselves all the time">Parpadean solas todo el tiempo</p>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">VS</div>
+                    <div class="flow-step">
+                        <div class="step-icon">💡</div>
+                        <div class="step-content">
+                            <h4 data-es="Monoestable = Luz del baño" data-en="Monostable = Bathroom light">Monoestable = Luz del baño</h4>
+                            <p data-es="Presionas botón → se enciende → se apaga sola" data-en="Press button → turns on → turns off by itself">Presionas botón → se enciende → se apaga sola</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consejos prácticos -->
+            <div class="safety-warning">
+                <h3 data-es="💡 Consejos de Experto para Monoestable" data-en="💡 Expert Tips for Monostable">💡 Consejos de Experto para Monoestable</h3>
+                <ul>
+                    <li><strong data-es="🔘 Botón rebote:" data-en="🔘 Button bounce:">🔘 Botón rebote:</strong> <span data-es="Usa un capacitor de 100nF en paralelo con el botón para evitar activaciones múltiples." data-en="Use a 100nF capacitor in parallel with the button to avoid multiple activations.">Usa un capacitor de 100nF en paralelo con el botón para evitar activaciones múltiples.</span></li>
+                    <li><strong data-es="📏 Tiempos largos:" data-en="📏 Long times:">📏 Tiempos largos:</strong> <span data-es="Para temporizadores de minutos, usa capacitores electrolíticos grandes (1000μF o más)." data-en="For minute timers, use large electrolytic capacitors (1000μF or more).">Para temporizadores de minutos, usa capacitores electrolíticos grandes (1000μF o más).</span></li>
+                    <li><strong data-es="🔄 Retriggerable:" data-en="🔄 Retriggerable:">🔄 Retriggerable:</strong> <span data-es="Si presionas el botón mientras está encendido, ¡reinicia el temporizador!" data-en="If you press the button while it's on, it restarts the timer!">Si presionas el botón mientras está encendido, ¡reinicia el temporizador!</span></li>
+                    <li><strong data-es="⚡ Tiempos cortos:" data-en="⚡ Short times:">⚡ Tiempos cortos:</strong> <span data-es="Para milisegundos, usa capacitores cerámicos pequeños (1nF - 100nF)." data-en="For milliseconds, use small ceramic capacitors (1nF - 100nF).">Para milisegundos, usa capacitores cerámicos pequeños (1nF - 100nF).</span></li>
+                    <li><strong data-es="🛡️ Protección:" data-en="🛡️ Protection:">🛡️ Protección:</strong> <span data-es="Siempre usa la resistencia de 470Ω para proteger el LED." data-en="Always use the 470Ω resistor to protect the LED.">Siempre usa la resistencia de 470Ω para proteger el LED.</span></li>
+                </ul>
+            </div>
+
+            <!-- Proyecto sugerido -->
+            <div class="info-card">
+                <h3 data-es="🎯 Proyecto Sugerido: Luz Automática de Escalera" data-en="🎯 Suggested Project: Automatic Stair Light">🎯 Proyecto Sugerido: Luz Automática de Escalera</h3>
+                <p><strong data-es="¿Qué vas a crear?" data-en="What will you create?">¿Qué vas a crear?</strong> <span data-es="Una luz que se enciende cuando presionas un botón y se apaga automáticamente después de 30 segundos." data-en="A light that turns on when you press a button and automatically turns off after 30 seconds.">Una luz que se enciende cuando presionas un botón y se apaga automáticamente después de 30 segundos.</span></p>
+                
+                <div class="materials-grid">
+                    <div class="material-item">
+                        <span class="material-emoji">🔘</span>
+                        <div>
+                            <strong data-es="Botón pulsador" data-en="Push button">Botón pulsador</strong><br>
+                            <small data-es="Para activar la luz" data-en="To activate the light">Para activar la luz</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">💡</span>
+                        <div>
+                            <strong data-es="LED blanco brillante" data-en="Bright white LED">LED blanco brillante</strong><br>
+                            <small data-es="Simula la luz de escalera" data-en="Simulates stair light">Simula la luz de escalera</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">⏰</span>
+                        <div>
+                            <strong data-es="Temporizador de 30s" data-en="30s timer">Temporizador de 30s</strong><br>
+                            <small>R=270kΩ, C=100μF</small>
+                        </div>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-emoji">🏠</span>
+                        <div>
+                            <strong data-es="Caja para montaje" data-en="Mounting box">Caja para montaje</strong><br>
+                            <small data-es="Para instalarlo en casa" data-en="To install at home">Para instalarlo en casa</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 80%;"></div>
+            </div>
+        </div>
+
+        <!-- Quiz -->
+        <div id="quiz" class="content-section">
+            <h2 data-es="🎓 Evaluación de Conocimientos" data-en="🎓 Knowledge Assessment">🎓 Evaluación de Conocimientos</h2>
+            
+            <div class="quiz-container">
+                <div class="question" id="question-text">¿Cuál es la función principal del pin 2 (TRIGGER) del 555?</div>
+                
+                <div class="options" id="quiz-options">
+                    <div class="option" onclick="selectOption(0)">Proporcionar la salida del circuito</div>
+                    <div class="option" onclick="selectOption(1)">Iniciar el temporizador con una señal baja</div>
+                    <div class="option" onclick="selectOption(2)">Conectar a la fuente de alimentación</div>
+                    <div class="option" onclick="selectOption(3)">Descargar el capacitor</div>
+                </div>
+                
+                <div class="control-panel">
+                    <button class="control-btn" onclick="checkAnswer()" data-es="✅ Verificar Respuesta" data-en="✅ Check Answer">✅ Verificar Respuesta</button>
+                    <button class="control-btn" onclick="nextQuestion()" data-es="➡️ Siguiente Pregunta" data-en="➡️ Next Question">➡️ Siguiente Pregunta</button>
+                </div>
+                
+                <div class="feedback" id="quiz-feedback"></div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="quiz-progress" style="width: 0%;"></div>
+            </div>
+            
+            <p id="score-display" data-es="Puntuación: 0/0" data-en="Score: 0/0">Puntuación: 0/0</p>
+        </div>
+    </div>
+
+    <script>
+        let astableInterval;
+        let monostableTimeout;
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = -1;
+        let virtualCircuitRunning = false;
+
+        const questions = {
+            es: [
+                {
+                    question: "¿Cuál es la función principal del pin 2 (TRIGGER) del 555?",
+                    options: [
+                        "Proporcionar la salida del circuito",
+                        "Iniciar el temporizador con una señal baja",
+                        "Conectar a la fuente de alimentación",
+                        "Descargar el capacitor"
+                    ],
+                    correct: 1,
+                    explanation: "El pin 2 (TRIGGER) inicia el temporizador cuando recibe una señal menor a 1/3 de Vcc."
+                },
+                {
+                    question: "¿Qué modo del 555 se usa para crear un LED parpadeante?",
+                    options: [
+                        "Modo monoestable",
+                        "Modo astable",
+                        "Modo biestable",
+                        "Modo de comparación"
+                    ],
+                    correct: 1,
+                    explanation: "El modo astable genera pulsos continuos, perfecto para hacer parpadear un LED."
+                },
+                {
+                    question: "¿Cuál es el rango de voltaje de alimentación del 555?",
+                    options: [
+                        "1V a 3V",
+                        "3V a 5V",
+                        "4.5V a 15V",
+                        "12V a 24V"
+                    ],
+                    correct: 2,
+                    explanation: "El 555 funciona correctamente con voltajes entre 4.5V y 15V."
+                },
+                {
+                    question: "En modo monoestable, ¿qué determina la duración del pulso?",
+                    options: [
+                        "Solo la resistencia R1",
+                        "Solo el capacitor C1",
+                        "La combinación de R1 y C1",
+                        "El voltaje de alimentación"
+                    ],
+                    correct: 2,
+                    explanation: "La duración del pulso en modo monoestable se calcula como T = 1.1 × R1 × C1."
+                },
+                {
+                    question: "¿Cuál es la diferencia principal entre modo astable y monoestable?",
+                    options: [
+                        "El astable usa más componentes",
+                        "El astable parpadea continuamente, el monoestable se activa una vez",
+                        "El monoestable es más rápido",
+                        "No hay diferencia"
+                    ],
+                    correct: 1,
+                    explanation: "El modo astable genera pulsos continuos automáticamente, mientras que el monoestable se activa una sola vez por cada trigger."
+                }
+            ],
+            en: [
+                {
+                    question: "What is the main function of pin 2 (TRIGGER) of the 555?",
+                    options: [
+                        "Provide the circuit output",
+                        "Start the timer with a low signal",
+                        "Connect to power supply",
+                        "Discharge the capacitor"
+                    ],
+                    correct: 1,
+                    explanation: "Pin 2 (TRIGGER) starts the timer when it receives a signal less than 1/3 of Vcc."
+                },
+                {
+                    question: "Which 555 mode is used to create a blinking LED?",
+                    options: [
+                        "Monostable mode",
+                        "Astable mode",
+                        "Bistable mode",
+                        "Comparison mode"
+                    ],
+                    correct: 1,
+                    explanation: "Astable mode generates continuous pulses, perfect for making an LED blink."
+                },
+                {
+                    question: "What is the supply voltage range of the 555?",
+                    options: [
+                        "1V to 3V",
+                        "3V to 5V",
+                        "4.5V to 15V",
+                        "12V to 24V"
+                    ],
+                    correct: 2,
+                    explanation: "The 555 works correctly with voltages between 4.5V and 15V."
+                },
+                {
+                    question: "In monostable mode, what determines the pulse duration?",
+                    options: [
+                        "Only resistor R1",
+                        "Only capacitor C1",
+                        "The combination of R1 and C1",
+                        "The supply voltage"
+                    ],
+                    correct: 2,
+                    explanation: "The pulse duration in monostable mode is calculated as T = 1.1 × R1 × C1."
+                },
+                {
+                    question: "What is the main difference between astable and monostable mode?",
+                    options: [
+                        "Astable uses more components",
+                        "Astable blinks continuously, monostable activates once",
+                        "Monostable is faster",
+                        "There is no difference"
+                    ],
+                    correct: 1,
+                    explanation: "Astable mode generates continuous pulses automatically, while monostable activates only once per trigger."
+                }
+            ]
+        };
+
+        function showTab(tabId) {
+            // Oculta todas las secciones
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Muestra la tab seleccionada
+            document.getElementById(tabId).classList.add('active');
+
+            // 🔹 NUEVO: quitar la clase activa de todos los botones
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // 🔹 NUEVO: marcar el botón de la tab actual
+            const currentBtn = document.querySelector(`.tab-btn[onclick="showTab('${tabId}')"]`);
+            if (currentBtn) {
+                currentBtn.classList.add('active');
+            }
+
+            // Opcional: desplazar hacia arriba al cambiar de tab
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+
+        function showPinInfo(pinNumber) {
+            // Ocultar el placeholder
+            document.querySelector('.pin-placeholder').style.display = 'none';
+            
+            // Ocultar todas las tarjetas de información
+            const pinCards = document.querySelectorAll('.pin-info-card');
+            pinCards.forEach(card => card.style.display = 'none');
+            
+            // Mostrar la tarjeta del pin seleccionado
+            document.getElementById(`pin-info-${pinNumber}`).style.display = 'block';
+        }
+
+        function startAstable() {
+            stopAstable();
+            const led = document.getElementById('astable-led');
+            const frequencyDisplay = document.getElementById('frequency-display');
+            let isOn = false;
+            
+            frequencyDisplay.textContent = 'Velocidad: Normal 🚶 - Como luces de Navidad 🎄';
+            
+            astableInterval = setInterval(() => {
+                isOn = !isOn;
+                led.classList.toggle('active', isOn);
+            }, 600);
+        }
+
+        function stopAstable() {
+            if (astableInterval) {
+                clearInterval(astableInterval);
+                astableInterval = null;
+            }
+            document.getElementById('astable-led').classList.remove('active');
+            document.getElementById('frequency-display').textContent = 'Simulador detenido - Presiona ▶️ para empezar';
+        }
+
+        function changeSpeed(speed) {
+            stopAstable();
+            const led = document.getElementById('astable-led');
+            const frequencyDisplay = document.getElementById('frequency-display');
+            let interval, description;
+            
+            if (speed === 'fast') {
+                interval = 150;
+                description = 'Velocidad: Súper Rápido ⚡ - Como alarma de emergencia';
+            } else if (speed === 'slow') {
+                interval = 1500;
+                description = 'Velocidad: Súper Lento 🐌 - Como semáforo';
+            } else {
+                interval = 600;
+                description = 'Velocidad: Normal 🚶 - Como luces de Navidad 🎄';
+            }
+            
+            frequencyDisplay.textContent = description;
+            
+            let isOn = false;
+            astableInterval = setInterval(() => {
+                isOn = !isOn;
+                led.classList.toggle('active', isOn);
+            }, interval);
+        }
+
+        function triggerMonostable(duration = 3) {
+            const led = document.getElementById('monostable-led');
+            const timerDisplay = document.getElementById('timer-display');
+            
+            // Limpiar timeout anterior si existe
+            if (monostableTimeout) {
+                clearTimeout(monostableTimeout);
+            }
+            
+            // Encender LED
+            led.classList.add('active');
+            
+            // Configurar mensaje según duración
+            let description = '';
+            if (duration === 1) {
+                description = '⚡ Temporizador Rápido - Como flash de cámara';
+            } else if (duration === 5) {
+                description = '🐌 Temporizador Lento - Como luz de baño';
+            } else {
+                description = '🚶 Temporizador Normal - Como luz de escalera';
+            }
+            
+            // Simular temporizador
+            let timeLeft = duration;
+            timerDisplay.textContent = `${description} - Tiempo restante: ${timeLeft}s`;
+            
+            const countdown = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `${description} - Tiempo restante: ${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    led.classList.remove('active');
+                    timerDisplay.textContent = 'Temporizador completado ✅ - Presiona cualquier botón para activar de nuevo';
+                }
+            }, 1000);
+        }
+
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, i) => {
+                option.classList.remove('selected');
+                if (i === index) {
+                    option.classList.add('selected');
+                }
+            });
+            selectedOption = index;
+        }
+
+        function checkAnswer() {
+            const alertMessage = currentLanguage === 'es' ? 'Por favor selecciona una respuesta' : 'Please select an answer';
+            if (selectedOption === -1) {
+                alert(alertMessage);
+                return;
+            }
+            
+            const options = document.querySelectorAll('.option');
+            const feedback = document.getElementById('quiz-feedback');
+            const currentQ = questions[currentLanguage][currentQuestion];
+            
+            options.forEach((option, i) => {
+                option.classList.remove('selected');
+                if (i === currentQ.correct) {
+                    option.classList.add('correct');
+                } else if (i === selectedOption) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            if (selectedOption === currentQ.correct) {
+                score++;
+                feedback.className = 'feedback correct';
+                const correctText = currentLanguage === 'es' ? '¡Correcto! ' : 'Correct! ';
+                feedback.textContent = correctText + currentQ.explanation;
+            } else {
+                feedback.className = 'feedback incorrect';
+                const incorrectText = currentLanguage === 'es' ? 'Incorrecto. ' : 'Incorrect. ';
+                feedback.textContent = incorrectText + currentQ.explanation;
+            }
+            
+            feedback.style.display = 'block';
+            updateScore();
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion >= questions[currentLanguage].length) {
+                showFinalScore();
+                return;
+            }
+            
+            loadQuestion();
+            updateProgress();
+        }
+
+        function loadQuestion() {
+            const question = questions[currentLanguage][currentQuestion];
+            document.getElementById('question-text').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('quiz-feedback').style.display = 'none';
+            selectedOption = -1;
+        }
+
+        function updateScore() {
+            const scoreElement = document.getElementById('score-display');
+            const scoreText = currentLanguage === 'es' ? `Puntuación: ${score}/${currentQuestion + 1}` : `Score: ${score}/${currentQuestion + 1}`;
+            scoreElement.textContent = scoreText;
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions[currentLanguage].length) * 100;
+            document.getElementById('quiz-progress').style.width = progress + '%';
+        }
+
+        function showFinalScore() {
+            const percentage = Math.round((score / questions[currentLanguage].length) * 100);
+            let message = '';
+            
+            if (currentLanguage === 'es') {
+                if (percentage >= 80) {
+                    message = '¡Excelente! Dominas el 555 🏆';
+                } else if (percentage >= 60) {
+                    message = '¡Bien! Sigue practicando 👍';
+                } else {
+                    message = 'Repasa los conceptos 📚';
+                }
+                document.getElementById('question-text').textContent = `Evaluación completada - ${percentage}% - ${message}`;
+                document.getElementById('quiz-options').innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3>Puntuación final: ${score}/${questions[currentLanguage].length}</h3>
+                        <button class="control-btn" onclick="restartQuiz()">🔄 Reiniciar Evaluación</button>
+                    </div>
+                `;
+            } else {
+                if (percentage >= 80) {
+                    message = 'Excellent! You master the 555 🏆';
+                } else if (percentage >= 60) {
+                    message = 'Good! Keep practicing 👍';
+                } else {
+                    message = 'Review the concepts 📚';
+                }
+                document.getElementById('question-text').textContent = `Assessment completed - ${percentage}% - ${message}`;
+                document.getElementById('quiz-options').innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <h3>Final score: ${score}/${questions[currentLanguage].length}</h3>
+                        <button class="control-btn" onclick="restartQuiz()">🔄 Restart Assessment</button>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('quiz-feedback').style.display = 'none';
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedOption = -1;
+            loadQuestion();
+            updateScore();
+            updateProgress();
+        }
+
+        function showComponentInfo(component) {
+            const componentInfo = document.getElementById('component-info');
+            const placeholder = componentInfo.querySelector('.pin-placeholder');
+            
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+            
+            let infoHTML = '';
+            
+            switch(component) {
+                case 'ic555':
+                    infoHTML = `
+                        <div class="pin-info-card power-card">
+                            <div class="pin-header">
+                                <span class="pin-emoji">🧠</span>
+                                <h3>Circuito Integrado 555</h3>
+                                <span class="pin-type">Cerebro</span>
+                            </div>
+                            <div class="pin-content">
+                                <p><strong>¿Qué hace?</strong> Es el "cerebro" del circuito. Controla cuándo el LED se enciende y se apaga.</p>
+                                <p><strong>¿Cómo funciona?</strong> Usa los componentes externos (resistencias y capacitor) para calcular los tiempos.</p>
+                                <div class="pin-tip">
+                                    <strong>🎯 Dato genial:</strong> ¡Este chip puede funcionar como reloj, temporizador o generador de señales!
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'led':
+                    infoHTML = `
+                        <div class="pin-info-card output-card">
+                            <div class="pin-header">
+                                <span class="pin-emoji">💡</span>
+                                <h3>LED (Diodo Emisor de Luz)</h3>
+                                <span class="pin-type">Salida</span>
+                            </div>
+                            <div class="pin-content">
+                                <p><strong>¿Qué hace?</strong> Convierte la electricidad en luz. ¡Es súper eficiente!</p>
+                                <p><strong>Polaridad:</strong> Tiene dos patas: la larga (+) y la corta (-). ¡No las confundas!</p>
+                                <div class="pin-tip">
+                                    <strong>🌈 Colores:</strong> Puedes usar LED rojo, verde, azul, amarillo... ¡el que más te guste!
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'resistor':
+                    infoHTML = `
+                        <div class="pin-info-card control-card">
+                            <div class="pin-header">
+                                <span class="pin-emoji">🛡️</span>
+                                <h3>Resistencia 470Ω</h3>
+                                <span class="pin-type">Protección</span>
+                            </div>
+                            <div class="pin-content">
+                                <p><strong>¿Qué hace?</strong> Protege el LED limitando la corriente. ¡Es como un guardaespaldas!</p>
+                                <p><strong>Colores:</strong> Amarillo-Violeta-Marrón = 470 ohmios</p>
+                                <div class="pin-tip">
+                                    <strong>⚡ Sin ella:</strong> El LED se quemaría instantáneamente por exceso de corriente.
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'capacitor':
+                    infoHTML = `
+                        <div class="pin-info-card input-card">
+                            <div class="pin-header">
+                                <span class="pin-emoji">⏰</span>
+                                <h3>Capacitor 10μF</h3>
+                                <span class="pin-type">Timing</span>
+                            </div>
+                            <div class="pin-content">
+                                <p><strong>¿Qué hace?</strong> Es como una "batería temporal" que se carga y descarga para crear el timing.</p>
+                                <p><strong>Tamaño importa:</strong> Más grande = parpadeo más lento, más pequeño = parpadeo más rápido.</p>
+                                <div class="pin-tip">
+                                    <strong>🔋 Experimento:</strong> ¡Prueba con diferentes valores para cambiar la velocidad!
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'battery':
+                    infoHTML = `
+                        <div class="pin-info-card power-card">
+                            <div class="pin-header">
+                                <span class="pin-emoji">🔋</span>
+                                <h3>Batería 9V</h3>
+                                <span class="pin-type">Energía</span>
+                            </div>
+                            <div class="pin-content">
+                                <p><strong>¿Qué hace?</strong> Proporciona la energía que necesita todo el circuito para funcionar.</p>
+                                <p><strong>Voltaje perfecto:</strong> 9V es ideal para el 555. También puedes usar 6V o 12V.</p>
+                                <div class="pin-tip">
+                                    <strong>🔌 Conexión:</strong> Rojo al positivo (+), negro al negativo (-). ¡Siempre!
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'timing-resistor':
+                    infoHTML = `
+                        <div class="pin-info-card control-card">
+                            <div class="pin-header">
+                                <span class="pin-emoji">⏱️</span>
+                                <h3>Resistencia de Timing 1kΩ</h3>
+                                <span class="pin-type">Control</span>
+                            </div>
+                            <div class="pin-content">
+                                <p><strong>¿Qué hace?</strong> Controla la velocidad del parpadeo junto con el capacitor.</p>
+                                <p><strong>Colores:</strong> Marrón-Negro-Rojo = 1000 ohmios (1kΩ)</p>
+                                <div class="pin-tip">
+                                    <strong>🎛️ Experimento:</strong> ¡Usa valores más grandes para parpadeo más lento!
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            componentInfo.innerHTML = infoHTML;
+        }
+
+        function testVirtualCircuit() {
+            const led = document.getElementById('virtual-led');
+            const result = document.getElementById('simulation-result');
+            const button = document.querySelector('.test-button');
+            
+            if (!virtualCircuitRunning) {
+                // Iniciar simulación
+                virtualCircuitRunning = true;
+                led.classList.add('active');
+                result.textContent = '🎉 ¡Circuito funcionando! El LED está parpadeando correctamente.';
+                button.textContent = '🔌 Desconectar Batería';
+                button.style.background = '#e74c3c';
+                
+                // Simular parpadeo
+                let isOn = true;
+                const blinkInterval = setInterval(() => {
+                    if (!virtualCircuitRunning) {
+                        clearInterval(blinkInterval);
+                        return;
+                    }
+                    isOn = !isOn;
+                    if (isOn) {
+                        led.classList.add('active');
+                    } else {
+                        led.classList.remove('active');
+                    }
+                }, 800);
+                
+            } else {
+                // Detener simulación
+                virtualCircuitRunning = false;
+                led.classList.remove('active');
+                result.textContent = 'Circuito desconectado - Presiona el botón para probar';
+                button.textContent = '🔌 Conectar Batería Virtual';
+                button.style.background = '#27ae60';
+            }
+        }
+
+        let currentLanguage = 'es';
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Update language buttons
+            const langButtons = document.querySelectorAll('.lang-btn');
+            langButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update all elements with translations
+            const elementsWithTranslations = document.querySelectorAll('[data-es][data-en]');
+            elementsWithTranslations.forEach(element => {
+                if (element.dataset[lang]) {
+                    // Handle HTML content for elements that contain HTML tags
+                    if (element.dataset[lang].includes('<')) {
+                        element.innerHTML = element.dataset[lang];
+                    } else {
+                        element.textContent = element.dataset[lang];
+                    }
+                }
+            });
+            
+            // Reset quiz to first question in new language
+            currentQuestion = 0;
+            score = 0;
+            selectedOption = -1;
+            loadQuestion();
+            updateScore();
+            updateProgress();
+            
+            // Hide feedback
+            document.getElementById('quiz-feedback').style.display = 'none';
+        }
+
+
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            loadQuestion();
+            updateProgress();
+        });
+
+        function goToNextTab() {
+        const tabs = Array.from(document.querySelectorAll('.tab-btn'));
+        const activeTab = document.querySelector('.tab-btn.active');
+        const currentIndex = tabs.indexOf(activeTab);
+
+        if (currentIndex < tabs.length - 1) {
+            const nextTab = tabs[currentIndex + 1];
+            const nextTabId = nextTab.getAttribute('onclick').match(/'(.*?)'/)[1];
+            showTab(nextTabId);
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // sube al inicio
+        } else {
+            alert('🎉 ¡Has completado todas las secciones!');
+        }
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98b1486bb02d5cc2',t:'MTc1OTg4MDgzOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

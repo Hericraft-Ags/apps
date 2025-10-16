@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Cortadora Láser - Entrenamiento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .laser-beam {
+            animation: laser-pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes laser-pulse {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.8; transform: scale(1); }
+        }
+        
+        .cutting-animation {
+            animation: cutting 2s linear;
+        }
+        
+        @keyframes cutting {
+            0% { stroke-dashoffset: 400; }
+            100% { stroke-dashoffset: 0; }
+        }
+        
+        .step-highlight {
+            animation: highlight 0.5s ease-in-out;
+        }
+        
+        @keyframes highlight {
+            0% { background-color: rgb(239, 246, 255); }
+            50% { background-color: rgb(219, 234, 254); }
+            100% { background-color: rgb(239, 246, 255); }
+        }
+
+        .step-active {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        .step-completed {
+            animation: bounce-check 0.6s ease-in-out;
+        }
+        
+        @keyframes bounce-check {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .progress-transition {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step-panel {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .step-panel.active {
+            border-left: 4px solid #3b82f6;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+        }
+
+        .step-panel.completed {
+            border-left: 4px solid #10b981;
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .status-ready {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .status-cutting {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            animation: pulse-cutting 2s infinite;
+        }
+
+        .status-paused {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .status-error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .status-completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        @keyframes pulse-cutting {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5); }
+        }
+
+        .progress-bar-container {
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            height: 8px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            border-radius: 10px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: progress-shine 2s infinite;
+        }
+
+        @keyframes progress-shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .parameter-indicator {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .parameter-indicator.optimal {
+            border-color: #10b981;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), white);
+        }
+
+        .parameter-indicator.warning {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), white);
+        }
+
+        .parameter-indicator.danger {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), white);
+        }
+
+        .circular-progress {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .circular-progress svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .circular-progress .progress-circle {
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .circular-progress .progress-bg {
+            stroke: #e5e7eb;
+        }
+
+        .circular-progress .progress-fill {
+            stroke: #3b82f6;
+            stroke-dasharray: 226;
+            stroke-dashoffset: 226;
+        }
+
+        .circular-progress .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .safety-indicator {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .safety-indicator.pending {
+            background: #f8fafc;
+            border-left-color: #94a3b8;
+        }
+
+        .safety-indicator.completed {
+            background: #f0fdf4;
+            border-left-color: #10b981;
+            animation: safety-check 0.5s ease;
+        }
+
+        @keyframes safety-check {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); background: #dcfce7; }
+            100% { transform: scale(1); }
+        }
+
+        .enhanced-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .enhanced-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .enhanced-button:hover::before {
+            left: 100%;
+        }
+
+        .enhanced-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .temperature-gauge {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            border-radius: 12px;
+            padding: 16px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .temperature-gauge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+        }
+
+        .temp-normal { color: #10b981; }
+        .temp-warm { color: #f59e0b; }
+        .temp-hot { color: #ef4444; animation: temp-warning 1s infinite; }
+
+        @keyframes temp-warning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            margin-bottom: 12px;
+            padding: 16px 20px;
+            border-left: 4px solid;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 100%;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left-color: #10b981;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, white 100%);
+        }
+
+        .toast.warning {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, white 100%);
+        }
+
+        .toast.error {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, white 100%);
+        }
+
+        .toast.info {
+            border-left-color: #3b82f6;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, white 100%);
+        }
+
+        .toast-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .toast-icon {
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1f2937;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .toast-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-full">
+    <!-- Sistema de Notificaciones Toast -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">🔬 Simulador de Cortadora Láser</h1>
+            <p class="text-lg text-gray-600">Entrenamiento para estudiantes - Aprende antes de usar la máquina real</p>
+        </div>
+
+        <!-- Barra de Progreso Visual -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between relative">
+                <!-- Línea de conexión -->
+                <div class="absolute top-6 left-0 w-full h-1 bg-gray-200 rounded-full z-0">
+                    <div id="progressLine" class="h-full bg-gradient-to-r from-blue-500 to-green-500 rounded-full transition-all duration-500 ease-in-out" style="width: 0%"></div>
+                </div>
+                
+                <!-- Paso 1: Configuración -->
+                <div class="flex flex-col items-center relative z-10">
+                    <div id="step1Circle" class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg mb-2 transition-all duration-300 shadow-lg step-active">
+                        1
+                    </div>
+                    <div class="text-center">
+                        <h3 id="step1Title" class="font-bold text-sm text-blue-600">Configuración</h3>
+                        <p id="step1Subtitle" class="text-xs text-blue-500">Láser y Material</p>
+                    </div>
+                </div>
+
+                <!-- Paso 2: Parámetros -->
+                <div class="flex flex-col items-center relative z-10">
+                    <div id="step2Circle" class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold text-lg mb-2 transition-all duration-300">
+                        2
+                    </div>
+                    <div class="text-center">
+                        <h3 id="step2Title" class="font-bold text-sm text-gray-600">Parámetros</h3>
+                        <p id="step2Subtitle" class="text-xs text-gray-500">Potencia y Velocidad</p>
+                    </div>
+                </div>
+
+                <!-- Paso 3: Seguridad -->
+                <div class="flex flex-col items-center relative z-10">
+                    <div id="step3Circle" class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold text-lg mb-2 transition-all duration-300">
+                        3
+                    </div>
+                    <div class="text-center">
+                        <h3 id="step3Title" class="font-bold text-sm text-gray-600">Seguridad</h3>
+                        <p id="step3Subtitle" class="text-xs text-gray-500">Verificaciones</p>
+                    </div>
+                </div>
+
+                <!-- Paso 4: Simulación -->
+                <div class="flex flex-col items-center relative z-10">
+                    <div id="step4Circle" class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold text-lg mb-2 transition-all duration-300">
+                        4
+                    </div>
+                    <div class="text-center">
+                        <h3 id="step4Title" class="font-bold text-sm text-gray-600">Simulación</h3>
+                        <p id="step4Subtitle" class="text-xs text-gray-500">Corte Virtual</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicador de paso actual -->
+            <div class="mt-4 text-center">
+                <div id="currentStepIndicator" class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
+                    Paso 1: Selecciona el tipo de láser y material
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Panel de Control -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">⚙️ Panel de Control</h2>
+                    
+                    <!-- Paso 1: Tipo de Láser -->
+                    <div class="mb-6 p-4 bg-blue-50 rounded-lg step-panel active" id="step1Panel">
+                        <h3 class="font-bold text-lg mb-3 flex items-center">
+                            <span class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm mr-2">1</span>
+                            Seleccionar Tipo de Láser
+                        </h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="laserType" value="co2" class="mr-2" checked>
+                                <span class="font-medium">CO2 (Dióxido de Carbono)</span>
+                            </label>
+                            <p class="text-sm text-gray-600 ml-6">• Potencia: 40-150W • Materiales: Madera, acrílico, papel, tela</p>
+                            
+                            <label class="flex items-center">
+                                <input type="radio" name="laserType" value="diode" class="mr-2">
+                                <span class="font-medium">Diodo Láser</span>
+                            </label>
+                            <p class="text-sm text-gray-600 ml-6">• Potencia: 5-20W • Materiales: Madera fina, papel, grabado en metal</p>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-white rounded border-l-4 border-blue-400">
+                            <h4 class="font-medium text-blue-800 mb-1">Material</h4>
+                            <select id="materialSelect" class="w-full p-2 border rounded-lg">
+                                <option value="">Selecciona un material...</option>
+                            </select>
+                            <div id="materialInfo" class="mt-2 text-sm text-gray-600"></div>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-white rounded border-l-4 border-blue-400">
+                            <h4 class="font-medium text-blue-800 mb-1">Tipo de Proceso</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="processType" value="cut" class="mr-2" checked>
+                                    <span class="font-medium">Corte</span>
+                                </label>
+                                <p class="text-sm text-gray-600 ml-6">• Atraviesa completamente el material</p>
+                                
+                                <label class="flex items-center">
+                                    <input type="radio" name="processType" value="engrave" class="mr-2">
+                                    <span class="font-medium">Grabado</span>
+                                </label>
+                                <p class="text-sm text-gray-600 ml-6">• Marca la superficie sin atravesar</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-white rounded border-l-4 border-blue-400">
+                            <h4 class="font-medium text-blue-800 mb-1">Figura a Cortar</h4>
+                            <select id="shapeSelect" class="w-full p-2 border rounded-lg">
+                                <option value="circle">🔵 Círculo</option>
+                                <option value="square">🟦 Cuadrado</option>
+                                <option value="star">⭐ Estrella</option>
+                                <option value="heart">❤️ Corazón</option>
+                                <option value="hexagon">⬡ Hexágono</option>
+                                <option value="triangle">🔺 Triángulo</option>
+                            </select>
+                            <div id="shapeInfo" class="mt-2 text-sm text-gray-600">Forma circular básica - Ideal para principiantes</div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 2: Configuración -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg step-panel" id="step2Panel">
+                        <h3 class="font-bold text-lg mb-3 flex items-center">
+                            <span class="w-6 h-6 bg-gray-400 text-white rounded-full flex items-center justify-center text-sm mr-2">2</span>
+                            Configurar Parámetros
+                        </h3>
+                        
+                        <div class="mb-4">
+                            <label class="block font-medium mb-1">Potencia (%)</label>
+                            <input type="range" id="powerSlider" min="10" max="100" value="50" class="w-full">
+                            <div class="flex justify-between text-sm text-gray-600">
+                                <span>10%</span>
+                                <span id="powerValue">50%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block font-medium mb-1">Velocidad (mm/min)</label>
+                            <input type="range" id="speedSlider" min="100" max="4000" value="1000" class="w-full">
+                            <div class="flex justify-between text-sm text-gray-600">
+                                <span id="speedMin">100</span>
+                                <span id="speedValue">1000</span>
+                                <span id="speedMax">4000</span>
+                            </div>
+                            <div id="speedInfo" class="text-xs text-gray-500 mt-1"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block font-medium mb-1">Número de Pasadas</label>
+                            <select id="passesSelect" class="w-full p-2 border rounded-lg">
+                                <option value="1">1 pasada</option>
+                                <option value="2">2 pasadas</option>
+                                <option value="3">3 pasadas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Paso 3: Seguridad -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg step-panel" id="step3Panel">
+                        <h3 class="font-bold text-lg mb-3 flex items-center">
+                            <span class="w-6 h-6 bg-gray-400 text-white rounded-full flex items-center justify-center text-sm mr-2">3</span>
+                            Verificar Seguridad
+                        </h3>
+                        <div class="space-y-2">
+                            <div class="safety-indicator pending" id="safety1Indicator">
+                                <input type="checkbox" id="safetyCheck1" class="mr-3 w-4 h-4">
+                                <div class="flex-1">
+                                    <div class="font-medium text-sm">🥽 Gafas de protección puestas</div>
+                                    <div class="text-xs text-gray-500">Protección ocular obligatoria</div>
+                                </div>
+                            </div>
+                            <div class="safety-indicator pending" id="safety2Indicator">
+                                <input type="checkbox" id="safetyCheck2" class="mr-3 w-4 h-4">
+                                <div class="flex-1">
+                                    <div class="font-medium text-sm">🧹 Área de trabajo despejada</div>
+                                    <div class="text-xs text-gray-500">Sin objetos inflamables cerca</div>
+                                </div>
+                            </div>
+                            <div class="safety-indicator pending" id="safety3Indicator">
+                                <input type="checkbox" id="safetyCheck3" class="mr-3 w-4 h-4">
+                                <div class="flex-1">
+                                    <div class="font-medium text-sm">💨 Extractor de humos encendido</div>
+                                    <div class="text-xs text-gray-500">Ventilación activa requerida</div>
+                                </div>
+                            </div>
+                            <div class="safety-indicator pending" id="safety4Indicator">
+                                <input type="checkbox" id="safetyCheck4" class="mr-3 w-4 h-4">
+                                <div class="flex-1">
+                                    <div class="font-medium text-sm">🔒 Material bien fijado</div>
+                                    <div class="text-xs text-gray-500">Evita movimiento durante el corte</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Indicador de Progreso de Seguridad -->
+                        <div class="mt-4 p-3 bg-white rounded-lg border">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium">Verificaciones Completadas</span>
+                                <span id="safetyProgress" class="text-sm font-bold text-blue-600">0/4</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div id="safetyProgressBar" class="progress-bar" style="width: 0%; background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Control -->
+                    <div class="space-y-3">
+                        <button id="startBtn" class="enhanced-button w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-4 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-400 shadow-lg" disabled>
+                            <span class="flex items-center justify-center">
+                                <span class="text-xl mr-2">🚀</span>
+                                <span>Iniciar Corte</span>
+                            </span>
+                        </button>
+                        <button id="pauseBtn" class="enhanced-button w-full bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white font-bold py-2 px-4 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-400 shadow-lg" disabled>
+                            <span class="flex items-center justify-center">
+                                <span class="text-lg mr-2">⏸️</span>
+                                <span>Pausar</span>
+                            </span>
+                        </button>
+                        <button id="stopBtn" class="enhanced-button w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-2 px-4 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-400 shadow-lg" disabled>
+                            <span class="flex items-center justify-center">
+                                <span class="text-lg mr-2">⏹️</span>
+                                <span>Detener</span>
+                            </span>
+                        </button>
+                        <button id="resetBtn" class="enhanced-button w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-2 px-4 rounded-lg shadow-lg">
+                            <span class="flex items-center justify-center">
+                                <span class="text-lg mr-2">🔄</span>
+                                <span>Reiniciar Simulación</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Información del Sistema -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">📊 Estado del Sistema</h3>
+                    
+                    <!-- Indicador de Estado Principal -->
+                    <div class="mb-6 text-center">
+                        <div id="mainStatusIndicator" class="status-indicator status-error mx-auto">
+                            <span class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
+                            <span id="mainStatusText">Configuración Incompleta</span>
+                        </div>
+                    </div>
+
+                    <!-- Progreso con Barra Animada -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">Progreso del Corte</span>
+                            <span id="progressPercentage" class="text-sm font-bold text-blue-600">0%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div id="progressBarFill" class="progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Medidores Circulares -->
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <!-- Medidor de Potencia -->
+                        <div class="text-center">
+                            <div class="circular-progress mx-auto mb-2">
+                                <svg>
+                                    <circle cx="40" cy="40" r="36" class="progress-circle progress-bg"/>
+                                    <circle cx="40" cy="40" r="36" class="progress-circle progress-fill" id="powerCircle"/>
+                                </svg>
+                                <div class="progress-text" id="powerCircleText">50%</div>
+                            </div>
+                            <div class="text-xs text-gray-600">Potencia</div>
+                        </div>
+
+                        <!-- Medidor de Velocidad -->
+                        <div class="text-center">
+                            <div class="circular-progress mx-auto mb-2">
+                                <svg>
+                                    <circle cx="40" cy="40" r="36" class="progress-circle progress-bg"/>
+                                    <circle cx="40" cy="40" r="36" class="progress-circle progress-fill" id="speedCircle" style="stroke: #10b981;"/>
+                                </svg>
+                                <div class="progress-text" id="speedCircleText">1000</div>
+                            </div>
+                            <div class="text-xs text-gray-600">Velocidad</div>
+                        </div>
+                    </div>
+
+                    <!-- Parámetros Detallados -->
+                    <div class="space-y-3">
+                        <!-- Tiempo Estimado -->
+                        <div class="parameter-indicator" id="timeIndicator">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">⏱️</span>
+                                    <div>
+                                        <div class="font-medium text-gray-800">Tiempo Estimado</div>
+                                        <div class="text-xs text-gray-500">Duración del corte</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div id="estimatedTimeDisplay" class="font-bold text-lg text-blue-600">--</div>
+                                    <div class="text-xs text-gray-500">segundos</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Temperatura -->
+                        <div class="temperature-gauge">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">🌡️</span>
+                                    <div>
+                                        <div class="font-medium">Temperatura</div>
+                                        <div class="text-xs opacity-75">Sistema de enfriamiento</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div id="temperatureDisplay" class="font-bold text-2xl temp-normal">25°C</div>
+                                    <div class="text-xs opacity-75">Normal</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información Adicional -->
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                <div class="font-bold text-gray-800" id="materialTypeDisplay">--</div>
+                                <div class="text-gray-500">Material</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                <div class="font-bold text-gray-800" id="laserTypeDisplay">CO2</div>
+                                <div class="text-gray-500">Tipo Láser</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de Trabajo -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 Área de Trabajo - Vista Superior</h2>
+                    
+                    <!-- Simulador Visual -->
+                    <div class="relative bg-gray-900 rounded-lg p-4 mb-4" style="height: 500px;">
+                        <svg width="100%" height="100%" viewBox="0 0 500 400" class="border-4 border-gray-700 rounded-lg bg-gray-800">
+                            <!-- Definiciones para efectos -->
+                            <defs>
+                                <!-- Gradientes -->
+                                <linearGradient id="bedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#374151;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#1f2937;stop-opacity:1" />
+                                </linearGradient>
+                                
+                                <radialGradient id="laserGlow" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+                                    <stop offset="70%" style="stop-color:#dc2626;stop-opacity:0.8" />
+                                    <stop offset="100%" style="stop-color:#b91c1c;stop-opacity:0" />
+                                </radialGradient>
+                                
+                                <radialGradient id="laserGlowBlue" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                    <stop offset="70%" style="stop-color:#2563eb;stop-opacity:0.8" />
+                                    <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:0" />
+                                </radialGradient>
+                                
+                                <filter id="glow">
+                                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                    <feMerge> 
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                                
+                                <!-- Rejilla de trabajo -->
+                                <pattern id="workGrid" width="25" height="25" patternUnits="userSpaceOnUse">
+                                    <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#4b5563" stroke-width="0.5" opacity="0.3"/>
+                                </pattern>
+                                
+                                <!-- Patrón de ventilación -->
+                                <pattern id="ventPattern" width="8" height="8" patternUnits="userSpaceOnUse">
+                                    <circle cx="4" cy="4" r="1.5" fill="#6b7280" opacity="0.4"/>
+                                </pattern>
+                            </defs>
+                            
+                            <!-- Marco exterior de la máquina -->
+                            <rect x="10" y="10" width="480" height="380" fill="#1f2937" stroke="#374151" stroke-width="3" rx="8"/>
+                            
+                            <!-- Cama de trabajo principal -->
+                            <rect x="40" y="40" width="420" height="320" fill="url(#bedGradient)" stroke="#4b5563" stroke-width="2" rx="4"/>
+                            <rect x="40" y="40" width="420" height="320" fill="url(#workGrid)"/>
+                            
+                            <!-- Rieles X (horizontales) -->
+                            <rect x="30" y="50" width="440" height="8" fill="#6b7280" rx="4"/>
+                            <rect x="30" y="342" width="440" height="8" fill="#6b7280" rx="4"/>
+                            
+                            <!-- Rieles Y (verticales) -->
+                            <rect x="50" y="30" width="8" height="340" fill="#6b7280" rx="4"/>
+                            <rect x="442" y="30" width="8" height="340" fill="#6b7280" rx="4"/>
+                            
+                            <!-- Puente móvil (eje X) -->
+                            <g id="xBridge">
+                                <rect x="45" y="190" width="410" height="20" fill="#374151" stroke="#4b5563" stroke-width="1" rx="3"/>
+                                <rect x="50" y="193" width="400" height="14" fill="#4b5563" rx="2"/>
+                                <!-- Motores paso a paso -->
+                                <rect x="45" y="185" width="15" height="15" fill="#1f2937" stroke="#374151" stroke-width="1" rx="2"/>
+                                <rect x="440" y="185" width="15" height="15" fill="#1f2937" stroke="#374151" stroke-width="1" rx="2"/>
+                            </g>
+                            
+                            <!-- Carro del cabezal láser (eje Y) -->
+                            <g id="laserCarriage">
+                                <rect x="240" y="188" width="20" height="24" fill="#1f2937" stroke="#374151" stroke-width="1" rx="3"/>
+                                <rect x="242" y="190" width="16" height="20" fill="#374151" rx="2"/>
+                            </g>
+                            
+                            <!-- Cabezal láser detallado -->
+                            <g id="laserHead">
+                                <!-- Cuerpo principal del cabezal -->
+                                <circle cx="250" cy="200" r="12" fill="#1f2937" stroke="#374151" stroke-width="2"/>
+                                <circle cx="250" cy="200" r="8" fill="#374151"/>
+                                
+                                <!-- Lente de enfoque -->
+                                <circle cx="250" cy="200" r="5" fill="#4b5563" stroke="#6b7280" stroke-width="1"/>
+                                <circle cx="250" cy="200" r="3" fill="#374151"/>
+                                
+                                <!-- Boquilla de aire -->
+                                <circle cx="250" cy="200" r="6" fill="none" stroke="#6b7280" stroke-width="0.5" opacity="0.6"/>
+                                
+                                <!-- Punto láser -->
+                                <circle cx="250" cy="200" r="1" fill="#ef4444" opacity="0" id="laserBeam"/>
+                                <circle cx="250" cy="200" r="8" fill="url(#laserGlow)" opacity="0" id="laserGlow"/>
+                            </g>
+                            
+                            <!-- Material a cortar -->
+                            <g id="workpieceGroup">
+                                <rect id="workpiece" x="200" y="150" width="100" height="100" fill="#8b4513" stroke="#654321" stroke-width="2" rx="5"/>
+                                <!-- Sombra del material -->
+                                <rect x="202" y="152" width="100" height="100" fill="#000000" opacity="0.1" rx="5"/>
+                            </g>
+                            
+                            <!-- Patrón de corte -->
+                            <g id="cutPattern" style="display: none;">
+                                <!-- Línea de corte planificada -->
+                                <g id="plannedCutLine">
+                                    <circle cx="250" cy="200" r="35" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,3" opacity="0.8"/>
+                                </g>
+                                <!-- Línea de corte activa -->
+                                <g id="activeCutLine">
+                                    <path id="cutPath" d="M 215,200 A 35,35 0 1,1 285,200 A 35,35 0 1,1 215,200" 
+                                          fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="440" stroke-dashoffset="440" 
+                                          opacity="0" filter="url(#glow)"/>
+                                </g>
+                                <!-- Área cortada -->
+                                <g id="cutAreaGroup">
+                                    <path id="cutArea" d="M 215,200 A 35,35 0 1,1 285,200 A 35,35 0 1,1 215,200" 
+                                          fill="#000000" opacity="0" stroke="none"/>
+                                </g>
+                            </g>
+                            
+                            <!-- Sistema de ventilación -->
+                            <rect x="460" y="50" width="25" height="80" fill="url(#ventPattern)" stroke="#4b5563" stroke-width="1" rx="3"/>
+                            <rect x="460" y="270" width="25" height="80" fill="url(#ventPattern)" stroke="#4b5563" stroke-width="1" rx="3"/>
+                            
+                            <!-- Sensores de límite -->
+                            <rect x="35" y="35" width="6" height="6" fill="#ef4444" rx="1"/>
+                            <rect x="459" y="35" width="6" height="6" fill="#ef4444" rx="1"/>
+                            <rect x="35" y="359" width="6" height="6" fill="#ef4444" rx="1"/>
+                            <rect x="459" y="359" width="6" height="6" fill="#ef4444" rx="1"/>
+                            
+                            <!-- Indicadores de posición -->
+                            <g id="positionDisplay">
+                                <rect x="15" y="15" width="120" height="45" fill="#000000" opacity="0.8" rx="5"/>
+                                <text x="25" y="35" font-family="monospace" font-size="12" fill="#10b981" font-weight="bold">X: 250.0mm</text>
+                                <text x="25" y="50" font-family="monospace" font-size="12" fill="#10b981" font-weight="bold">Y: 200.0mm</text>
+                            </g>
+                            
+                            <!-- Estado del láser -->
+                            <g id="laserStatus">
+                                <rect x="365" y="15" width="120" height="30" fill="#000000" opacity="0.8" rx="5"/>
+                                <circle cx="380" cy="30" r="4" fill="#ef4444" opacity="0" id="laserStatusLight"/>
+                                <text x="390" y="35" font-family="monospace" font-size="11" fill="#6b7280" id="laserStatusText">LÁSER: OFF</text>
+                            </g>
+                            
+                            <!-- Escala de referencia -->
+                            <g id="scale">
+                                <line x1="60" y1="375" x2="160" y2="375" stroke="#9ca3af" stroke-width="2"/>
+                                <line x1="60" y1="370" x2="60" y2="380" stroke="#9ca3af" stroke-width="2"/>
+                                <line x1="160" y1="370" x2="160" y2="380" stroke="#9ca3af" stroke-width="2"/>
+                                <text x="110" y="395" font-family="Arial" font-size="10" fill="#9ca3af" text-anchor="middle">100mm</text>
+                            </g>
+                        </svg>
+                        
+                        <!-- Panel de información de la vista -->
+                        <div class="absolute top-4 right-4 bg-black bg-opacity-80 text-white px-4 py-2 rounded-lg">
+                            <div class="text-sm font-bold mb-1">Vista Superior</div>
+                            <div class="text-xs text-gray-300">Área: 420×320mm</div>
+                        </div>
+                        
+                        <!-- Leyenda de componentes -->
+                        <div class="absolute bottom-4 left-4 bg-black bg-opacity-80 text-white px-3 py-2 rounded-lg text-xs">
+                            <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+                                <div><span class="inline-block w-3 h-3 bg-red-500 rounded-full mr-2"></span>Cabezal Láser</div>
+                                <div><span class="inline-block w-3 h-3 bg-gray-500 rounded-full mr-2"></span>Rieles</div>
+                                <div><span class="inline-block w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>Corte Planificado</div>
+                                <div><span class="inline-block w-3 h-3 bg-blue-500 rounded-full mr-2"></span>Sensores</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configuración Recomendada -->
+                    <div id="recommendations" class="bg-blue-50 rounded-lg p-4 mb-4" style="display: none;">
+                        <h4 class="font-bold text-blue-800 mb-2">💡 Configuración Recomendada</h4>
+                        <div id="recommendedSettings" class="text-sm text-blue-700"></div>
+                    </div>
+
+                    <!-- Alertas y Advertencias -->
+                    <div id="alerts" class="space-y-2"></div>
+
+                    <!-- Log de Actividad -->
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-bold text-gray-800 mb-2">📝 Registro de Actividad</h4>
+                        <div id="activityLog" class="text-sm text-gray-600 max-h-32 overflow-y-auto">
+                            <p>Sistema iniciado - Listo para configurar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let isRunning = false;
+        let isPaused = false;
+        let progress = 0;
+        let currentStep = 1;
+        let currentShape = 'circle';
+        let stepProgress = {
+            step1: false,
+            step2: false,
+            step3: false,
+            step4: false
+        };
+        
+        // Definiciones de formas geométricas
+        const shapeDefinitions = {
+            circle: {
+                name: 'Círculo',
+                description: 'Forma circular básica - Ideal para principiantes',
+                difficulty: 'Fácil',
+                plannedPath: 'M 215,200 A 35,35 0 1,1 285,200 A 35,35 0 1,1 215,200',
+                cutPath: 'M 215,200 A 35,35 0 1,1 285,200 A 35,35 0 1,1 215,200',
+                pathLength: 220,
+                timeMultiplier: 1.0
+            },
+            square: {
+                name: 'Cuadrado',
+                description: 'Forma cuadrada con esquinas precisas - Nivel intermedio',
+                difficulty: 'Intermedio',
+                plannedPath: 'M 215,165 L 285,165 L 285,235 L 215,235 Z',
+                cutPath: 'M 215,165 L 285,165 L 285,235 L 215,235 Z',
+                pathLength: 280,
+                timeMultiplier: 1.2
+            },
+            triangle: {
+                name: 'Triángulo',
+                description: 'Triángulo equilátero - Requiere precisión en ángulos',
+                difficulty: 'Intermedio',
+                plannedPath: 'M 250,165 L 285,235 L 215,235 Z',
+                cutPath: 'M 250,165 L 285,235 L 215,235 Z',
+                pathLength: 210,
+                timeMultiplier: 1.1
+            },
+            star: {
+                name: 'Estrella',
+                description: 'Estrella de 5 puntas - Nivel avanzado con múltiples ángulos',
+                difficulty: 'Avanzado',
+                plannedPath: 'M 250,165 L 260,190 L 285,190 L 267,208 L 275,235 L 250,220 L 225,235 L 233,208 L 215,190 L 240,190 Z',
+                cutPath: 'M 250,165 L 260,190 L 285,190 L 267,208 L 275,235 L 250,220 L 225,235 L 233,208 L 215,190 L 240,190 Z',
+                pathLength: 400,
+                timeMultiplier: 1.8
+            },
+            heart: {
+                name: 'Corazón',
+                description: 'Forma de corazón con curvas complejas - Nivel avanzado',
+                difficulty: 'Avanzado',
+                plannedPath: 'M 250,225 C 250,225 215,190 215,175 C 215,160 225,155 235,155 C 245,155 250,165 250,170 C 250,165 255,155 265,155 C 275,155 285,160 285,175 C 285,190 250,225 250,225 Z',
+                cutPath: 'M 250,225 C 250,225 215,190 215,175 C 215,160 225,155 235,155 C 245,155 250,165 250,170 C 250,165 255,155 265,155 C 275,155 285,160 285,175 C 285,190 250,225 250,225 Z',
+                pathLength: 350,
+                timeMultiplier: 1.6
+            },
+            hexagon: {
+                name: 'Hexágono',
+                description: 'Hexágono regular - Requiere precisión en 6 lados iguales',
+                difficulty: 'Intermedio',
+                plannedPath: 'M 285,200 L 267,235 L 233,235 L 215,200 L 233,165 L 267,165 Z',
+                cutPath: 'M 285,200 L 267,235 L 233,235 L 215,200 L 233,165 L 267,165 Z',
+                pathLength: 360,
+                timeMultiplier: 1.4
+            }
+        };
+        
+        // Materiales compatibles por tipo de láser
+        const laserMaterials = {
+            'co2': {
+                'wood-3mm': { 
+                    name: 'Madera MDF 3mm', 
+                    allowedProcesses: ['cut', 'engrave'],
+                    cut: { power: 60, speed: 1200, passes: 1 }, 
+                    engrave: { power: 25, speed: 2000, passes: 1 } 
+                },
+                'wood-6mm': { 
+                    name: 'Madera MDF 6mm', 
+                    allowedProcesses: ['cut', 'engrave'],
+                    cut: { power: 80, speed: 800, passes: 2 }, 
+                    engrave: { power: 35, speed: 1800, passes: 1 } 
+                },
+                'acrylic-3mm': { 
+                    name: 'Acrílico 3mm', 
+                    allowedProcesses: ['cut', 'engrave'],
+                    cut: { power: 45, speed: 1500, passes: 1 }, 
+                    engrave: { power: 20, speed: 2500, passes: 1 } 
+                },
+                'acrylic-6mm': { 
+                    name: 'Acrílico 6mm', 
+                    allowedProcesses: ['cut', 'engrave'],
+                    cut: { power: 70, speed: 1000, passes: 1 }, 
+                    engrave: { power: 30, speed: 2200, passes: 1 } 
+                },
+                'paper': { 
+                    name: 'Papel/Cartón', 
+                    allowedProcesses: ['cut', 'engrave'],
+                    cut: { power: 20, speed: 2500, passes: 1 }, 
+                    engrave: { power: 8, speed: 3500, passes: 1 } 
+                },
+                'fabric': { 
+                    name: 'Tela', 
+                    allowedProcesses: ['cut', 'engrave'],
+                    cut: { power: 30, speed: 2000, passes: 1 }, 
+                    engrave: { power: 15, speed: 2800, passes: 1 } 
+                },
+                'leather': { 
+                    name: 'Cuero', 
+                    allowedProcesses: ['cut', 'engrave'],
+                    cut: { power: 55, speed: 1000, passes: 1 }, 
+                    engrave: { power: 25, speed: 2000, passes: 1 } 
+                }
+            },
+            'diode': {
+                'wood-3mm': { 
+                    name: 'Madera MDF 3mm', 
+                    allowedProcesses: ['cut', 'engrave'],
+                    cut: { power: 90, speed: 300, passes: 3 }, 
+                    engrave: { power: 40, speed: 800, passes: 1 } 
+                },
+                'paper': { 
+                    name: 'Papel/Cartón', 
+                    allowedProcesses: ['cut', 'engrave'],
+                    cut: { power: 60, speed: 800, passes: 1 }, 
+                    engrave: { power: 25, speed: 1500, passes: 1 } 
+                },
+                'fabric': { 
+                    name: 'Tela Fina', 
+                    allowedProcesses: ['cut', 'engrave'],
+                    cut: { power: 70, speed: 600, passes: 1 }, 
+                    engrave: { power: 30, speed: 1200, passes: 1 } 
+                },
+                'leather-thin': { 
+                    name: 'Cuero Fino', 
+                    allowedProcesses: ['cut', 'engrave'],
+                    cut: { power: 85, speed: 400, passes: 2 }, 
+                    engrave: { power: 35, speed: 1000, passes: 1 } 
+                }
+            }
+        };
+
+        // Sistema de Notificaciones Toast
+        function showToast(type, title, message, duration = 5000) {
+            const toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) return;
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: '✅',
+                warning: '⚠️',
+                error: '❌',
+                info: 'ℹ️'
+            };
+            
+            toast.innerHTML = `
+                <button class="toast-close" onclick="removeToast(this.parentElement)">×</button>
+                <div class="toast-header">
+                    <span class="toast-icon">${icons[type]}</span>
+                    <span class="toast-title">${title}</span>
+                </div>
+                <div class="toast-message">${message}</div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            if (duration > 0) {
+                setTimeout(() => {
+                    removeToast(toast);
+                }, duration);
+            }
+            
+            return toast;
+        }
+
+        function removeToast(toast) {
+            if (toast && toast.parentElement) {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.parentElement.removeChild(toast);
+                    }
+                }, 400);
+            }
+        }
+
+        // Funciones de progreso visual
+        function updateProgressBar() {
+            const completedSteps = Object.values(stepProgress).filter(Boolean).length;
+            const progressPercentage = (completedSteps / 4) * 100;
+            
+            document.getElementById('progressLine').style.width = `${progressPercentage}%`;
+            
+            // Actualizar círculos de pasos
+            for (let i = 1; i <= 4; i++) {
+                const circle = document.getElementById(`step${i}Circle`);
+                const title = document.getElementById(`step${i}Title`);
+                const subtitle = document.getElementById(`step${i}Subtitle`);
+                const stepKey = `step${i}`;
+                
+                if (stepProgress[stepKey]) {
+                    circle.className = 'w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-lg mb-2 transition-all duration-300 shadow-lg step-completed';
+                    circle.innerHTML = '✓';
+                    title.className = 'font-bold text-sm text-green-600';
+                    subtitle.className = 'text-xs text-green-500';
+                } else if (i === currentStep) {
+                    circle.className = 'w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg mb-2 transition-all duration-300 shadow-lg step-active';
+                    circle.innerHTML = i;
+                    title.className = 'font-bold text-sm text-blue-600';
+                    subtitle.className = 'text-xs text-blue-500';
+                } else {
+                    circle.className = 'w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-bold text-lg mb-2 transition-all duration-300';
+                    circle.innerHTML = i;
+                    title.className = 'font-bold text-sm text-gray-600';
+                    subtitle.className = 'text-xs text-gray-500';
+                }
+            }
+            
+            updateCurrentStepIndicator();
+            updateStepPanels();
+        }
+
+        function updateCurrentStepIndicator() {
+            const indicator = document.getElementById('currentStepIndicator');
+            const stepMessages = {
+                1: 'Paso 1: Selecciona el tipo de láser, material y proceso',
+                2: 'Paso 2: Ajusta la potencia y velocidad según el material',
+                3: 'Paso 3: Completa todas las verificaciones de seguridad',
+                4: 'Paso 4: ¡Todo listo! Inicia la simulación de corte'
+            };
+            
+            const stepColors = {
+                1: 'bg-blue-100 text-blue-800',
+                2: 'bg-yellow-100 text-yellow-800',
+                3: 'bg-red-100 text-red-800',
+                4: 'bg-green-100 text-green-800'
+            };
+            
+            indicator.className = `inline-flex items-center px-4 py-2 ${stepColors[currentStep]} rounded-full text-sm font-medium`;
+            indicator.innerHTML = `
+                <span class="w-2 h-2 bg-current rounded-full mr-2 animate-pulse"></span>
+                ${stepMessages[currentStep]}
+            `;
+        }
+
+        function updateStepPanels() {
+            for (let i = 1; i <= 3; i++) {
+                const panel = document.getElementById(`step${i}Panel`);
+                const stepIcon = panel.querySelector('span');
+                
+                if (stepProgress[`step${i}`]) {
+                    panel.className = 'mb-6 p-4 bg-green-50 rounded-lg step-panel completed';
+                    stepIcon.className = 'w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-sm mr-2';
+                    stepIcon.innerHTML = '✓';
+                } else if (i === currentStep) {
+                    panel.className = 'mb-6 p-4 bg-blue-50 rounded-lg step-panel active';
+                    stepIcon.className = 'w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm mr-2';
+                    stepIcon.innerHTML = i;
+                } else {
+                    panel.className = 'mb-6 p-4 bg-gray-50 rounded-lg step-panel';
+                    stepIcon.className = 'w-6 h-6 bg-gray-400 text-white rounded-full flex items-center justify-center text-sm mr-2';
+                    stepIcon.innerHTML = i;
+                }
+            }
+        }
+
+        function checkStepCompletion() {
+            // Verificar Paso 1: Configuración
+            const laserType = document.querySelector('input[name="laserType"]:checked');
+            const material = document.getElementById('materialSelect').value;
+            const processType = document.querySelector('input[name="processType"]:checked');
+            const step1Complete = laserType && material && processType;
+            
+            if (step1Complete !== stepProgress.step1) {
+                stepProgress.step1 = step1Complete;
+                if (step1Complete) {
+                    logActivity('✅ Paso 1 completado: Configuración básica');
+                    showToast('success', 'Paso 1 Completado', 'Configuración básica lista. Ahora ajusta los parámetros de corte.');
+                }
+            }
+            
+            // Verificar Paso 2: Parámetros
+            const power = parseInt(document.getElementById('powerSlider').value);
+            const speed = parseInt(document.getElementById('speedSlider').value);
+            
+            let step2Complete = false;
+            if (stepProgress.step1 && material && laserType) {
+                const materialData = laserMaterials[laserType.value]?.[material];
+                const processTypeValue = processType?.value;
+                
+                if (materialData && processTypeValue && materialData[processTypeValue]) {
+                    const optimal = materialData[processTypeValue];
+                    const powerDiff = Math.abs(power - optimal.power);
+                    const speedDiff = Math.abs(speed - optimal.speed);
+                    
+                    step2Complete = powerDiff <= 25 && speedDiff <= 600;
+                } else {
+                    step2Complete = power >= 10 && power <= 100 && speed >= 100 && speed <= 4000;
+                }
+            }
+            
+            if (step2Complete !== stepProgress.step2) {
+                stepProgress.step2 = step2Complete;
+                if (step2Complete) {
+                    logActivity('✅ Paso 2 completado: Parámetros configurados');
+                    showToast('success', 'Paso 2 Completado', 'Parámetros configurados correctamente. Procede con las verificaciones de seguridad.');
+                }
+            }
+            
+            // Verificar Paso 3: Seguridad
+            const safetyChecks = document.querySelectorAll('[id^="safetyCheck"]:checked').length;
+            const step3Complete = stepProgress.step2 && safetyChecks === 4;
+            
+            if (step3Complete !== stepProgress.step3) {
+                stepProgress.step3 = step3Complete;
+                if (step3Complete) {
+                    logActivity('✅ Paso 3 completado: Verificaciones de seguridad');
+                    showToast('success', 'Paso 3 Completado', '¡Excelente! Todas las verificaciones de seguridad están completas. Ya puedes iniciar el corte.');
+                }
+            }
+            
+            // Actualizar paso actual
+            if (!stepProgress.step1) {
+                currentStep = 1;
+            } else if (!stepProgress.step2) {
+                currentStep = 2;
+            } else if (!stepProgress.step3) {
+                currentStep = 3;
+            } else if (!stepProgress.step4) {
+                currentStep = 4;
+            }
+            
+            updateProgressBar();
+        }
+
+        function updateCircularProgress(circleElement, percentage) {
+            if (!circleElement) return;
+            
+            const circumference = 2 * Math.PI * 36;
+            const offset = circumference - (percentage / 100) * circumference;
+            
+            circleElement.style.strokeDasharray = circumference;
+            circleElement.style.strokeDashoffset = offset;
+        }
+
+        function updateMainStatusIndicator(status, text) {
+            const indicator = document.getElementById('mainStatusIndicator');
+            const textElement = document.getElementById('mainStatusText');
+            
+            if (indicator) {
+                indicator.className = `status-indicator ${status} mx-auto`;
+            }
+            if (textElement) {
+                textElement.textContent = text;
+            }
+        }
+
+        function updateSafetyIndicators() {
+            const safetyChecks = document.querySelectorAll('[id^="safetyCheck"]:checked').length;
+            const total = 4;
+            const percentage = (safetyChecks / total) * 100;
+            
+            document.getElementById('safetyProgress').textContent = `${safetyChecks}/${total}`;
+            document.getElementById('safetyProgressBar').style.width = `${percentage}%`;
+            
+            for (let i = 1; i <= 4; i++) {
+                const checkbox = document.getElementById(`safetyCheck${i}`);
+                const indicator = document.getElementById(`safety${i}Indicator`);
+                
+                if (checkbox && indicator) {
+                    if (checkbox.checked) {
+                        indicator.className = 'safety-indicator completed';
+                    } else {
+                        indicator.className = 'safety-indicator pending';
+                    }
+                }
+            }
+            
+            checkConfiguration();
+        }
+
+        function updateTemperatureDisplay(temp) {
+            const tempDisplay = document.getElementById('temperatureDisplay');
+            if (tempDisplay) {
+                tempDisplay.textContent = `${temp}°C`;
+                
+                if (temp <= 30) {
+                    tempDisplay.className = 'font-bold text-2xl temp-normal';
+                } else if (temp <= 60) {
+                    tempDisplay.className = 'font-bold text-2xl temp-warm';
+                } else {
+                    tempDisplay.className = 'font-bold text-2xl temp-hot';
+                }
+            }
+        }
+
+        function updateMaterialList(laserType) {
+            const materialSelect = document.getElementById('materialSelect');
+            if (!materialSelect) return;
+            
+            materialSelect.innerHTML = '<option value="">Selecciona un material...</option>';
+            
+            if (laserMaterials[laserType]) {
+                Object.keys(laserMaterials[laserType]).forEach(materialKey => {
+                    const material = laserMaterials[laserType][materialKey];
+                    const option = document.createElement('option');
+                    option.value = materialKey;
+                    option.textContent = material.name;
+                    materialSelect.appendChild(option);
+                });
+            }
+            
+            document.getElementById('materialInfo').textContent = '';
+            document.getElementById('recommendations').style.display = 'none';
+            
+            // Cambiar color del láser según el tipo
+            updateLaserColor(laserType);
+        }
+
+        function updateLaserColor(laserType) {
+            const laserBeam = document.getElementById('laserBeam');
+            const laserGlow = document.getElementById('laserGlow');
+            const laserStatusLight = document.getElementById('laserStatusLight');
+            const cutPath = document.getElementById('cutPath');
+            
+            if (laserType === 'co2') {
+                // Láser CO2 - Color rojo
+                if (laserBeam) laserBeam.setAttribute('fill', '#ef4444');
+                if (laserGlow) laserGlow.setAttribute('fill', 'url(#laserGlow)');
+                if (laserStatusLight) laserStatusLight.setAttribute('fill', '#ef4444');
+                if (cutPath) cutPath.setAttribute('stroke', '#ef4444');
+                
+                // Actualizar texto del estado del láser
+                const laserStatusText = document.getElementById('laserStatusText');
+                if (laserStatusText && laserStatusText.textContent.includes('ON')) {
+                    laserStatusText.style.fill = '#ef4444';
+                }
+            } else if (laserType === 'diode') {
+                // Láser Diodo - Color azul
+                if (laserBeam) laserBeam.setAttribute('fill', '#3b82f6');
+                if (laserGlow) laserGlow.setAttribute('fill', 'url(#laserGlowBlue)');
+                if (laserStatusLight) laserStatusLight.setAttribute('fill', '#3b82f6');
+                if (cutPath) cutPath.setAttribute('stroke', '#3b82f6');
+                
+                // Actualizar texto del estado del láser
+                const laserStatusText = document.getElementById('laserStatusText');
+                if (laserStatusText && laserStatusText.textContent.includes('ON')) {
+                    laserStatusText.style.fill = '#3b82f6';
+                }
+            }
+            
+            // Log del cambio
+            const laserName = laserType === 'co2' ? 'CO2 (rojo)' : 'Diodo (azul)';
+            logActivity(`🔴🔵 Color del láser actualizado: ${laserName}`);
+        }
+
+        function updateSpeedRanges(laserType) {
+            const speedSlider = document.getElementById('speedSlider');
+            const speedMin = document.getElementById('speedMin');
+            const speedMax = document.getElementById('speedMax');
+            const speedInfo = document.getElementById('speedInfo');
+            
+            if (laserType === 'co2') {
+                speedSlider.min = '200';
+                speedSlider.max = '4000';
+                speedSlider.value = '1200';
+                if (speedMin) speedMin.textContent = '200';
+                if (speedMax) speedMax.textContent = '4000';
+                if (speedInfo) speedInfo.textContent = 'Rango optimizado para láser CO2';
+            } else if (laserType === 'diode') {
+                speedSlider.min = '100';
+                speedSlider.max = '1500';
+                speedSlider.value = '600';
+                if (speedMin) speedMin.textContent = '100';
+                if (speedMax) speedMax.textContent = '1500';
+                if (speedInfo) speedInfo.textContent = 'Rango optimizado para láser diodo';
+            }
+            
+            document.getElementById('speedValue').textContent = speedSlider.value;
+            document.getElementById('speedCircleText').textContent = Math.round(speedSlider.value/100);
+            updateCircularProgress(document.getElementById('speedCircle'), (parseInt(speedSlider.value) / parseInt(speedSlider.max)) * 100);
+        }
+
+        function updateProcessParameters() {
+            const material = document.getElementById('materialSelect').value;
+            const laserType = document.querySelector('input[name="laserType"]:checked')?.value;
+            const processType = document.querySelector('input[name="processType"]:checked')?.value;
+            
+            if (!material || !laserType || !processType) return;
+            
+            const materialData = laserMaterials[laserType]?.[material];
+            if (!materialData || !materialData[processType]) return;
+            
+            const processSettings = materialData[processType];
+            
+            document.getElementById('powerSlider').value = processSettings.power;
+            document.getElementById('speedSlider').value = processSettings.speed;
+            document.getElementById('passesSelect').value = processSettings.passes;
+            
+            document.getElementById('powerValue').textContent = processSettings.power + '%';
+            document.getElementById('speedValue').textContent = processSettings.speed;
+            document.getElementById('powerCircleText').textContent = processSettings.power + '%';
+            document.getElementById('speedCircleText').textContent = Math.round(processSettings.speed/100);
+            
+            updateCircularProgress(document.getElementById('powerCircle'), processSettings.power);
+            updateCircularProgress(document.getElementById('speedCircle'), (processSettings.speed / parseInt(document.getElementById('speedSlider').max)) * 100);
+            
+            const processName = processType === 'cut' ? 'corte' : 'grabado';
+            document.getElementById('materialInfo').textContent = `${materialData.name} - Configuración optimizada para ${processName}`;
+            
+            showToast('success', 'Parámetros Actualizados', `Configuración automática aplicada para ${processName} en ${materialData.name}.`);
+            logActivity(`🎯 Parámetros actualizados: ${processName} - Potencia: ${processSettings.power}%, Velocidad: ${processSettings.speed}mm/min`);
+            
+            updateEstimatedTime();
+        }
+
+        function checkConfiguration() {
+            const material = document.getElementById('materialSelect').value;
+            const safetyChecks = document.querySelectorAll('[id^="safetyCheck"]:checked').length;
+            const laserType = document.querySelector('input[name="laserType"]:checked')?.value;
+            
+            const isConfigured = material && safetyChecks === 4 && laserType;
+            
+            document.getElementById('startBtn').disabled = !isConfigured || isRunning;
+            
+            if (isConfigured && !isRunning) {
+                updateMainStatusIndicator('status-ready', 'Sistema Listo');
+            } else if (isRunning) {
+                updateMainStatusIndicator('status-cutting', 'Cortando...');
+            } else {
+                updateMainStatusIndicator('status-error', 'Configuración Incompleta');
+            }
+            
+            // Actualizar displays
+            const materialTypeDisplay = document.getElementById('materialTypeDisplay');
+            if (material && materialTypeDisplay) {
+                const selectedOption = document.getElementById('materialSelect').options[document.getElementById('materialSelect').selectedIndex];
+                if (selectedOption && selectedOption.text) {
+                    materialTypeDisplay.textContent = selectedOption.text.split(' ')[0];
+                }
+            } else if (materialTypeDisplay) {
+                materialTypeDisplay.textContent = '--';
+            }
+            
+            const laserTypeDisplay = document.getElementById('laserTypeDisplay');
+            if (laserType && laserTypeDisplay) {
+                laserTypeDisplay.textContent = laserType.toUpperCase();
+            }
+        }
+
+        function updateEstimatedTime() {
+            const speed = parseInt(document.getElementById('speedSlider').value) || 1000;
+            const shape = shapeDefinitions[currentShape];
+            const pathLength = shape ? shape.pathLength : 220;
+            const timeMultiplier = shape ? shape.timeMultiplier : 1.0;
+            
+            const baseTime = (pathLength / speed) * 60;
+            const timeSeconds = Math.round(baseTime * timeMultiplier);
+            
+            document.getElementById('estimatedTimeDisplay').textContent = timeSeconds;
+        }
+
+        function updateShapeDisplay(shapeKey) {
+            currentShape = shapeKey;
+            const shape = shapeDefinitions[shapeKey];
+            
+            if (!shape) return;
+            
+            // Actualizar información de la forma
+            document.getElementById('shapeInfo').textContent = `${shape.description} - Dificultad: ${shape.difficulty}`;
+            
+            // Actualizar línea de corte planificada
+            const plannedLine = document.getElementById('plannedCutLine');
+            if (plannedLine) {
+                if (shapeKey === 'circle') {
+                    plannedLine.innerHTML = `<circle cx="250" cy="200" r="35" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,3" opacity="0.8"/>`;
+                } else {
+                    plannedLine.innerHTML = `<path d="${shape.plannedPath}" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,3" opacity="0.8"/>`;
+                }
+            }
+            
+            // Actualizar línea de corte activa
+            const cutPath = document.getElementById('cutPath');
+            if (cutPath) {
+                cutPath.setAttribute('d', shape.cutPath);
+                cutPath.setAttribute('stroke-dasharray', shape.pathLength);
+                cutPath.setAttribute('stroke-dashoffset', shape.pathLength);
+            }
+            
+            // Actualizar área cortada
+            const cutArea = document.getElementById('cutArea');
+            if (cutArea) {
+                cutArea.setAttribute('d', shape.cutPath);
+            }
+            
+            // Actualizar tiempo estimado
+            updateEstimatedTime();
+            
+            // Log de actividad
+            logActivity(`🔷 Forma seleccionada: ${shape.name} (${shape.difficulty})`);
+            
+            // Mostrar notificación
+            const difficultyColors = {
+                'Fácil': 'success',
+                'Intermedio': 'warning',
+                'Avanzado': 'error'
+            };
+            
+            showToast(
+                difficultyColors[shape.difficulty] || 'info',
+                `Forma: ${shape.name}`,
+                `${shape.description}`,
+                4000
+            );
+        }
+
+        function startCutting() {
+            isRunning = true;
+            isPaused = false;
+            progress = 0;
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = false;
+            
+            updateMainStatusIndicator('status-cutting', 'Cortando...');
+            
+            document.getElementById('cutPattern').style.display = 'block';
+            
+            logActivity('🚀 Corte iniciado');
+            showToast('success', 'Simulación Iniciada', 'El corte láser ha comenzado. Observa el progreso en tiempo real.');
+            
+            animateCutting();
+        }
+
+        function pauseCutting() {
+            isPaused = !isPaused;
+            
+            if (isPaused) {
+                document.getElementById('pauseBtn').innerHTML = `
+                    <span class="flex items-center justify-center">
+                        <span class="text-lg mr-2">▶️</span>
+                        <span>Reanudar</span>
+                    </span>
+                `;
+                updateMainStatusIndicator('status-paused', 'Pausado');
+                logActivity('⏸️ Corte pausado');
+                showToast('warning', 'Simulación Pausada', 'El corte se ha pausado. Haz clic en Reanudar para continuar.');
+            } else {
+                document.getElementById('pauseBtn').innerHTML = `
+                    <span class="flex items-center justify-center">
+                        <span class="text-lg mr-2">⏸️</span>
+                        <span>Pausar</span>
+                    </span>
+                `;
+                updateMainStatusIndicator('status-cutting', 'Cortando...');
+                logActivity('▶️ Corte reanudado');
+                showToast('info', 'Simulación Reanudada', 'El corte continúa desde donde se pausó.');
+            }
+        }
+
+        function stopCutting() {
+            isRunning = false;
+            isPaused = false;
+            progress = 0;
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('pauseBtn').innerHTML = `
+                <span class="flex items-center justify-center">
+                    <span class="text-lg mr-2">⏸️</span>
+                    <span>Pausar</span>
+                </span>
+            `;
+            document.getElementById('stopBtn').disabled = true;
+            
+            document.getElementById('progressPercentage').textContent = '0%';
+            document.getElementById('progressBarFill').style.width = '0%';
+            
+            document.getElementById('laserBeam').style.opacity = '0';
+            document.getElementById('laserGlow').style.opacity = '0';
+            document.getElementById('laserStatusLight').style.opacity = '0';
+            document.getElementById('laserStatusText').textContent = 'LÁSER: OFF';
+            document.getElementById('laserStatusText').style.fill = '#6b7280';
+            document.getElementById('cutPath').style.opacity = '0';
+            document.getElementById('cutPath').style.strokeDashoffset = '440';
+            document.getElementById('cutArea').style.opacity = '0';
+            
+            logActivity('⏹️ Corte detenido');
+            showToast('error', 'Simulación Detenida', 'El corte se ha detenido. El cabezal regresará a la posición inicial.');
+            
+            setTimeout(() => {
+                updateTemperatureDisplay(25);
+                checkConfiguration();
+            }, 2000);
+        }
+
+        function resetSimulation() {
+            stopCutting();
+            
+            stepProgress = {
+                step1: false,
+                step2: false,
+                step3: false,
+                step4: false
+            };
+            currentStep = 1;
+            
+            document.getElementById('materialSelect').value = '';
+            document.getElementById('powerSlider').value = '50';
+            document.getElementById('speedSlider').value = '1000';
+            document.getElementById('powerValue').textContent = '50%';
+            document.getElementById('speedValue').textContent = '1000';
+            document.getElementById('materialInfo').textContent = '';
+            document.getElementById('estimatedTimeDisplay').textContent = '--';
+            
+            document.querySelectorAll('[id^="safetyCheck"]').forEach(cb => cb.checked = false);
+            
+            document.getElementById('recommendations').style.display = 'none';
+            document.getElementById('cutPattern').style.display = 'none';
+            document.getElementById('alerts').innerHTML = '';
+            
+            document.getElementById('activityLog').innerHTML = '<p>Sistema reiniciado - Listo para configurar</p>';
+            
+            document.getElementById('workpiece').setAttribute('fill', '#8b4513');
+            
+            updateProgressBar();
+            updateSafetyIndicators();
+            checkConfiguration();
+            
+            showToast('info', 'Simulación Reiniciada', 'Todos los parámetros han sido restablecidos. Puedes comenzar de nuevo.');
+        }
+
+        function animateCutting() {
+            if (!isRunning) return;
+            
+            document.getElementById('laserStatusLight').style.opacity = '1';
+            document.getElementById('laserStatusText').textContent = 'LÁSER: ON';
+            
+            // Aplicar color según el tipo de láser seleccionado
+            const laserType = document.querySelector('input[name="laserType"]:checked')?.value || 'co2';
+            const laserColor = laserType === 'co2' ? '#ef4444' : '#3b82f6';
+            document.getElementById('laserStatusText').style.fill = laserColor;
+            
+            const power = parseInt(document.getElementById('powerSlider').value) || 50;
+            const speed = parseInt(document.getElementById('speedSlider').value) || 1000;
+            const shape = shapeDefinitions[currentShape];
+            
+            let heatAccumulation = 0;
+            
+            const baseSpeed = 80;
+            const speedMultiplier = Math.max(0.3, 1500 / speed);
+            const shapeComplexity = shape ? shape.timeMultiplier : 1.0;
+            const animationInterval = Math.max(30, baseSpeed * speedMultiplier * shapeComplexity);
+            
+            const interval = setInterval(() => {
+                if (!isRunning) {
+                    clearInterval(interval);
+                    return;
+                }
+                
+                if (isPaused) return;
+                
+                progress += 1.5 / shapeComplexity;
+                const roundedProgress = Math.round(progress);
+                
+                document.getElementById('progressPercentage').textContent = `${roundedProgress}%`;
+                document.getElementById('progressBarFill').style.width = `${progress}%`;
+                
+                // Calcular posición del cabezal según la forma
+                let currentX = 250, currentY = 200;
+                
+                if (currentShape === 'circle') {
+                    const progressRadians = (progress / 100) * 2 * Math.PI;
+                    const centerX = 250, centerY = 200, radius = 35;
+                    currentX = centerX + radius * Math.cos(progressRadians - Math.PI/2);
+                    currentY = centerY + radius * Math.sin(progressRadians - Math.PI/2);
+                } else if (currentShape === 'square') {
+                    const perimeter = 280;
+                    const sideLength = 70;
+                    const progressDistance = (progress / 100) * perimeter;
+                    
+                    if (progressDistance <= sideLength) {
+                        // Lado superior
+                        currentX = 215 + progressDistance;
+                        currentY = 165;
+                    } else if (progressDistance <= sideLength * 2) {
+                        // Lado derecho
+                        currentX = 285;
+                        currentY = 165 + (progressDistance - sideLength);
+                    } else if (progressDistance <= sideLength * 3) {
+                        // Lado inferior
+                        currentX = 285 - (progressDistance - sideLength * 2);
+                        currentY = 235;
+                    } else {
+                        // Lado izquierdo
+                        currentX = 215;
+                        currentY = 235 - (progressDistance - sideLength * 3);
+                    }
+                } else if (currentShape === 'triangle') {
+                    const totalPerimeter = 210;
+                    const progressDistance = (progress / 100) * totalPerimeter;
+                    
+                    // Lado 1: desde punta superior (250,165) hasta esquina inferior derecha (285,235)
+                    const side1Length = Math.sqrt(Math.pow(285-250, 2) + Math.pow(235-165, 2)); // ~80.6
+                    // Lado 2: desde esquina inferior derecha (285,235) hasta esquina inferior izquierda (215,235)
+                    const side2Length = 70; // horizontal
+                    // Lado 3: desde esquina inferior izquierda (215,235) hasta punta superior (250,165)
+                    const side3Length = Math.sqrt(Math.pow(250-215, 2) + Math.pow(165-235, 2)); // ~80.6
+                    
+                    if (progressDistance <= side1Length) {
+                        // Lado 1: punta superior a esquina inferior derecha
+                        const t = progressDistance / side1Length;
+                        currentX = 250 + (285 - 250) * t;
+                        currentY = 165 + (235 - 165) * t;
+                    } else if (progressDistance <= side1Length + side2Length) {
+                        // Lado 2: esquina inferior derecha a esquina inferior izquierda
+                        const t = (progressDistance - side1Length) / side2Length;
+                        currentX = 285 - (285 - 215) * t;
+                        currentY = 235;
+                    } else {
+                        // Lado 3: esquina inferior izquierda a punta superior
+                        const t = (progressDistance - side1Length - side2Length) / side3Length;
+                        currentX = 215 + (250 - 215) * t;
+                        currentY = 235 - (235 - 165) * t;
+                    }
+                } else if (currentShape === 'heart') {
+                    // Animación específica para corazón mejorado
+                    const progressT = progress / 100;
+                    
+                    if (progressT <= 0.2) {
+                        // Inicio: desde punta inferior hacia curva izquierda
+                        const t = progressT * 5;
+                        currentX = 250 - (35 * t);
+                        currentY = 225 - (35 * t);
+                    } else if (progressT <= 0.4) {
+                        // Lóbulo izquierdo superior
+                        const t = (progressT - 0.2) * 5;
+                        const angle = Math.PI + (Math.PI * 0.5 * t);
+                        currentX = 225 + 10 * Math.cos(angle);
+                        currentY = 165 + 10 * Math.sin(angle);
+                    } else if (progressT <= 0.5) {
+                        // Transición centro superior
+                        const t = (progressT - 0.4) * 10;
+                        currentX = 235 + (15 * t);
+                        currentY = 155 + (15 * t);
+                    } else if (progressT <= 0.7) {
+                        // Lóbulo derecho superior
+                        const t = (progressT - 0.5) * 5;
+                        const angle = Math.PI * 0.5 * t;
+                        currentX = 265 + 10 * Math.cos(angle);
+                        currentY = 165 + 10 * Math.sin(angle);
+                    } else {
+                        // Regreso a punta inferior
+                        const t = (progressT - 0.7) / 0.3;
+                        currentX = 275 - (25 * t);
+                        currentY = 175 + (50 * t);
+                    }
+                } else {
+                    // Para formas complejas, usar interpolación básica
+                    const progressRadians = (progress / 100) * 2 * Math.PI;
+                    const centerX = 250, centerY = 200;
+                    const radiusX = 35, radiusY = 35;
+                    currentX = centerX + radiusX * Math.cos(progressRadians - Math.PI/2);
+                    currentY = centerY + radiusY * Math.sin(progressRadians - Math.PI/2);
+                }
+                
+                // Mover cabezal
+                const deltaX = currentX - 250;
+                const deltaY = currentY - 200;
+                
+                document.getElementById('laserHead').setAttribute('transform', `translate(${deltaX}, ${deltaY})`);
+                document.getElementById('laserCarriage').setAttribute('transform', `translate(${deltaX}, 0)`);
+                document.getElementById('xBridge').setAttribute('transform', `translate(0, ${deltaY})`);
+                
+                // Actualizar posición
+                document.getElementById('positionDisplay').innerHTML = `
+                    <rect x="15" y="15" width="120" height="45" fill="#000000" opacity="0.8" rx="5"/>
+                    <text x="25" y="35" font-family="monospace" font-size="12" fill="#10b981" font-weight="bold">X: ${currentX.toFixed(1)}mm</text>
+                    <text x="25" y="50" font-family="monospace" font-size="12" fill="#10b981" font-weight="bold">Y: ${currentY.toFixed(1)}mm</text>
+                `;
+                
+                // Efectos láser
+                document.getElementById('laserBeam').style.opacity = '1';
+                document.getElementById('laserGlow').style.opacity = '0.8';
+                
+                // Mostrar línea de corte
+                if (progress >= 2) {
+                    document.getElementById('cutPath').style.opacity = '1';
+                    const pathLength = shape ? shape.pathLength : 440;
+                    const dashOffset = pathLength - (progress * pathLength / 100);
+                    document.getElementById('cutPath').style.strokeDashoffset = Math.max(0, dashOffset);
+                }
+                
+                // Mostrar área cortada
+                if (progress >= 30) {
+                    const cutOpacity = Math.min(0.5, (progress - 30) / 70 * 0.5);
+                    document.getElementById('cutArea').style.opacity = cutOpacity;
+                }
+                
+                // Simulación térmica
+                heatAccumulation += (power / 100) * 2 * shapeComplexity;
+                const baseTemp = 25;
+                const finalTemp = Math.round(baseTemp + heatAccumulation * 0.8);
+                updateTemperatureDisplay(finalTemp);
+                
+                // Notificaciones de progreso
+                const milestones = [25, 50, 75, 90];
+                if (milestones.includes(roundedProgress) && Math.abs(progress - roundedProgress) < 0.5) {
+                    const messages = {
+                        25: `Primer cuarto de ${shape.name} completado`,
+                        50: `Mitad de ${shape.name} completada`,
+                        75: `Tres cuartos de ${shape.name} completados`,
+                        90: `${shape.name} casi terminado`
+                    };
+                    showToast('info', `Progreso ${roundedProgress}%`, messages[roundedProgress], 4000);
+                    logActivity(`📊 Hito alcanzado: ${roundedProgress}% - ${messages[roundedProgress]}`);
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    completeCutting();
+                }
+            }, animationInterval);
+        }
+
+        function completeCutting() {
+            isRunning = false;
+            
+            stepProgress.step4 = true;
+            updateProgressBar();
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = true;
+            
+            updateMainStatusIndicator('status-completed', 'Corte Completado');
+            
+            document.getElementById('cutArea').style.opacity = '0.5';
+            
+            logActivity('✅ Paso 4 completado: Simulación exitosa');
+            logActivity('🎉 ¡Felicitaciones! Has completado todos los pasos del entrenamiento');
+            
+            showToast('success', '¡Simulación Completada!', 'Corte finalizado exitosamente. ¡Has completado el entrenamiento!', 10000);
+            
+            // Secuencia de enfriamiento
+            setTimeout(() => {
+                document.getElementById('laserBeam').style.opacity = '0';
+                document.getElementById('laserGlow').style.opacity = '0';
+                document.getElementById('laserStatusLight').style.opacity = '0';
+                document.getElementById('laserStatusText').textContent = 'LÁSER: OFF';
+                document.getElementById('laserStatusText').style.fill = '#6b7280';
+                
+                // Retorno a posición inicial
+                document.getElementById('laserHead').setAttribute('transform', 'translate(0, 0)');
+                document.getElementById('laserCarriage').setAttribute('transform', 'translate(0, 0)');
+                document.getElementById('xBridge').setAttribute('transform', 'translate(0, 0)');
+                
+                document.getElementById('positionDisplay').innerHTML = `
+                    <rect x="15" y="15" width="120" height="45" fill="#000000" opacity="0.8" rx="5"/>
+                    <text x="25" y="35" font-family="monospace" font-size="12" fill="#10b981" font-weight="bold">X: 250.0mm</text>
+                    <text x="25" y="50" font-family="monospace" font-size="12" fill="#10b981" font-weight="bold">Y: 200.0mm</text>
+                `;
+                
+                updateTemperatureDisplay(25);
+            }, 2000);
+        }
+
+        function logActivity(message) {
+            const activityLog = document.getElementById('activityLog');
+            if (!activityLog) return;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('p');
+            logEntry.textContent = `${timestamp} - ${message}`;
+            activityLog.appendChild(logEntry);
+            activityLog.scrollTop = activityLog.scrollHeight;
+        }
+
+        // Event listeners
+        function initializeEventListeners() {
+            // Sliders
+            document.getElementById('powerSlider').addEventListener('input', (e) => {
+                const value = e.target.value;
+                document.getElementById('powerValue').textContent = value + '%';
+                document.getElementById('powerCircleText').textContent = value + '%';
+                updateCircularProgress(document.getElementById('powerCircle'), value);
+                checkConfiguration();
+                checkStepCompletion();
+            });
+
+            document.getElementById('speedSlider').addEventListener('input', (e) => {
+                const value = e.target.value;
+                document.getElementById('speedValue').textContent = value;
+                document.getElementById('speedCircleText').textContent = Math.round(value/100);
+                const maxSpeed = parseInt(e.target.max);
+                updateCircularProgress(document.getElementById('speedCircle'), (value / maxSpeed) * 100);
+                updateEstimatedTime();
+                checkConfiguration();
+                checkStepCompletion();
+            });
+
+            // Material select
+            document.getElementById('materialSelect').addEventListener('change', (e) => {
+                const material = e.target.value;
+                const laserType = document.querySelector('input[name="laserType"]:checked')?.value;
+                
+                if (material && laserType) {
+                    const materialData = laserMaterials[laserType][material];
+                    if (materialData) {
+                        logActivity(`Material seleccionado: ${materialData.name}`);
+                        showToast('info', 'Material Seleccionado', `${materialData.name} - Selecciona el tipo de proceso para ver la configuración recomendada`);
+                        updateProcessParameters();
+                    }
+                } else {
+                    document.getElementById('materialInfo').textContent = '';
+                    document.getElementById('recommendations').style.display = 'none';
+                }
+                
+                checkConfiguration();
+                checkStepCompletion();
+            });
+
+            // Shape select
+            document.getElementById('shapeSelect').addEventListener('change', (e) => {
+                const shapeKey = e.target.value;
+                updateShapeDisplay(shapeKey);
+                checkStepCompletion();
+            });
+
+            // Radio buttons
+            document.querySelectorAll('input[name="laserType"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const laserType = e.target.value;
+                    logActivity(`Tipo de láser seleccionado: ${laserType.toUpperCase()}`);
+                    const laserName = laserType === 'co2' ? 'CO2 (Dióxido de Carbono)' : 'Diodo Láser';
+                    showToast('info', 'Láser Seleccionado', `Has seleccionado: ${laserName}`);
+                    
+                    updateMaterialList(laserType);
+                    updateSpeedRanges(laserType);
+                    
+                    checkConfiguration();
+                    checkStepCompletion();
+                });
+            });
+
+            document.querySelectorAll('input[name="processType"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const processType = e.target.value;
+                    const processName = processType === 'cut' ? 'Corte' : 'Grabado';
+                    logActivity(`Tipo de proceso seleccionado: ${processName}`);
+                    showToast('info', 'Proceso Seleccionado', `Modo: ${processName}`);
+                    
+                    updateProcessParameters();
+                    
+                    checkConfiguration();
+                    checkStepCompletion();
+                });
+            });
+
+            // Safety checkboxes
+            document.querySelectorAll('[id^="safetyCheck"]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const checkName = e.target.parentElement.querySelector('.font-medium')?.textContent || 'Verificación';
+                    if (e.target.checked) {
+                        showToast('success', 'Verificación Completada', checkName);
+                    }
+                    updateSafetyIndicators();
+                    checkStepCompletion();
+                });
+            });
+
+            // Buttons
+            document.getElementById('startBtn').addEventListener('click', startCutting);
+            document.getElementById('pauseBtn').addEventListener('click', pauseCutting);
+            document.getElementById('stopBtn').addEventListener('click', stopCutting);
+            document.getElementById('resetBtn').addEventListener('click', resetSimulation);
+        }
+
+        // Inicialización
+        function initializeSimulator() {
+            console.log('🚀 Iniciando simulador de cortadora láser...');
+            
+            // Cargar materiales por defecto
+            updateMaterialList('co2');
+            updateSpeedRanges('co2');
+            
+            // Inicializar color del láser por defecto (CO2 - rojo)
+            updateLaserColor('co2');
+            
+            // Inicializar forma por defecto
+            updateShapeDisplay('circle');
+            
+            // Inicializar medidores circulares
+            updateCircularProgress(document.getElementById('powerCircle'), 50);
+            updateCircularProgress(document.getElementById('speedCircle'), 25);
+            
+            // Configurar event listeners
+            initializeEventListeners();
+            
+            // Verificar configuración inicial
+            checkConfiguration();
+            checkStepCompletion();
+            updateEstimatedTime();
+            updateSafetyIndicators();
+            
+            showToast('info', '¡Simulador Listo!', 'Selecciona el material, forma y completa las verificaciones de seguridad.', 4000);
+            
+            console.log('✅ Simulador inicializado correctamente');
+        }
+
+        // Inicializar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeSimulator);
+        } else {
+            initializeSimulator();
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c0a5b2f0aba09f',t:'MTc2MDA0MTk0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
