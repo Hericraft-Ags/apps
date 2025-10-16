@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprende a Sumar - Primer Año</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 15px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+        
+        html {
+            height: 100%;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .lang-btn {
+            background: rgba(255,255,255,0.8);
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .lang-btn:hover {
+            background: rgba(102,126,234,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .title {
+            color: #667eea;
+            font-size: 2.8rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 15px;
+            height: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            width: 0%;
+            border-radius: 15px;
+            transition: width 0.5s ease;
+        }
+        
+        .game-area {
+            background: rgba(255,255,255,0.98);
+            border-radius: 25px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .problem-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(240,147,251,0.3);
+        }
+        
+        .problem {
+            font-size: 3.5rem;
+            margin: 0;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .visual-area {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            box-shadow: inset 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .number-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .number-group:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .number-label {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .dots-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(35px, 1fr));
+            gap: 10px;
+            justify-items: center;
+            max-width: 180px;
+        }
+        
+        .dot {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: white;
+            font-weight: bold;
+            animation: dotAppear 0.6s ease-in-out;
+            box-shadow: 0 4px 10px rgba(255,107,107,0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .dot:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(255,107,107,0.4);
+        }
+        
+        .operator {
+            font-size: 4.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: operatorPulse 2s ease-in-out infinite;
+        }
+        
+        .answer-section {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 8px 25px rgba(252,182,159,0.3);
+        }
+        
+        .answer-prompt {
+            font-size: 1.8rem;
+            color: #8B4513;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+        
+        .answer-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .answer-btn {
+            width: 90px;
+            height: 90px;
+            border: none;
+            border-radius: 20px;
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .answer-btn:hover::before {
+            left: 100%;
+        }
+        
+        .answer-btn:nth-child(1) { background: linear-gradient(135deg, #FF6B6B, #FF8E8E); }
+        .answer-btn:nth-child(2) { background: linear-gradient(135deg, #4ECDC4, #7EDDD8); }
+        .answer-btn:nth-child(3) { background: linear-gradient(135deg, #45B7D1, #73C5E1); }
+        .answer-btn:nth-child(4) { background: linear-gradient(135deg, #96CEB4, #B8DCC6); }
+        
+        .answer-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .answer-btn:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        .feedback {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin: 25px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .correct {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+            animation: celebrate 0.8s ease-in-out;
+        }
+        
+        .incorrect {
+            background: linear-gradient(135deg, #FF5722, #FF7043);
+            color: white;
+            animation: shake 0.6s ease-in-out;
+        }
+        
+        .stats-area {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 15px 20px;
+            flex: 1;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        @keyframes dotAppear {
+            0% { transform: scale(0) rotate(180deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(90deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        
+        @keyframes operatorPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(5deg); }
+            75% { transform: scale(1.1) rotate(-5deg); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(120deg); }
+            66% { transform: translateY(10px) rotate(240deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .title { font-size: 2.2rem; }
+            .problem { font-size: 2.8rem; }
+            .operator { font-size: 3.5rem; }
+            .answer-btn { width: 70px; height: 70px; font-size: 1.8rem; }
+            .dot { width: 30px; height: 30px; font-size: 1.2rem; }
+            .visual-area { padding: 20px; gap: 15px; }
+            .stats-area { flex-direction: column; }
+            .controls { flex-direction: column; align-items: center; }
+        }
+        
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .game-area { padding: 20px 15px; }
+            .problem-section { padding: 20px 15px; }
+            .answer-buttons { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="language-selector">
+                <button class="lang-btn active" onclick="changeLanguage('es')" id="langEs">🇪🇸 Español</button>
+                <button class="lang-btn" onclick="changeLanguage('en')" id="langEn">🇺🇸 English</button>
+            </div>
+            <h1 class="title" id="mainTitle">🎯 ¡Aprende a Sumar! 🎯</h1>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        
+        <div class="stats-area">
+            <div class="stat-card">
+                <div class="stat-value" id="scoreValue">0</div>
+                <div class="stat-label" id="scoreLabel">🌟 Puntos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="streakValue">0</div>
+                <div class="stat-label" id="streakLabel">🔥 Racha</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="levelValue">1</div>
+                <div class="stat-label" id="levelLabel">📈 Nivel</div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <div class="problem-section">
+                <div class="problem" id="problem">2 + 3 = ?</div>
+            </div>
+            
+            <div class="visual-area">
+                <div class="number-group" id="firstGroup">
+                    <div class="number-label" id="firstLabel">Primer número</div>
+                    <div class="dots-container" id="firstNumber"></div>
+                </div>
+                <div class="operator">+</div>
+                <div class="number-group" id="secondGroup">
+                    <div class="number-label" id="secondLabel">Segundo número</div>
+                    <div class="dots-container" id="secondNumber"></div>
+                </div>
+                <div class="operator">=</div>
+                <div class="number-group">
+                    <div class="number-label" id="resultLabel">Resultado</div>
+                    <div style="font-size: 4rem; color: #667eea;">❓</div>
+                </div>
+            </div>
+            
+            <div class="answer-section">
+                <div class="answer-prompt" id="answerPrompt">¡Elige la respuesta correcta!</div>
+                <div class="answer-buttons" id="answerButtons"></div>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="generateNewProblem()" id="newProblemBtn">🎲 Nuevo Problema</button>
+            <button class="btn btn-secondary" onclick="resetGame()" id="resetBtn">🔄 Reiniciar</button>
+        </div>
+    </div>
+
+    <script>
+        let currentAnswer = 0;
+        let score = 0;
+        let streak = 0;
+        let level = 1;
+        let problemsCompleted = 0;
+        let num1 = 0;
+        let num2 = 0;
+        let isFirstTime = true;
+        let tutorialStep = 0;
+        let currentLanguage = 'es';
+
+        const translations = {
+            es: {
+                title: '🎯 ¡Aprende a Sumar! 🎯',
+                scoreLabel: '🌟 Puntos',
+                streakLabel: '🔥 Racha',
+                levelLabel: '📈 Nivel',
+                firstNumber: 'Primer número',
+                secondNumber: 'Segundo número',
+                result: 'Resultado',
+                answerPrompt: '¡Elige la respuesta correcta!',
+                newProblem: '🎲 Nuevo Problema',
+                reset: '🔄 Reiniciar',
+                points: 'punto',
+                pointsPlural: 'puntos',
+                welcomeMessage: '¡Hola! 👋 Te voy a enseñar cómo sumar paso a paso. <br>¡Empecemos con este problema!',
+                step1: '👀 ¡Mira los puntos rojos! <br>En el primer grupo hay <strong>2 puntos</strong> ●●',
+                step2: '👀 En el segundo grupo hay <strong>1 punto</strong> ● <br>¿Cuántos puntos hay en total?',
+                step3: '🧮 ¡Vamos a contar juntos! <br>Cuenta todos los puntos: ● ● ● <br>¡Ahora elige la respuesta!',
+                tutorialSuccess: '🎉 ¡PERFECTO! 🎉<br>2 + 1 = 3<br>¡Has aprendido a sumar!',
+                tutorialComplete: '🌟 ¡Excelente trabajo! 🌟<br>¡Ahora puedes resolver más problemas por tu cuenta!',
+                tutorialRetry: '🤔 Hmm, cuenta de nuevo los puntos: ● ● ●<br>¿Cuántos puntos ves en total?',
+                correctMessages: [
+                    '¡Excelente! 🎉 ¡Correcto!',
+                    '¡Fantástico! 🌟 ¡Muy bien!',
+                    '¡Increíble! 🚀 ¡Perfecto!',
+                    '¡Genial! 🎊 ¡Sigue así!'
+                ],
+                incorrectMessages: [
+                    '¡Inténtalo de nuevo! 💪',
+                    '¡Casi lo tienes! 🤔 Cuenta otra vez',
+                    '¡No te rindas! 🌟 Puedes hacerlo',
+                    '¡Sigue intentando! 🎯 Tú puedes'
+                ],
+                levelUp: '🎉 ¡NIVEL {level}! 🎉<br>¡Los problemas serán un poco más difíciles!',
+                resetConfirm: '¿Estás seguro de que quieres reiniciar el juego?'
+            },
+            en: {
+                title: '🎯 Learn to Add! 🎯',
+                scoreLabel: '🌟 Points',
+                streakLabel: '🔥 Streak',
+                levelLabel: '📈 Level',
+                firstNumber: 'First number',
+                secondNumber: 'Second number',
+                result: 'Result',
+                answerPrompt: 'Choose the correct answer!',
+                newProblem: '🎲 New Problem',
+                reset: '🔄 Reset',
+                points: 'point',
+                pointsPlural: 'points',
+                welcomeMessage: 'Hello! 👋 I\'m going to teach you how to add step by step. <br>Let\'s start with this problem!',
+                step1: '👀 Look at the red dots! <br>In the first group there are <strong>2 dots</strong> ●●',
+                step2: '👀 In the second group there is <strong>1 dot</strong> ● <br>How many dots are there in total?',
+                step3: '🧮 Let\'s count together! <br>Count all the dots: ● ● ● <br>Now choose the answer!',
+                tutorialSuccess: '🎉 PERFECT! 🎉<br>2 + 1 = 3<br>You\'ve learned to add!',
+                tutorialComplete: '🌟 Excellent work! 🌟<br>Now you can solve more problems on your own!',
+                tutorialRetry: '🤔 Hmm, count the dots again: ● ● ●<br>How many dots do you see in total?',
+                correctMessages: [
+                    'Excellent! 🎉 Correct!',
+                    'Fantastic! 🌟 Very good!',
+                    'Amazing! 🚀 Perfect!',
+                    'Great! 🎊 Keep it up!'
+                ],
+                incorrectMessages: [
+                    'Try again! 💪',
+                    'Almost there! 🤔 Count again',
+                    'Don\'t give up! 🌟 You can do it',
+                    'Keep trying! 🎯 You got this'
+                ],
+                levelUp: '🎉 LEVEL {level}! 🎉<br>The problems will be a bit harder!',
+                resetConfirm: 'Are you sure you want to reset the game?'
+            }
+        };
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Actualizar botones de idioma
+            document.getElementById('langEs').classList.toggle('active', lang === 'es');
+            document.getElementById('langEn').classList.toggle('active', lang === 'en');
+            
+            // Actualizar todos los textos
+            updateAllTexts();
+        }
+
+        function updateAllTexts() {
+            const t = translations[currentLanguage];
+            
+            document.getElementById('mainTitle').textContent = t.title;
+            document.getElementById('scoreLabel').textContent = t.scoreLabel;
+            document.getElementById('streakLabel').textContent = t.streakLabel;
+            document.getElementById('levelLabel').textContent = t.levelLabel;
+            document.getElementById('resultLabel').textContent = t.result;
+            document.getElementById('answerPrompt').textContent = t.answerPrompt;
+            document.getElementById('newProblemBtn').textContent = t.newProblem;
+            document.getElementById('resetBtn').textContent = t.reset;
+            
+            // Actualizar etiquetas de números si existen
+            updateNumberLabels();
+        }
+
+        function updateNumberLabels() {
+            const t = translations[currentLanguage];
+            if (num1 > 0) {
+                const pointsText1 = num1 === 1 ? t.points : t.pointsPlural;
+                document.getElementById('firstLabel').textContent = `${num1} ${pointsText1}`;
+            }
+            if (num2 > 0) {
+                const pointsText2 = num2 === 1 ? t.points : t.pointsPlural;
+                document.getElementById('secondLabel').textContent = `${num2} ${pointsText2}`;
+            }
+        }
+
+        function initializeParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        function generateNewProblem() {
+            if (isFirstTime) {
+                startTutorial();
+                return;
+            }
+            
+            // Ajustar dificultad según el nivel
+            const maxNumber = Math.min(5 + Math.floor(level / 2), 9);
+            num1 = Math.floor(Math.random() * maxNumber) + 1;
+            num2 = Math.floor(Math.random() * maxNumber) + 1;
+            currentAnswer = num1 + num2;
+            
+            // Actualizar el problema
+            document.getElementById('problem').textContent = `${num1} + ${num2} = ?`;
+            
+            // Actualizar etiquetas con traducción
+            updateNumberLabels();
+            
+            // Crear puntos visuales con animación
+            createDotsWithAnimation('firstNumber', num1);
+            setTimeout(() => {
+                createDotsWithAnimation('secondNumber', num2);
+            }, 300);
+            
+            // Generar opciones de respuesta
+            generateAnswerOptions();
+            
+            // Limpiar feedback
+            document.getElementById('feedback').textContent = '';
+            
+            // Actualizar barra de progreso
+            updateProgressBar();
+        }
+
+        function startTutorial() {
+            // Primer problema guiado: 2 + 1
+            num1 = 2;
+            num2 = 1;
+            currentAnswer = 3;
+            tutorialStep = 1;
+            
+            document.getElementById('problem').textContent = `${num1} + ${num2} = ?`;
+            updateNumberLabels();
+            
+            // Mostrar mensaje de bienvenida
+            const feedback = document.getElementById('feedback');
+            const t = translations[currentLanguage];
+            feedback.innerHTML = t.welcomeMessage;
+            feedback.className = 'feedback';
+            feedback.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            feedback.style.color = 'white';
+            
+            // Crear puntos pero sin mostrar opciones aún
+            createDotsWithAnimation('firstNumber', num1);
+            createDotsWithAnimation('secondNumber', num2);
+            
+            // Ocultar botones de respuesta durante tutorial
+            document.getElementById('answerButtons').innerHTML = '';
+            
+            // Mostrar botón para continuar tutorial
+            setTimeout(() => {
+                showTutorialStep1();
+            }, 3000);
+        }
+
+        function showTutorialStep1() {
+            const feedback = document.getElementById('feedback');
+            const t = translations[currentLanguage];
+            feedback.innerHTML = t.step1;
+            feedback.style.background = 'linear-gradient(135deg, #FF6B6B, #FF8E8E)';
+            feedback.style.color = 'white';
+            
+            // Resaltar primer grupo
+            const firstGroup = document.getElementById('firstGroup');
+            firstGroup.style.border = '4px solid #FF6B6B';
+            firstGroup.style.transform = 'scale(1.05)';
+            
+            setTimeout(() => {
+                showTutorialStep2();
+            }, 4000);
+        }
+
+        function showTutorialStep2() {
+            const feedback = document.getElementById('feedback');
+            const t = translations[currentLanguage];
+            feedback.innerHTML = t.step2;
+            feedback.style.background = 'linear-gradient(135deg, #4ECDC4, #7EDDD8)';
+            feedback.style.color = 'white';
+            
+            // Quitar resaltado del primer grupo y resaltar segundo
+            const firstGroup = document.getElementById('firstGroup');
+            firstGroup.style.border = 'none';
+            firstGroup.style.transform = 'scale(1)';
+            
+            const secondGroup = document.getElementById('secondGroup');
+            secondGroup.style.border = '4px solid #4ECDC4';
+            secondGroup.style.transform = 'scale(1.05)';
+            
+            setTimeout(() => {
+                showTutorialStep3();
+            }, 4000);
+        }
+
+        function showTutorialStep3() {
+            const feedback = document.getElementById('feedback');
+            const t = translations[currentLanguage];
+            feedback.innerHTML = t.step3;
+            feedback.style.background = 'linear-gradient(135deg, #4CAF50, #8BC34A)';
+            feedback.style.color = 'white';
+            
+            // Quitar resaltado del segundo grupo
+            const secondGroup = document.getElementById('secondGroup');
+            secondGroup.style.border = 'none';
+            secondGroup.style.transform = 'scale(1)';
+            
+            // Mostrar opciones de respuesta con tutorial
+            generateTutorialAnswers();
+        }
+
+        function generateTutorialAnswers() {
+            const buttons = document.getElementById('answerButtons');
+            buttons.innerHTML = '';
+            
+            // Para el tutorial, usar respuestas específicas
+            const options = [3, 1, 4, 2]; // La correcta es 3
+            
+            options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = option;
+                button.onclick = () => checkTutorialAnswer(option);
+                button.style.animationDelay = `${index * 0.1}s`;
+                buttons.appendChild(button);
+            });
+        }
+
+        function checkTutorialAnswer(selectedAnswer) {
+            const feedback = document.getElementById('feedback');
+            const t = translations[currentLanguage];
+            
+            if (selectedAnswer === currentAnswer) {
+                feedback.innerHTML = t.tutorialSuccess;
+                feedback.className = 'feedback correct';
+                score += 10;
+                streak = 1;
+                updateAllStats();
+                createCelebrationEffect();
+                
+                // Terminar tutorial
+                setTimeout(() => {
+                    completeTutorial();
+                }, 3000);
+            } else {
+                feedback.innerHTML = t.tutorialRetry;
+                feedback.className = 'feedback incorrect';
+            }
+        }
+
+        function completeTutorial() {
+            isFirstTime = false;
+            const feedback = document.getElementById('feedback');
+            const t = translations[currentLanguage];
+            feedback.innerHTML = t.tutorialComplete;
+            feedback.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            feedback.style.color = 'white';
+            
+            setTimeout(() => {
+                generateNewProblem();
+            }, 3000);
+        }
+
+        function createDotsWithAnimation(containerId, number) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < number; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.textContent = i + 1;
+                dot.style.animationDelay = `${i * 0.2}s`;
+                dot.title = `Punto ${i + 1}`;
+                
+                // Agregar efecto de conteo al hacer clic
+                dot.onclick = () => {
+                    dot.style.transform = 'scale(1.3)';
+                    setTimeout(() => {
+                        dot.style.transform = 'scale(1)';
+                    }, 200);
+                };
+                
+                container.appendChild(dot);
+            }
+        }
+
+        function generateAnswerOptions() {
+            const buttons = document.getElementById('answerButtons');
+            buttons.innerHTML = '';
+            
+            // Crear array con la respuesta correcta y 3 incorrectas
+            const options = [currentAnswer];
+            
+            while (options.length < 4) {
+                let wrongAnswer = Math.floor(Math.random() * (currentAnswer + 5)) + 1;
+                if (!options.includes(wrongAnswer) && wrongAnswer <= 18) {
+                    options.push(wrongAnswer);
+                }
+            }
+            
+            // Mezclar las opciones
+            options.sort(() => Math.random() - 0.5);
+            
+            // Crear botones con animación escalonada
+            options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = option;
+                button.onclick = () => checkAnswer(option);
+                button.style.animationDelay = `${index * 0.1}s`;
+                buttons.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedAnswer) {
+            const feedback = document.getElementById('feedback');
+            const t = translations[currentLanguage];
+            
+            if (selectedAnswer === currentAnswer) {
+                feedback.innerHTML = t.correctMessages[Math.floor(Math.random() * t.correctMessages.length)];
+                feedback.className = 'feedback correct';
+                
+                score += 10 + (streak * 2); // Bonus por racha
+                streak++;
+                problemsCompleted++;
+                
+                // Subir de nivel cada 5 problemas
+                if (problemsCompleted % 5 === 0) {
+                    level++;
+                    showLevelUp();
+                }
+                
+                updateAllStats();
+                createCelebrationEffect();
+                
+                // Generar nuevo problema después de 2 segundos
+                setTimeout(() => {
+                    generateNewProblem();
+                }, 2000);
+            } else {
+                feedback.innerHTML = t.incorrectMessages[Math.floor(Math.random() * t.incorrectMessages.length)];
+                feedback.className = 'feedback incorrect';
+                streak = 0; // Reiniciar racha
+                updateAllStats();
+            }
+        }
+
+        function showLevelUp() {
+            const feedback = document.getElementById('feedback');
+            const t = translations[currentLanguage];
+            feedback.innerHTML = t.levelUp.replace('{level}', level);
+            feedback.style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
+            feedback.style.color = 'white';
+            feedback.style.fontSize = '2.5rem';
+            
+            setTimeout(() => {
+                feedback.style.fontSize = '2.2rem';
+            }, 2000);
+        }
+
+        function createCelebrationEffect() {
+            // Crear confeti temporal
+            for (let i = 0; i < 10; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.background = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFD93D'][Math.floor(Math.random() * 5)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.borderRadius = '50%';
+                confetti.style.pointerEvents = 'none';
+                confetti.style.zIndex = '1000';
+                confetti.style.animation = `fall ${Math.random() * 2 + 1}s linear forwards`;
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+
+        function updateAllStats() {
+            document.getElementById('scoreValue').textContent = score;
+            document.getElementById('streakValue').textContent = streak;
+            document.getElementById('levelValue').textContent = level;
+        }
+
+        function updateProgressBar() {
+            const progress = (problemsCompleted % 5) * 20;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function resetGame() {
+            const t = translations[currentLanguage];
+            if (confirm(t.resetConfirm)) {
+                score = 0;
+                streak = 0;
+                level = 1;
+                problemsCompleted = 0;
+                isFirstTime = true;
+                updateAllStats();
+                updateProgressBar();
+                generateNewProblem();
+            }
+        }
+
+        // Agregar estilos para la animación de caída
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Inicializar el juego
+        initializeParticles();
+        generateNewProblem();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98f9b5f216c4e786',t:'MTc2MDY0MDMwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

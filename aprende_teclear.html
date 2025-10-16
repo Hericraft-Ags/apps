@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprende a Teclear Jugando</title>
+    <!-- Incluyendo Tailwind CSS para un diseño moderno y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Incluyendo Tone.js para efectos de sonido simples -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.min.js"></script>
+    <!-- Incluyendo una fuente amigable para niños desde Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos personalizados adicionales */
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f9ff; /* Un azul cielo muy claro */
+            -webkit-user-select: none; /* Evitar selección de texto */
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Colores para cada dedo para una fácil asociación */
+        .finger-color-l5, .key-color-l5 { background-color: #fdba74; } /* Meñique Izquierdo - Naranja claro */
+        .finger-color-l4, .key-color-l4 { background-color: #fca5a5; } /* Anular Izquierdo - Rojo claro */
+        .finger-color-l3, .key-color-l3 { background-color: #fde047; } /* Corazón Izquierdo - Amarillo claro */
+        .finger-color-l2, .key-color-l2 { background-color: #86efac; } /* Índice Izquierdo - Verde claro */
+        .finger-color-l1, .key-color-l1 { background-color: #93c5fd; } /* Pulgar Izquierdo - Azul claro */
+
+        .finger-color-r1, .key-color-r1 { background-color: #93c5fd; } /* Pulgar Derecho - Azul claro */
+        .finger-color-r2, .key-color-r2 { background-color: #86efac; } /* Índice Derecho - Verde claro */
+        .finger-color-r3, .key-color-r3 { background-color: #fde047; } /* Corazón Derecho - Amarillo claro */
+        .finger-color-r4, .key-color-r4 { background-color: #fca5a5; } /* Anular Derecho - Rojo claro */
+        .finger-color-r5, .key-color-r5 { background-color: #c4b5fd; } /* Meñique Derecho - Morado claro */
+
+        /* Animación para la tecla que debe ser presionada */
+        .key.highlight {
+            transform: scale(1.15);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.7);
+            z-index: 10;
+        }
+
+        /* Animación para el dedo que debe usarse */
+        .finger.highlight {
+            transform: scale(1.2) translateY(-10px);
+            border-width: 4px;
+            border-color: #2563eb;
+        }
+
+        /* Animación de "error" suave */
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            transform: translate3d(0, 0, 0);
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        /* Estilo para la letra actual a teclear */
+        #exercise-char {
+            display: inline-block;
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        /* Estilos para el modo de frase (nivel difícil) */
+        #exercise-display.sentence-mode span {
+            padding: 2px 1px;
+            border-radius: 3px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        #exercise-display.sentence-mode span.current {
+            background-color: #93c5fd; /* Azul claro */
+            color: #1e3a8a;
+        }
+        #exercise-display.sentence-mode span.correct {
+            color: #16a34a; /* Verde */
+            background-color: transparent;
+        }
+        #exercise-display.sentence-mode span.wrong-flash {
+            background-color: #fca5a5; /* Rojo claro */
+        }
+        #exercise-display.sentence-mode span.space::after {
+            content: '_';
+            opacity: 0.5;
+        }
+
+        /* Estilos para botones bloqueados */
+        .difficulty-btn:disabled {
+            background-color: #d1d5db;
+            background-image: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .difficulty-btn:disabled:hover {
+            background-color: #d1d5db;
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <div id="app" class="container mx-auto p-4 md:p-8 flex flex-col items-center justify-center min-h-screen">
+        
+        <!-- Título y Puntuación -->
+        <header class="text-center mb-6 w-full max-w-4xl">
+            <h1 class="text-4xl md:text-6xl font-bold text-sky-600">Aprende a teclear jugando</h1>
+            <p class="text-xl md:text-2xl text-slate-500 mt-2">¡Sigue las luces y los colores!</p>
+            <div id="game-info" class="mt-4 flex items-center justify-center flex-wrap gap-4">
+                <div id="score-display" class="text-2xl font-bold bg-white px-6 py-2 rounded-full shadow-md hidden">
+                    Aciertos: <span id="score">0</span>
+                </div>
+                 <div id="timer-display" class="hidden text-2xl font-bold bg-white px-6 py-2 rounded-full shadow-md text-orange-600">
+                    Tiempo: <span id="time">0</span>s
+                </div>
+                <button id="back-to-menu-btn" class="hidden bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200">
+                    Volver al Menú
+                </button>
+            </div>
+        </header>
+
+        <!-- Pantalla de Inicio (Guía de Dedos y Dificultad) -->
+        <div id="start-screen" class="flex flex-col items-center w-full">
+            <!-- Guía de Dedos y Colores -->
+            <div id="finger-legend" class="mb-8 p-6 bg-white rounded-2xl shadow-lg w-full max-w-2xl">
+                <h3 class="text-2xl font-bold text-center text-sky-600 mb-4">Guía de Dedos y Colores</h3>
+                <div class="flex flex-col md:flex-row justify-around gap-6">
+                    <!-- Mano Izquierda -->
+                    <div class="space-y-2">
+                        <h4 class="font-bold text-lg text-slate-700">Mano Izquierda</h4>
+                        <div class="flex items-center gap-3"><div class="w-6 h-6 rounded-full finger-color-l5 border border-slate-200"></div><span>Meñique</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-6 rounded-full finger-color-l4 border border-slate-200"></div><span>Anular</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-6 rounded-full finger-color-l3 border border-slate-200"></div><span>Corazón</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-6 rounded-full finger-color-l2 border border-slate-200"></div><span>Índice</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-6 rounded-full finger-color-l1 border border-slate-200"></div><span>Pulgar</span></div>
+                    </div>
+                    <!-- Mano Derecha -->
+                    <div class="space-y-2">
+                        <h4 class="font-bold text-lg text-slate-700">Mano Derecha</h4>
+                        <div class="flex items-center gap-3"><div class="w-6 h-6 rounded-full finger-color-r1 border border-slate-200"></div><span>Pulgar</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-6 rounded-full finger-color-r2 border border-slate-200"></div><span>Índice</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-6 rounded-full finger-color-r3 border border-slate-200"></div><span>Corazón</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-6 rounded-full finger-color-r4 border border-slate-200"></div><span>Anular</span></div>
+                        <div class="flex items-center gap-3"><div class="w-6 h-6 rounded-full finger-color-r5 border border-slate-200"></div><span>Meñique</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de Selección de Dificultad -->
+            <div id="difficulty-selector" class="flex flex-col items-center gap-4 mb-8">
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button data-level="facil" class="difficulty-btn bg-green-400 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200">
+                        Fácil
+                    </button>
+                    <button id="btn-medio" data-level="medio" class="difficulty-btn bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200 flex items-center gap-2">
+                        <span class="lock-icon">🔒</span> Medio
+                    </button>
+                    <button id="btn-dificil" data-level="dificil" class="difficulty-btn bg-red-400 hover:bg-red-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200 flex items-center gap-2">
+                        <span class="lock-icon">🔒</span> Difícil
+                    </button>
+                </div>
+                <button id="btn-experto" data-level="experto" class="difficulty-btn mt-4 w-full sm:w-auto bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-4 px-10 rounded-full shadow-xl transform hover:scale-105 transition-transform duration-200 flex items-center justify-center gap-3 text-lg">
+                    <span class="lock-icon">🔒</span> Obtén tu insignia de experto
+                </button>
+            </div>
+
+             <!-- Sección de Insignia -->
+            <div id="insignia-section" class="hidden mt-8 p-8 bg-gradient-to-br from-yellow-300 to-amber-400 rounded-2xl shadow-xl text-center w-full max-w-lg">
+                <h2 class="text-3xl font-bold text-white drop-shadow-md">¡Eres un Maestro del Teclado!</h2>
+                <div class="text-8xl my-4 animate-pulse">🏆</div>
+                <p class="text-white text-lg">Has completado todos los desafíos. ¡Sigue practicando!</p>
+            </div>
+        </div>
+
+        <!-- Área del Ejercicio -->
+        <div id="game-area" class="w-full max-w-4xl text-center p-6 bg-white rounded-2xl shadow-xl hidden">
+            <p id="instruction-text" class="text-lg text-slate-500">Presiona la tecla:</p>
+            <div id="exercise-display" class="my-4 min-h-[7rem] flex items-center justify-center">
+                <!-- El contenido del ejercicio se inyectará aquí -->
+            </div>
+             <div id="feedback" class="h-8 text-2xl font-bold transition-opacity duration-300"></div>
+        </div>
+
+        <!-- Manos Guía -->
+        <div id="hands-container" class="flex justify-center gap-4 md:gap-8 my-8 opacity-0 transition-opacity duration-500">
+            <!-- Izquierda y Derecha -->
+             <div class="flex items-end gap-2">
+                <div id="finger-l5" class="finger finger-color-l5 w-10 h-24 md:w-12 md:h-28 border-2 border-slate-300 rounded-t-full transition-transform duration-200"></div>
+                <div id="finger-l4" class="finger finger-color-l4 w-10 h-28 md:w-12 md:h-32 border-2 border-slate-300 rounded-t-full transition-transform duration-200"></div>
+                <div id="finger-l3" class="finger finger-color-l3 w-10 h-32 md:w-12 md:h-36 border-2 border-slate-300 rounded-t-full transition-transform duration-200"></div>
+                <div id="finger-l2" class="finger finger-color-l2 w-10 h-28 md:w-12 md:h-32 border-2 border-slate-300 rounded-t-full transition-transform duration-200"></div>
+                <div id="finger-l1" class="finger finger-color-l1 w-12 h-20 md:w-16 md:h-24 border-2 border-slate-300 rounded-full self-center -mr-2 transition-transform duration-200"></div>
+            </div>
+            <div class="flex items-end gap-2">
+                <div id="finger-r1" class="finger finger-color-r1 w-12 h-20 md:w-16 md:h-24 border-2 border-slate-300 rounded-full self-center -ml-2 transition-transform duration-200"></div>
+                <div id="finger-r2" class="finger finger-color-r2 w-10 h-28 md:w-12 md:h-32 border-2 border-slate-300 rounded-t-full transition-transform duration-200"></div>
+                <div id="finger-r3" class="finger finger-color-r3 w-10 h-32 md:w-12 md:h-36 border-2 border-slate-300 rounded-t-full transition-transform duration-200"></div>
+                <div id="finger-r4" class="finger finger-color-r4 w-10 h-28 md:w-12 md:h-32 border-2 border-slate-300 rounded-t-full transition-transform duration-200"></div>
+                <div id="finger-r5" class="finger finger-color-r5 w-10 h-24 md:w-12 md:h-28 border-2 border-slate-300 rounded-t-full transition-transform duration-200"></div>
+            </div>
+        </div>
+
+        <!-- Teclado Virtual -->
+        <div id="keyboard-container" class="p-2 md:p-4 bg-slate-200 rounded-2xl shadow-inner opacity-0 transition-opacity duration-500">
+            <!-- El teclado se generará aquí con JavaScript -->
+        </div>
+    </div>
+
+    <!-- Modal de Felicitación Genérico -->
+    <div id="level-up-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-xl text-center max-w-sm transform transition-all scale-95 opacity-0" style="transition: transform 0.3s ease-out, opacity 0.3s ease-out;">
+            <div id="modal-icon" class="text-6xl mb-4">🎉</div>
+            <h2 id="modal-title" class="text-3xl font-bold text-yellow-500"></h2>
+            <p id="modal-message" class="mt-4 text-xl text-slate-600"></p>
+            <button id="modal-close-btn" class="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-200">
+                ¡Genial!
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        window.addEventListener('load', () => {
+            // --- Elementos del DOM ---
+            const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+            const btnMedio = document.getElementById('btn-medio');
+            const btnDificil = document.getElementById('btn-dificil');
+            const btnExperto = document.getElementById('btn-experto');
+            const gameArea = document.getElementById('game-area');
+            const startScreen = document.getElementById('start-screen');
+            const keyboardContainer = document.getElementById('keyboard-container');
+            const handsContainer = document.getElementById('hands-container');
+            const exerciseDisplay = document.getElementById('exercise-display');
+            const instructionText = document.getElementById('instruction-text');
+            const scoreDisplay = document.getElementById('score-display');
+            const scoreSpan = document.getElementById('score');
+            const timerDisplay = document.getElementById('timer-display');
+            const timeSpan = document.getElementById('time');
+            const feedbackDiv = document.getElementById('feedback');
+            const backToMenuBtn = document.getElementById('back-to-menu-btn');
+            const levelUpModal = document.getElementById('level-up-modal');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+            const insigniaSection = document.getElementById('insignia-section');
+            
+            // --- Sonidos ---
+            let synth; 
+            const correctSound = () => { if (synth) synth.triggerAttackRelease("C5", "8n", Tone.now()); };
+            const wrongSound = () => { if (synth) synth.triggerAttackRelease("C3", "8n", Tone.now()); };
+
+            // --- Estado del Juego ---
+            let score = 0;
+            let currentLevel = '';
+            let exercises = [];
+            let sentenceIndex = 0;
+            let charIndex = 0;
+            let currentTargetChar = '';
+            let sentenceChars = [];
+            let timerInterval = null;
+            let timeLeft = 0;
+
+            // --- Definiciones de Teclado y Ejercicios ---
+            const layout = [
+                ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+                ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ñ'],
+                ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+            ];
+            const fingerMap = {
+                'q': 'l5', 'a': 'l5', 'z': 'l5', 'w': 'l4', 's': 'l4', 'x': 'l4', 'e': 'l3', 'd': 'l3', 'c': 'l3',
+                'r': 'l2', 'f': 'l2', 'v': 'l2', 't': 'l2', 'g': 'l2', 'b': 'l2', 'y': 'r2', 'h': 'r2', 'n': 'r2',
+                'u': 'r2', 'j': 'r2', 'm': 'r2', 'i': 'r3', 'k': 'r3', 'o': 'r4', 'l': 'r4', 'p': 'r5', 'ñ': 'r5', ' ': 'r1' 
+            };
+            const EXERCISES = {
+                facil: ['asdfghjklñ', 'gasa', 'faja', 'falda', 'haga', 'jaja', 'alga', 'sala', 'sal', 'gas', 'ala', 'las', 'asa', 'ada'],
+                medio: ['dedo', 'sala', 'flor', 'ñandu', 'sol', 'faja', 'gato', 'hola'],
+                dificil: [
+                    "el perro juega en el jardin", "la luna brilla por la noche", "me gusta leer libros de cuentos", "los pajaros cantan en la ventana", "mi color favorito es el azul",
+                    "el sol es amarillo y brillante", "los gatos duermen mucho", "me gusta jugar con mis amigos", "el agua del rio esta fria", "las flores del jardin huelen bien",
+                    "el coche rojo es muy rapido", "mi abuela cocina galletas ricas", "la escuela es divertida", "los peces nadan en el mar", "la jirafa tiene el cuello largo",
+                    "el leon es el rey de la selva", "las estrellas salen por la noche", "el helado de fresa es mi favorito", "los elefantes son muy grandes", "voy a dibujar un gran castillo"
+                ]
+            };
+             EXERCISES.experto = [...EXERCISES.dificil]; // El nivel experto usa las mismas frases que el difícil
+
+            // --- Funciones del Juego ---
+
+            function createKeyboard() {
+                 layout.forEach((row, rowIndex) => {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'flex justify-center gap-1 md:gap-2 my-1';
+                    if (rowIndex === 1) rowDiv.style.paddingLeft = '1.5rem';
+                    if (rowIndex === 2) rowDiv.style.paddingLeft = '3.5rem';
+                    row.forEach(key => {
+                        const keyEl = document.createElement('div');
+                        const finger = fingerMap[key];
+                        keyEl.className = `key key-color-${finger} w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold rounded-lg shadow-md transition-transform duration-100`;
+                        keyEl.textContent = key.toUpperCase();
+                        keyEl.dataset.key = key;
+                        rowDiv.appendChild(keyEl);
+                    });
+                    keyboardContainer.appendChild(rowDiv);
+                });
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+            
+            function resetToMenu() {
+                currentLevel = '';
+                score = 0;
+                clearInterval(timerInterval);
+                gameArea.classList.add('hidden');
+                scoreDisplay.classList.add('hidden');
+                timerDisplay.classList.add('hidden');
+                backToMenuBtn.classList.add('hidden');
+                keyboardContainer.classList.remove('opacity-100');
+                keyboardContainer.classList.add('opacity-0');
+                handsContainer.classList.remove('opacity-100');
+                handsContainer.classList.add('opacity-0');
+                levelUpModal.classList.add('hidden');
+                levelUpModal.firstElementChild.classList.remove('scale-100', 'opacity-100');
+                startScreen.classList.remove('hidden');
+                document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+            }
+
+            function startGame(level) {
+                if (typeof Tone !== 'undefined' && !synth) {
+                    try { Tone.start(); synth = new Tone.Synth().toDestination(); } catch (e) { console.error("Audio init failed:", e); }
+                }
+
+                currentLevel = level;
+                score = 0;
+                updateScore();
+                
+                exercises = shuffleArray([...EXERCISES[level]]);
+                sentenceIndex = 0;
+                charIndex = 0;
+
+                startScreen.classList.add('hidden');
+                scoreDisplay.classList.remove('hidden');
+                backToMenuBtn.classList.remove('hidden');
+                gameArea.classList.remove('hidden');
+                keyboardContainer.classList.add('opacity-100');
+                handsContainer.classList.add('opacity-100');
+                
+                if (level === 'experto') {
+                    timerDisplay.classList.remove('hidden');
+                }
+                
+                if (level === 'dificil' || level === 'experto') {
+                    instructionText.textContent = "Escribe la siguiente frase:";
+                    loadNextSentence();
+                } else {
+                    instructionText.textContent = "Presiona la tecla:";
+                    let sequence = exercises.join(' ');
+                    sentenceChars = sequence.split('');
+                    nextCharacter();
+                }
+            }
+            
+            function handleTimeUp() {
+                clearInterval(timerInterval);
+                wrongSound();
+                showFeedback("¡Tiempo agotado! Inténtalo de nuevo.", false);
+                gameArea.classList.add('shake');
+                setTimeout(() => gameArea.classList.remove('shake'), 500);
+                setTimeout(loadNextSentence, 1500); // Recarga la misma frase
+            }
+            
+            function startTimer(seconds) {
+                clearInterval(timerInterval);
+                timeLeft = Math.ceil(seconds);
+                timeSpan.textContent = timeLeft;
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    timeSpan.textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        handleTimeUp();
+                    }
+                }, 1000);
+            }
+
+            function loadNextSentence() {
+                clearInterval(timerInterval);
+                if(sentenceIndex >= exercises.length) {
+                    sentenceIndex = 0; // Reinicia si se acaban las frases
+                    exercises = shuffleArray([...EXERCISES[currentLevel]]);
+                }
+                const sentence = exercises[sentenceIndex];
+                sentenceChars = sentence.split('');
+                
+                exerciseDisplay.innerHTML = '';
+                exerciseDisplay.className = 'text-3xl md:text-4xl font-mono my-4 p-4 border-2 rounded-lg bg-slate-50 min-h-[7rem] text-left leading-relaxed sentence-mode';
+                sentenceChars.forEach(char => {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+                    if (char === ' ') span.classList.add('space');
+                    exerciseDisplay.appendChild(span);
+                });
+
+                charIndex = 0;
+                highlightCurrentCharacter();
+
+                if (currentLevel === 'experto') {
+                    const timeLimit = sentenceChars.length * 1.5; // 1.5 segundos por caracter
+                    startTimer(timeLimit);
+                }
+            }
+
+            function nextCharacter() {
+                if (!currentLevel) return;
+                if (charIndex >= sentenceChars.length) {
+                    let sequence = shuffleArray([...EXERCISES[currentLevel]]).join(' ');
+                    sentenceChars = sequence.split('');
+                    charIndex = 0;
+                }
+                currentTargetChar = sentenceChars[charIndex];
+                
+                exerciseDisplay.className = 'text-8xl font-bold my-4 min-h-[7rem] text-sky-500 flex items-center justify-center';
+                exerciseDisplay.innerHTML = `<span id="exercise-char">${currentTargetChar === ' ' ? 'ESPACIO' : currentTargetChar.toUpperCase()}</span>`;
+                const exerciseCharSpan = document.getElementById('exercise-char');
+                if(exerciseCharSpan) exerciseCharSpan.style.transform = 'scale(1)';
+                
+                highlightElements();
+            }
+
+            function highlightCurrentCharacter() {
+                const isSentenceMode = currentLevel === 'dificil' || currentLevel === 'experto';
+                if (!isSentenceMode) {
+                     highlightElements();
+                     return;
+                }
+                const spans = exerciseDisplay.querySelectorAll('span');
+                spans.forEach(s => s.classList.remove('current'));
+                if (charIndex < spans.length) {
+                    spans[charIndex].classList.add('current');
+                    currentTargetChar = sentenceChars[charIndex];
+                    highlightElements();
+                }
+            }
+
+            function highlightElements() {
+                document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+                if (!currentTargetChar) return;
+
+                if (currentTargetChar === ' ') {
+                    const fingerEl = document.getElementById('finger-r1');
+                    if (fingerEl) fingerEl.classList.add('highlight');
+                    return;
+                }
+                const fingerToUse = fingerMap[currentTargetChar];
+                const keyEl = document.querySelector(`.key[data-key="${currentTargetChar}"]`);
+                if (keyEl) keyEl.classList.add('highlight');
+                if (fingerToUse) {
+                    const fingerEl = document.getElementById(`finger-${fingerToUse}`);
+                    if (fingerEl) fingerEl.classList.add('highlight');
+                }
+            }
+            
+            function showModal(title, message, icon = '🎉') {
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                document.getElementById('modal-icon').textContent = icon;
+                levelUpModal.classList.remove('hidden');
+                setTimeout(() => { levelUpModal.firstElementChild.classList.add('scale-100', 'opacity-100'); }, 10);
+            }
+
+            function updateLevelLocks() {
+                const medioUnlocked = localStorage.getItem('medioUnlocked') === 'true';
+                const dificilUnlocked = localStorage.getItem('dificilUnlocked') === 'true';
+                const expertoUnlocked = localStorage.getItem('expertoUnlocked') === 'true';
+                const insigniaGanada = localStorage.getItem('insigniaGanada') === 'true';
+
+                btnMedio.disabled = !medioUnlocked;
+                btnMedio.querySelector('.lock-icon').textContent = medioUnlocked ? '✅' : '🔒';
+                btnDificil.disabled = !dificilUnlocked;
+                btnDificil.querySelector('.lock-icon').textContent = dificilUnlocked ? '✅' : '🔒';
+                btnExperto.disabled = !expertoUnlocked;
+                btnExperto.querySelector('.lock-icon').textContent = expertoUnlocked ? '🏆' : '🔒';
+                if (insigniaGanada) {
+                    insigniaSection.classList.remove('hidden');
+                }
+            }
+
+            function updateScore() {
+                scoreSpan.textContent = score;
+                if (currentLevel === 'facil' && score >= 50 && localStorage.getItem('medioUnlocked') !== 'true') {
+                    localStorage.setItem('medioUnlocked', 'true');
+                    showModal('¡Nivel Superado!', 'Has desbloqueado el nivel Medio. ¡Felicidades!');
+                    updateLevelLocks();
+                } else if (currentLevel === 'medio' && score >= 50 && localStorage.getItem('dificilUnlocked') !== 'true') {
+                    localStorage.setItem('dificilUnlocked', 'true');
+                    showModal('¡Impresionante!', 'Has desbloqueado el nivel Difícil. ¿Aceptas el reto?');
+                    updateLevelLocks();
+                } else if (currentLevel === 'dificil' && score >= 150 && localStorage.getItem('expertoUnlocked') !== 'true') {
+                    localStorage.setItem('expertoUnlocked', 'true');
+                    showModal('¡Eres Genial!', '¡Has desbloqueado el nivel Experto! El reto final te espera.', '🚀');
+                    updateLevelLocks();
+                } else if (currentLevel === 'experto' && score >= 200 && localStorage.getItem('insigniaGanada') !== 'true') {
+                    localStorage.setItem('insigniaGanada', 'true');
+                    showModal('¡Maestro del Teclado!', '¡Has ganado tu insignia! Ve al menú principal para verla.', '🏆');
+                    updateLevelLocks();
+                }
+            }
+            
+            function showFeedback(message, isCorrect) {
+                feedbackDiv.textContent = message;
+                feedbackDiv.className = isCorrect ? 'text-green-500' : 'text-red-500';
+                feedbackDiv.classList.add('h-8', 'text-2xl', 'font-bold', 'transition-opacity', 'duration-300');
+                setTimeout(() => { feedbackDiv.textContent = ''; }, 1000);
+            }
+
+            function handleKeyPress(e) {
+                if (!currentLevel || !levelUpModal.classList.contains('hidden')) return;
+                let pressedKey = e.key.toLowerCase();
+                if (e.code === 'Space') { e.preventDefault(); pressedKey = ' '; }
+                
+                let targetKey = currentTargetChar;
+                let isCorrect = (pressedKey === targetKey) || (pressedKey === ';' && targetKey === 'ñ');
+                const isSentenceMode = currentLevel === 'dificil' || currentLevel === 'experto';
+
+                if (!isCorrect) {
+                    wrongSound();
+                    gameArea.classList.add('shake');
+                    showFeedback('¡Ups! Intenta otra vez.', false);
+                    setTimeout(() => gameArea.classList.remove('shake'), 500);
+
+                    if (isSentenceMode) {
+                        score = Math.max(0, score - 1); // Resta un punto, evitando negativos
+                        scoreSpan.textContent = score; // Actualiza solo el marcador visual
+
+                        const spans = exerciseDisplay.querySelectorAll('span');
+                        const currentSpan = spans[charIndex];
+                        if (currentSpan) {
+                            currentSpan.classList.add('wrong-flash');
+                            setTimeout(() => currentSpan.classList.remove('wrong-flash'), 500);
+                        }
+                    }
+                    return;
+                }
+                
+                correctSound();
+                score++;
+                updateScore();
+                showFeedback('¡Muy bien!', true);
+                
+                if (isSentenceMode) {
+                     const spans = exerciseDisplay.querySelectorAll('span');
+                     if(spans[charIndex]) spans[charIndex].classList.add('correct');
+                } else {
+                     const exerciseCharSpan = document.getElementById('exercise-char');
+                     if(exerciseCharSpan) exerciseCharSpan.style.transform = 'scale(1.5)';
+                }
+
+                charIndex++;
+                
+                if (isSentenceMode) {
+                    if (charIndex >= sentenceChars.length) {
+                        clearInterval(timerInterval); // Detiene el timer al completar la frase
+                        sentenceIndex++;
+                        setTimeout(loadNextSentence, 500);
+                    } else {
+                        highlightCurrentCharacter();
+                    }
+                } else { // Nivel fácil y medio
+                    setTimeout(nextCharacter, 200);
+                }
+            }
+
+            // --- Inicialización ---
+            createKeyboard();
+            updateLevelLocks();
+
+            // Event Listeners
+            difficultyButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    if (!e.currentTarget.disabled) {
+                        startGame(button.dataset.level);
+                    }
+                });
+            });
+
+            backToMenuBtn.addEventListener('click', resetToMenu);
+            modalCloseBtn.addEventListener('click', resetToMenu);
+            window.addEventListener('keydown', handleKeyPress);
+        });
+    </script>
+</body>
+</html>
