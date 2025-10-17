@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Table Challenge with Kiby</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        .draggable {
+            cursor: grab;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        
+        .draggable:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            border-color: #FFD700;
+        }
+        
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(1.15);
+        }
+        
+        .draggable.wiggle {
+            animation: wiggle 0.5s ease-in-out;
+        }
+        
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+        
+        .drop-zone {
+            transition: all 0.3s;
+            border: 3px dashed transparent;
+            border-radius: 15px;
+            padding: 10px;
+        }
+        
+        .drop-zone.highlight {
+            border-color: #FFD700;
+            background-color: rgba(255, 215, 0, 0.1);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .drop-zone.correct-hint {
+            border-color: #10B981;
+            background-color: rgba(16, 185, 129, 0.1);
+            animation: correctPulse 1s ease-in-out;
+        }
+        
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .star {
+            animation: pulse 1.5s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+        
+        .kiby-bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .glow {
+            animation: glow 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.5)); }
+            to { filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .pop-up {
+            animation: popUp 0.3s ease-out;
+        }
+        
+        @keyframes popUp {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-blue-50 h-screen">
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-blue-100 to-purple-100">
+        <div class="text-center max-w-md">
+            <h1 class="text-4xl font-bold text-purple-600 mb-4">Tech Table Challenge with Kiby</h1>
+            <p class="text-lg text-gray-700 mb-8" id="welcome-instructions">Match the names to the tech objects on the table!</p>
+            
+            <div class="flex justify-center mb-8">
+                <button id="play-button" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all transform hover:scale-105">
+                    Play
+                </button>
+            </div>
+            
+            <div class="flex justify-center items-center space-x-2 mb-6">
+                <span id="language-label" class="text-gray-700">Change Language:</span>
+                <button id="english-button" class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg">
+                    English
+                </button>
+                <button id="spanish-button" class="bg-purple-400 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg">
+                    Español
+                </button>
+            </div>
+            
+            <!-- Kiby on welcome screen -->
+            <div class="mt-6 kiby-bounce">
+                <svg width="100" height="100" viewBox="0 0 100 100" class="mx-auto">
+                    <!-- Kiby body -->
+                    <circle cx="50" cy="50" r="40" fill="white" stroke="#6B46C1" stroke-width="2"/>
+                    <!-- Ears/Antenna -->
+                    <path d="M30 25 Q 25 5 40 15" stroke="#6B46C1" stroke-width="3" fill="none"/>
+                    <path d="M70 25 Q 75 5 60 15" stroke="#6B46C1" stroke-width="3" fill="none"/>
+                    <!-- Eyes -->
+                    <circle cx="35" cy="45" r="6" fill="#6B46C1"/>
+                    <circle cx="65" cy="45" r="6" fill="#6B46C1"/>
+                    <circle cx="37" cy="43" r="2" fill="white"/>
+                    <circle cx="67" cy="43" r="2" fill="white"/>
+                    <!-- Smile -->
+                    <path d="M35 65 Q 50 75 65 65" stroke="#6B46C1" stroke-width="3" fill="none"/>
+                    <!-- Purple accents -->
+                    <circle cx="50" cy="85" r="5" fill="#6B46C1"/>
+                    <circle cx="20" cy="60" r="5" fill="#6B46C1"/>
+                    <circle cx="80" cy="60" r="5" fill="#6B46C1"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="h-full relative hidden">
+        <!-- Classroom background -->
+        <div class="absolute inset-0 bg-blue-50">
+            <!-- Wall -->
+            <div class="absolute inset-0 bg-gradient-to-b from-blue-100 to-blue-200"></div>
+            
+            <!-- Clock -->
+            <div class="absolute top-8 right-8">
+                <svg width="60" height="60" viewBox="0 0 60 60">
+                    <circle cx="30" cy="30" r="28" fill="white" stroke="#333" stroke-width="2"/>
+                    <circle cx="30" cy="30" r="2" fill="#333"/>
+                    <line x1="30" y1="30" x2="30" y2="15" stroke="#333" stroke-width="2"/>
+                    <line x1="30" y1="30" x2="40" y2="30" stroke="#333" stroke-width="2"/>
+                    <line x1="30" y1="10" x2="30" y2="5" stroke="#333" stroke-width="1"/>
+                    <line x1="50" y1="30" x2="55" y2="30" stroke="#333" stroke-width="1"/>
+                    <line x1="30" y1="50" x2="30" y2="55" stroke="#333" stroke-width="1"/>
+                    <line x1="10" y1="30" x2="5" y2="30" stroke="#333" stroke-width="1"/>
+                </svg>
+            </div>
+            
+            <!-- Smartboard on wall -->
+            <div class="absolute top-16 left-1/2 transform -translate-x-1/2 w-1/3 h-1/4 bg-gray-200 border-4 border-gray-400 rounded-lg">
+                <div class="w-full h-full bg-white rounded p-2 flex items-center justify-center">
+                    <span class="text-gray-400 text-lg" id="smartboard-text">Interactive Smartboard</span>
+                </div>
+            </div>
+            
+            <!-- Table -->
+            <div class="absolute bottom-24 left-1/2 transform -translate-x-1/2 w-3/4 h-1/3">
+                <!-- Table top -->
+                <div class="absolute bottom-0 w-full h-16 bg-white rounded-t-lg border-2 border-gray-300"></div>
+                
+                <!-- Table legs -->
+                <div class="absolute bottom-0 left-10 w-6 h-40 bg-gray-300"></div>
+                <div class="absolute bottom-0 right-10 w-6 h-40 bg-gray-300"></div>
+            </div>
+        </div>
+        
+        <!-- Tech objects on table -->
+        <div class="absolute bottom-40 left-1/2 transform -translate-x-1/2 w-3/4 flex justify-around items-end">
+            <!-- Bluetooth Speaker -->
+            <div class="drop-zone relative" data-item="speaker">
+                <svg width="80" height="80" viewBox="0 0 80 80">
+                    <!-- Speaker body with gradient -->
+                    <defs>
+                        <linearGradient id="speakerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#1E40AF;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#1E3A8A;stop-opacity:1" />
+                        </linearGradient>
+                        <radialGradient id="speakerShadow" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" style="stop-color:#000000;stop-opacity:0.1" />
+                            <stop offset="100%" style="stop-color:#000000;stop-opacity:0.3" />
+                        </radialGradient>
+                    </defs>
+                    <!-- Shadow -->
+                    <ellipse cx="40" cy="72" rx="25" ry="4" fill="url(#speakerShadow)"/>
+                    <!-- Main body -->
+                    <rect x="15" y="8" width="50" height="60" rx="8" fill="url(#speakerGradient)" stroke="#1E3A8A" stroke-width="1"/>
+                    <!-- Main speaker cone -->
+                    <circle cx="40" cy="28" r="16" fill="#374151" stroke="#1F2937" stroke-width="1"/>
+                    <circle cx="40" cy="28" r="12" fill="#4B5563"/>
+                    <circle cx="40" cy="28" r="8" fill="#6B7280"/>
+                    <circle cx="40" cy="28" r="3" fill="#1F2937"/>
+                    <!-- Smaller speaker -->
+                    <circle cx="40" cy="52" r="8" fill="#374151" stroke="#1F2937" stroke-width="1"/>
+                    <circle cx="40" cy="52" r="5" fill="#4B5563"/>
+                    <circle cx="40" cy="52" r="2" fill="#1F2937"/>
+                    <!-- Control buttons -->
+                    <circle cx="25" cy="62" r="3" fill="#1F2937" stroke="#374151" stroke-width="1"/>
+                    <circle cx="40" cy="62" r="3" fill="#1F2937" stroke="#374151" stroke-width="1"/>
+                    <circle cx="55" cy="62" r="3" fill="#1F2937" stroke="#374151" stroke-width="1"/>
+                    <!-- LED indicator -->
+                    <circle cx="60" cy="15" r="2" fill="#10B981"/>
+                    <!-- Brand logo area -->
+                    <rect x="20" y="12" width="40" height="3" rx="1" fill="#1E3A8A" opacity="0.7"/>
+                </svg>
+                <div class="star hidden absolute -top-4 -right-4">
+                    <svg width="30" height="30" viewBox="0 0 30 30">
+                        <polygon points="15,0 18.5,10.5 30,10.5 20.5,17 24,28 15,21.5 6,28 9.5,17 0,10.5 11.5,10.5" fill="gold" stroke="#FFA000"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Smartboard -->
+            <div class="drop-zone relative" data-item="smartboard">
+                <svg width="80" height="80" viewBox="0 0 80 80">
+                    <defs>
+                        <linearGradient id="smartboardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#374151;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#1F2937;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#F9FAFB;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#E5E7EB;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Shadow -->
+                    <ellipse cx="40" cy="72" rx="30" ry="3" fill="#000000" opacity="0.2"/>
+                    <!-- Monitor frame -->
+                    <rect x="8" y="3" width="64" height="48" rx="3" fill="url(#smartboardGradient)" stroke="#1F2937" stroke-width="1"/>
+                    <!-- Screen -->
+                    <rect x="12" y="7" width="56" height="40" rx="2" fill="url(#screenGradient)" stroke="#D1D5DB" stroke-width="1"/>
+                    <!-- Screen reflection -->
+                    <rect x="12" y="7" width="56" height="15" rx="2" fill="#FFFFFF" opacity="0.1"/>
+                    <!-- Brand logo -->
+                    <circle cx="40" cy="55" r="3" fill="#1F2937"/>
+                    <circle cx="40" cy="55" r="1.5" fill="#6B7280"/>
+                    <!-- Stand -->
+                    <rect x="36" y="51" width="8" height="18" fill="url(#smartboardGradient)"/>
+                    <!-- Base -->
+                    <ellipse cx="40" cy="69" rx="18" ry="4" fill="url(#smartboardGradient)" stroke="#1F2937" stroke-width="1"/>
+                    <!-- Power LED -->
+                    <circle cx="45" cy="55" r="1" fill="#EF4444"/>
+                    <!-- Touch sensors (corners) -->
+                    <circle cx="15" cy="10" r="1" fill="#6B7280"/>
+                    <circle cx="65" cy="10" r="1" fill="#6B7280"/>
+                    <circle cx="15" cy="44" r="1" fill="#6B7280"/>
+                    <circle cx="65" cy="44" r="1" fill="#6B7280"/>
+                    <!-- Sample content on screen -->
+                    <rect x="16" y="12" width="48" height="2" rx="1" fill="#3B82F6" opacity="0.3"/>
+                    <rect x="16" y="16" width="35" height="1.5" rx="0.5" fill="#6B7280" opacity="0.4"/>
+                    <rect x="16" y="19" width="42" height="1.5" rx="0.5" fill="#6B7280" opacity="0.4"/>
+                    <circle cx="25" cy="35" r="8" fill="#10B981" opacity="0.2"/>
+                    <rect x="40" y="28" width="20" height="12" rx="2" fill="#F59E0B" opacity="0.2"/>
+                </svg>
+                <div class="star hidden absolute -top-4 -right-4">
+                    <svg width="30" height="30" viewBox="0 0 30 30">
+                        <polygon points="15,0 18.5,10.5 30,10.5 20.5,17 24,28 15,21.5 6,28 9.5,17 0,10.5 11.5,10.5" fill="gold" stroke="#FFA000"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Educational Robot -->
+            <div class="drop-zone relative" data-item="robot">
+                <svg width="80" height="80" viewBox="0 0 80 80">
+                    <defs>
+                        <linearGradient id="robotGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#F472B6;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#EC4899;stop-opacity:1" />
+                        </linearGradient>
+                        <radialGradient id="eyeGradient" cx="30%" cy="30%" r="70%">
+                            <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#E5E7EB;stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+                    <!-- Shadow -->
+                    <ellipse cx="40" cy="72" rx="22" ry="3" fill="#000000" opacity="0.3"/>
+                    <!-- Robot head -->
+                    <rect x="28" y="8" width="24" height="20" rx="12" fill="url(#robotGradient)" stroke="#BE185D" stroke-width="1"/>
+                    <!-- Antenna -->
+                    <line x1="35" y1="8" x2="35" y2="3" stroke="#BE185D" stroke-width="2"/>
+                    <line x1="45" y1="8" x2="45" y2="3" stroke="#BE185D" stroke-width="2"/>
+                    <circle cx="35" cy="3" r="1.5" fill="#10B981"/>
+                    <circle cx="45" cy="3" r="1.5" fill="#EF4444"/>
+                    <!-- Eyes -->
+                    <circle cx="35" cy="18" r="4" fill="url(#eyeGradient)" stroke="#D1D5DB" stroke-width="1"/>
+                    <circle cx="45" cy="18" r="4" fill="url(#eyeGradient)" stroke="#D1D5DB" stroke-width="1"/>
+                    <circle cx="35" cy="18" r="2" fill="#1F2937"/>
+                    <circle cx="45" cy="18" r="2" fill="#1F2937"/>
+                    <circle cx="36" cy="17" r="0.5" fill="#FFFFFF"/>
+                    <circle cx="46" cy="17" r="0.5" fill="#FFFFFF"/>
+                    <!-- Main body -->
+                    <rect x="25" y="28" width="30" height="32" rx="6" fill="url(#robotGradient)" stroke="#BE185D" stroke-width="1"/>
+                    <!-- Chest panel -->
+                    <rect x="30" y="33" width="20" height="15" rx="3" fill="#FFFFFF" opacity="0.9" stroke="#D1D5DB" stroke-width="1"/>
+                    <!-- Screen/display -->
+                    <rect x="32" y="35" width="16" height="8" rx="2" fill="#1F2937"/>
+                    <rect x="33" y="36" width="14" height="2" rx="1" fill="#10B981"/>
+                    <rect x="33" y="39" width="10" height="1" rx="0.5" fill="#3B82F6"/>
+                    <rect x="33" y="41" width="12" height="1" rx="0.5" fill="#F59E0B"/>
+                    <!-- Control buttons -->
+                    <circle cx="35" cy="50" r="2" fill="#EF4444" stroke="#DC2626" stroke-width="1"/>
+                    <circle cx="45" cy="50" r="2" fill="#10B981" stroke="#059669" stroke-width="1"/>
+                    <!-- Arms -->
+                    <rect x="15" y="35" width="10" height="8" rx="4" fill="url(#robotGradient)" stroke="#BE185D" stroke-width="1"/>
+                    <rect x="55" y="35" width="10" height="8" rx="4" fill="url(#robotGradient)" stroke="#BE185D" stroke-width="1"/>
+                    <!-- Hands -->
+                    <circle cx="20" cy="43" r="3" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="1"/>
+                    <circle cx="60" cy="43" r="3" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="1"/>
+                    <!-- Legs -->
+                    <rect x="30" y="60" width="8" height="12" rx="4" fill="url(#robotGradient)" stroke="#BE185D" stroke-width="1"/>
+                    <rect x="42" y="60" width="8" height="12" rx="4" fill="url(#robotGradient)" stroke="#BE185D" stroke-width="1"/>
+                    <!-- Feet -->
+                    <ellipse cx="34" cy="72" rx="6" ry="3" fill="#1F2937" stroke="#374151" stroke-width="1"/>
+                    <ellipse cx="46" cy="72" rx="6" ry="3" fill="#1F2937" stroke="#374151" stroke-width="1"/>
+                    <!-- Joints -->
+                    <circle cx="20" cy="39" r="1.5" fill="#6B7280"/>
+                    <circle cx="60" cy="39" r="1.5" fill="#6B7280"/>
+                    <circle cx="34" cy="60" r="1.5" fill="#6B7280"/>
+                    <circle cx="46" cy="60" r="1.5" fill="#6B7280"/>
+                </svg>
+                <div class="star hidden absolute -top-4 -right-4">
+                    <svg width="30" height="30" viewBox="0 0 30 30">
+                        <polygon points="15,0 18.5,10.5 30,10.5 20.5,17 24,28 15,21.5 6,28 9.5,17 0,10.5 11.5,10.5" fill="gold" stroke="#FFA000"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Laptop -->
+            <div class="drop-zone relative" data-item="laptop">
+                <svg width="80" height="80" viewBox="0 0 80 80">
+                    <defs>
+                        <linearGradient id="laptopGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6B7280;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#374151;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="screenGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#111827;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#1F2937;stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="keyboardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#F3F4F6;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#D1D5DB;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Shadow -->
+                    <ellipse cx="40" cy="72" rx="35" ry="4" fill="#000000" opacity="0.2"/>
+                    <!-- Laptop base/keyboard section -->
+                    <ellipse cx="40" cy="58" rx="35" ry="8" fill="url(#laptopGradient)" stroke="#374151" stroke-width="1"/>
+                    <!-- Keyboard area -->
+                    <ellipse cx="40" cy="56" rx="30" ry="6" fill="url(#keyboardGradient)" stroke="#9CA3AF" stroke-width="1"/>
+                    <!-- Individual keys (simplified) -->
+                    <rect x="20" y="52" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="25" y="52" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="30" y="52" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="35" y="52" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="40" y="52" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="45" y="52" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="50" y="52" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="55" y="52" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <!-- Second row of keys -->
+                    <rect x="22" y="55" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="27" y="55" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="32" y="55" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="37" y="55" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="42" y="55" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="47" y="55" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <rect x="52" y="55" width="3" height="2" rx="0.5" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <!-- Spacebar -->
+                    <rect x="30" y="58" width="20" height="2" rx="1" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="0.5"/>
+                    <!-- Trackpad -->
+                    <rect x="35" y="60" width="10" height="6" rx="1" fill="#9CA3AF" stroke="#6B7280" stroke-width="1"/>
+                    <!-- Screen/lid -->
+                    <rect x="12" y="15" width="56" height="40" rx="3" fill="url(#laptopGradient)" stroke="#374151" stroke-width="1"/>
+                    <!-- Screen -->
+                    <rect x="16" y="19" width="48" height="32" rx="2" fill="url(#screenGradient2)" stroke="#1F2937" stroke-width="1"/>
+                    <!-- Screen content -->
+                    <rect x="18" y="21" width="44" height="3" rx="1" fill="#3B82F6" opacity="0.8"/>
+                    <rect x="18" y="26" width="30" height="1.5" rx="0.5" fill="#10B981" opacity="0.6"/>
+                    <rect x="18" y="29" width="35" height="1.5" rx="0.5" fill="#F59E0B" opacity="0.6"/>
+                    <rect x="18" y="32" width="25" height="1.5" rx="0.5" fill="#EF4444" opacity="0.6"/>
+                    <!-- Webcam -->
+                    <circle cx="40" cy="22" r="1.5" fill="#1F2937" stroke="#374151" stroke-width="0.5"/>
+                    <circle cx="40" cy="22" r="0.8" fill="#111827"/>
+                    <!-- Brand logo -->
+                    <circle cx="40" cy="47" r="2" fill="#6B7280" opacity="0.3"/>
+                    <!-- Screen reflection -->
+                    <rect x="16" y="19" width="48" height="12" rx="2" fill="#FFFFFF" opacity="0.05"/>
+                    <!-- Power LED -->
+                    <circle cx="18" cy="53" r="0.8" fill="#10B981"/>
+                    <!-- Hinge detail -->
+                    <rect x="15" y="50" width="50" height="2" rx="1" fill="#4B5563"/>
+                </svg>
+                <div class="star hidden absolute -top-4 -right-4">
+                    <svg width="30" height="30" viewBox="0 0 30 30">
+                        <polygon points="15,0 18.5,10.5 30,10.5 20.5,17 24,28 15,21.5 6,28 9.5,17 0,10.5 11.5,10.5" fill="gold" stroke="#FFA000"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Draggable labels -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-3/4 flex justify-around">
+            <div class="draggable bg-blue-100 py-2 px-4 rounded-lg shadow-md border-2 border-blue-300 text-blue-800 font-semibold" draggable="true" data-label="speaker">
+                <span class="en">Bluetooth Speaker</span>
+                <span class="es hidden">Altavoz Bluetooth</span>
+            </div>
+            <div class="draggable bg-green-100 py-2 px-4 rounded-lg shadow-md border-2 border-green-300 text-green-800 font-semibold" draggable="true" data-label="smartboard">
+                <span class="en">Smartboard</span>
+                <span class="es hidden">Pizarra Inteligente</span>
+            </div>
+            <div class="draggable bg-pink-100 py-2 px-4 rounded-lg shadow-md border-2 border-pink-300 text-pink-800 font-semibold" draggable="true" data-label="robot">
+                <span class="en">Educational Robot</span>
+                <span class="es hidden">Robot Educativo</span>
+            </div>
+            <div class="draggable bg-yellow-100 py-2 px-4 rounded-lg shadow-md border-2 border-yellow-300 text-yellow-800 font-semibold" draggable="true" data-label="laptop">
+                <span class="en">Laptop</span>
+                <span class="es hidden">Portátil</span>
+            </div>
+        </div>
+        
+        <!-- Kiby character -->
+        <div id="kiby" class="absolute bottom-20 right-8 kiby-bounce">
+            <svg width="80" height="80" viewBox="0 0 100 100">
+                <!-- Kiby body -->
+                <circle cx="50" cy="50" r="40" fill="white" stroke="#6B46C1" stroke-width="2"/>
+                <!-- Ears/Antenna -->
+                <path d="M30 25 Q 25 5 40 15" stroke="#6B46C1" stroke-width="3" fill="none"/>
+                <path d="M70 25 Q 75 5 60 15" stroke="#6B46C1" stroke-width="3" fill="none"/>
+                <!-- Eyes -->
+                <circle cx="35" cy="45" r="6" fill="#6B46C1"/>
+                <circle cx="65" cy="45" r="6" fill="#6B46C1"/>
+                <circle cx="37" cy="43" r="2" fill="white"/>
+                <circle cx="67" cy="43" r="2" fill="white"/>
+                <!-- Smile -->
+                <path d="M35 65 Q 50 75 65 65" stroke="#6B46C1" stroke-width="3" fill="none" id="kiby-mouth"/>
+                <!-- Purple accents -->
+                <circle cx="50" cy="85" r="5" fill="#6B46C1"/>
+                <circle cx="20" cy="60" r="5" fill="#6B46C1"/>
+                <circle cx="80" cy="60" r="5" fill="#6B46C1"/>
+            </svg>
+        </div>
+        
+        <!-- Kiby speech bubble -->
+        <div id="kiby-speech" class="absolute bottom-32 right-24 bg-white p-4 rounded-lg shadow-lg hidden max-w-xs">
+            <div class="absolute -bottom-2 right-8 w-4 h-4 bg-white transform rotate-45"></div>
+            <p id="kiby-text" class="text-purple-800"></p>
+        </div>
+        
+        <!-- UI Controls -->
+        <div class="absolute top-4 left-4 flex space-x-4">
+            <!-- Reset button -->
+            <button id="reset-button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition-all transform hover:scale-105 text-lg">
+                🔄 <span class="en">Reset</span>
+                🔄 <span class="es hidden">Reiniciar</span>
+            </button>
+            
+            <!-- Language toggle -->
+            <button id="language-toggle" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition-all transform hover:scale-105 text-lg">
+                🌍 <span class="en">Español</span>
+                🌍 <span class="es hidden">English</span>
+            </button>
+            
+            <!-- Hint button -->
+            <button id="hint-button" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-full shadow-md transition-all transform hover:scale-105 text-lg">
+                💡 <span class="en">Hint</span>
+                💡 <span class="es hidden">Pista</span>
+            </button>
+        </div>
+        
+        <!-- Star counter -->
+        <div class="absolute top-4 right-4 bg-yellow-100 py-2 px-4 rounded-full shadow-md border-2 border-yellow-300 flex items-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" class="mr-2">
+                <polygon points="12,2 15,8 21,9 16.5,14 18,20 12,17 6,20 7.5,14 3,9 9,8" fill="gold" stroke="#FFA000"/>
+            </svg>
+            <span id="star-counter" class="font-bold text-yellow-800">0/4</span>
+        </div>
+    </div>
+    
+    <!-- Completion Screen -->
+    <div id="completion-screen" class="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-purple-100 to-blue-100 hidden">
+        <div class="text-center max-w-md">
+            <div class="mb-6 pop-up">
+                <svg width="150" height="150" viewBox="0 0 150 150" class="mx-auto">
+                    <circle cx="75" cy="75" r="70" fill="#8B5CF6" stroke="#6B46C1" stroke-width="5"/>
+                    <polygon points="75,30 88,57 118,57 94,74 102,103 75,85 48,103 56,74 32,57 62,57" fill="gold" stroke="#FFA000" stroke-width="2"/>
+                    <text x="75" y="130" text-anchor="middle" fill="white" font-size="14" font-weight="bold" class="en">Digital Explorer</text>
+                    <text x="75" y="130" text-anchor="middle" fill="white" font-size="14" font-weight="bold" class="es hidden">Explorador Digital</text>
+                </svg>
+            </div>
+            
+            <h1 class="text-4xl font-bold text-purple-600 mb-4 pop-up">
+                <span class="en">Sub-Mission 1 Completed!</span>
+                <span class="es hidden">¡Sub-Misión 1 Completada!</span>
+            </h1>
+            
+            <p class="text-xl text-gray-700 mb-8 fade-in">
+                <span class="en">You've completed your first tech mission! You are now a certified Digital Explorer!</span>
+                <span class="es hidden">¡Has completado tu primera misión tecnológica! ¡Ahora eres un Explorador Digital certificado!</span>
+            </p>
+            
+            <!-- Kiby on completion screen -->
+            <div class="mt-6 kiby-bounce">
+                <svg width="120" height="120" viewBox="0 0 100 100" class="mx-auto">
+                    <!-- Kiby body -->
+                    <circle cx="50" cy="50" r="40" fill="white" stroke="#6B46C1" stroke-width="2"/>
+                    <!-- Ears/Antenna -->
+                    <path d="M30 25 Q 25 5 40 15" stroke="#6B46C1" stroke-width="3" fill="none"/>
+                    <path d="M70 25 Q 75 5 60 15" stroke="#6B46C1" stroke-width="3" fill="none"/>
+                    <!-- Happy Eyes -->
+                    <path d="M30 45 Q 35 40 40 45" stroke="#6B46C1" stroke-width="3" fill="none"/>
+                    <path d="M60 45 Q 65 40 70 45" stroke="#6B46C1" stroke-width="3" fill="none"/>
+                    <!-- Big Smile -->
+                    <path d="M30 60 Q 50 80 70 60" stroke="#6B46C1" stroke-width="3" fill="none"/>
+                    <!-- Purple accents -->
+                    <circle cx="50" cy="85" r="5" fill="#6B46C1"/>
+                    <circle cx="20" cy="60" r="5" fill="#6B46C1"/>
+                    <circle cx="80" cy="60" r="5" fill="#6B46C1"/>
+                </svg>
+            </div>
+            
+            <div class="mt-8">
+                <button id="play-again-button" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-all transform hover:scale-105">
+                    <span class="en">Play Again</span>
+                    <span class="es hidden">Jugar de Nuevo</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Game state
+            let currentLanguage = 'en';
+            let correctMatches = 0;
+            let isDragging = false;
+            let currentDragElement = null;
+            
+            // DOM elements
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const gameScreen = document.getElementById('game-screen');
+            const completionScreen = document.getElementById('completion-screen');
+            const playButton = document.getElementById('play-button');
+            const englishButton = document.getElementById('english-button');
+            const spanishButton = document.getElementById('spanish-button');
+            const languageToggle = document.getElementById('language-toggle');
+            const resetButton = document.getElementById('reset-button');
+            const playAgainButton = document.getElementById('play-again-button');
+            const hintButton = document.getElementById('hint-button');
+            const starCounter = document.getElementById('star-counter');
+            const kiby = document.getElementById('kiby');
+            const kibySpeech = document.getElementById('kiby-speech');
+            const kibyText = document.getElementById('kiby-text');
+            const kibyMouth = document.getElementById('kiby-mouth');
+            const draggables = document.querySelectorAll('.draggable');
+            const dropZones = document.querySelectorAll('.drop-zone');
+            
+            // Game state variables
+            let hintCount = 0;
+            let wrongAttempts = 0;
+            
+            // Kiby messages
+            const kibyMessages = {
+                welcome: {
+                    en: "Hi there! 👋 Drag the colorful labels to match each tech item! I'll help you!",
+                    es: "¡Hola! 👋 ¡Arrastra las etiquetas coloridas para emparejar cada objeto tecnológico! ¡Te ayudaré!"
+                },
+                correct: {
+                    en: "Fantastic! 🌟 That's exactly right! You're doing amazing!",
+                    es: "¡Fantástico! 🌟 ¡Eso es exactamente correcto! ¡Lo estás haciendo increíble!"
+                },
+                incorrect: {
+                    en: "Oops! 😊 That's not quite right. Don't worry, try again! You've got this!",
+                    es: "¡Ups! 😊 Eso no es del todo correcto. No te preocupes, ¡inténtalo de nuevo! ¡Tú puedes!"
+                },
+                hint: {
+                    en: "💡 Look at the colors and shapes! The blue speaker is round, the robot is pink!",
+                    es: "💡 ¡Mira los colores y las formas! ¡El altavoz azul es redondo, el robot es rosa!"
+                },
+                almostDone: {
+                    en: "Wow! 🎉 You're almost finished! Just one more match to go!",
+                    es: "¡Guau! 🎉 ¡Ya casi terminas! ¡Solo falta una pareja más!"
+                },
+                completed: {
+                    en: "AMAZING! 🎊 You matched everything perfectly! You're a tech superstar!",
+                    es: "¡INCREÍBLE! 🎊 ¡Emparejaste todo perfectamente! ¡Eres una superestrella tecnológica!"
+                },
+                encouragement: {
+                    en: "Keep going! 💪 You're doing great! Try the next one!",
+                    es: "¡Sigue así! 💪 ¡Lo estás haciendo genial! ¡Prueba con el siguiente!"
+                },
+                hintSpecific: {
+                    speaker: {
+                        en: "🔊 The blue round speaker makes music! Find its label!",
+                        es: "🔊 ¡El altavoz azul y redondo hace música! ¡Encuentra su etiqueta!"
+                    },
+                    smartboard: {
+                        en: "📱 The gray rectangle is like a big tablet for learning!",
+                        es: "📱 ¡El rectángulo gris es como una tablet grande para aprender!"
+                    },
+                    robot: {
+                        en: "🤖 The pink robot has cute round eyes and can move!",
+                        es: "🤖 ¡El robot rosa tiene ojitos redondos lindos y puede moverse!"
+                    },
+                    laptop: {
+                        en: "💻 The gray laptop opens like a book with a screen!",
+                        es: "💻 ¡La laptop gris se abre como un libro con una pantalla!"
+                    }
+                }
+            };
+            
+            // Initialize game
+            function initGame() {
+                correctMatches = 0;
+                hintCount = 0;
+                wrongAttempts = 0;
+                starCounter.textContent = "0/4";
+                
+                // Reset all drop zones
+                dropZones.forEach(zone => {
+                    const star = zone.querySelector('.star');
+                    if (star) star.classList.add('hidden');
+                    zone.classList.remove('glow', 'correct-hint');
+                    zone.removeAttribute('data-matched');
+                });
+                
+                // Reset all draggables
+                draggables.forEach(drag => {
+                    drag.style.visibility = 'visible';
+                    drag.style.position = 'static';
+                    drag.style.transform = 'none';
+                    drag.classList.remove('wiggle');
+                });
+                
+                // Show Kiby welcome message
+                showKibyMessage(kibyMessages.welcome[currentLanguage], 6000);
+                
+                // Add wiggle animation to draggables after a delay to draw attention
+                setTimeout(() => {
+                    draggables.forEach((drag, index) => {
+                        setTimeout(() => {
+                            if (drag.style.visibility !== 'hidden') {
+                                drag.classList.add('wiggle');
+                                setTimeout(() => drag.classList.remove('wiggle'), 500);
+                            }
+                        }, index * 200);
+                    });
+                }, 3000);
+            }
+            
+            // Provide smart hints
+            function provideHint() {
+                // Find unmatched items
+                const unmatchedZones = Array.from(dropZones).filter(zone => !zone.hasAttribute('data-matched'));
+                
+                if (unmatchedZones.length === 0) {
+                    showKibyMessage(currentLanguage === 'en' ? 
+                        "🎉 You've already matched everything! Great job!" : 
+                        "🎉 ¡Ya has emparejado todo! ¡Buen trabajo!", 3000);
+                    changeKibyExpression('excited');
+                    return;
+                }
+                
+                // Cycle through different hint types based on how many items are left
+                const hintType = hintCount % 3;
+                hintCount++;
+                
+                if (hintType === 0) {
+                    // General hint about colors and shapes
+                    const generalHints = {
+                        en: [
+                            "💡 Look at the colors! Blue speaker, pink robot, gray laptop and smartboard!",
+                            "🔍 Check the shapes! Round speaker, rectangular screens, robot with arms!",
+                            "🎨 Match the colors of the labels with the objects on the table!"
+                        ],
+                        es: [
+                            "💡 ¡Mira los colores! Altavoz azul, robot rosa, laptop y pizarra grises!",
+                            "🔍 ¡Revisa las formas! Altavoz redondo, pantallas rectangulares, robot con brazos!",
+                            "🎨 ¡Empareja los colores de las etiquetas con los objetos de la mesa!"
+                        ]
+                    };
+                    const randomHint = generalHints[currentLanguage][Math.floor(Math.random() * generalHints[currentLanguage].length)];
+                    showKibyMessage(randomHint, 4000);
+                    changeKibyExpression('surprised');
+                    
+                } else if (hintType === 1) {
+                    // Highlight all unmatched zones
+                    unmatchedZones.forEach((zone, index) => {
+                        setTimeout(() => {
+                            zone.classList.add('correct-hint');
+                            setTimeout(() => zone.classList.remove('correct-hint'), 1500);
+                        }, index * 300);
+                    });
+                    
+                    const highlightMessages = {
+                        en: [
+                            "✨ Watch the glowing areas! Those show you where to drop the labels!",
+                            "🎯 See the green highlights? That's where the labels belong!",
+                            "💫 The sparkling zones are waiting for their matching labels!"
+                        ],
+                        es: [
+                            "✨ ¡Mira las áreas que brillan! ¡Te muestran dónde soltar las etiquetas!",
+                            "🎯 ¿Ves los destellos verdes? ¡Ahí es donde van las etiquetas!",
+                            "💫 ¡Las zonas que centellean están esperando sus etiquetas correspondientes!"
+                        ]
+                    };
+                    const randomMessage = highlightMessages[currentLanguage][Math.floor(Math.random() * highlightMessages[currentLanguage].length)];
+                    showKibyMessage(randomMessage, 4000);
+                    changeKibyExpression('excited');
+                    
+                } else {
+                    // Specific hint for one random unmatched item
+                    const randomZone = unmatchedZones[Math.floor(Math.random() * unmatchedZones.length)];
+                    const itemType = randomZone.getAttribute('data-item');
+                    
+                    // Highlight the specific zone
+                    randomZone.classList.add('correct-hint');
+                    setTimeout(() => randomZone.classList.remove('correct-hint'), 2500);
+                    
+                    // Show specific hint
+                    const specificHint = kibyMessages.hintSpecific[itemType][currentLanguage];
+                    showKibyMessage(specificHint, 5000);
+                    changeKibyExpression('excited');
+                    
+                    // Make the corresponding draggable wiggle
+                    const correspondingDrag = Array.from(draggables).find(drag => 
+                        drag.getAttribute('data-label') === itemType && drag.style.visibility !== 'hidden'
+                    );
+                    if (correspondingDrag) {
+                        setTimeout(() => {
+                            correspondingDrag.classList.add('wiggle');
+                            setTimeout(() => correspondingDrag.classList.remove('wiggle'), 1000);
+                        }, 1000);
+                    }
+                }
+            }
+            
+            // Show Kiby message
+            function showKibyMessage(message, duration = 3000) {
+                kibyText.textContent = message;
+                kibySpeech.classList.remove('hidden');
+                kibySpeech.classList.add('pop-up');
+                
+                // Clear any existing timeout
+                if (kibySpeech.timeout) {
+                    clearTimeout(kibySpeech.timeout);
+                }
+                
+                // Set timeout to hide message
+                kibySpeech.timeout = setTimeout(() => {
+                    kibySpeech.classList.add('hidden');
+                    kibySpeech.classList.remove('pop-up');
+                }, duration);
+            }
+            
+            // Change Kiby expression
+            function changeKibyExpression(expression) {
+                switch(expression) {
+                    case 'happy':
+                        kibyMouth.setAttribute('d', 'M35 65 Q 50 75 65 65');
+                        break;
+                    case 'sad':
+                        kibyMouth.setAttribute('d', 'M35 70 Q 50 60 65 70');
+                        break;
+                    case 'surprised':
+                        kibyMouth.setAttribute('d', 'M40 65 Q 50 65 60 65');
+                        break;
+                    case 'excited':
+                        kibyMouth.setAttribute('d', 'M30 60 Q 50 80 70 60');
+                        break;
+                }
+            }
+            
+            // Create celebration particles
+            function createCelebration() {
+                const colors = ['#FFD700', '#FF69B4', '#00CED1', '#98FB98', '#DDA0DD'];
+                
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.style.position = 'absolute';
+                        particle.style.width = '10px';
+                        particle.style.height = '10px';
+                        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                        particle.style.borderRadius = '50%';
+                        particle.style.pointerEvents = 'none';
+                        particle.style.zIndex = '1000';
+                        
+                        const startX = Math.random() * window.innerWidth;
+                        const startY = window.innerHeight;
+                        particle.style.left = startX + 'px';
+                        particle.style.top = startY + 'px';
+                        
+                        document.body.appendChild(particle);
+                        
+                        // Animate particle
+                        const animation = particle.animate([
+                            { transform: 'translateY(0px) rotate(0deg)', opacity: 1 },
+                            { transform: `translateY(-${window.innerHeight + 100}px) rotate(360deg)`, opacity: 0 }
+                        ], {
+                            duration: 2000 + Math.random() * 1000,
+                            easing: 'ease-out'
+                        });
+                        
+                        animation.onfinish = () => particle.remove();
+                    }, i * 100);
+                }
+            }
+            
+            // Check if all matches are complete
+            function checkCompletion() {
+                if (correctMatches === 4) {
+                    // Create celebration effect
+                    createCelebration();
+                    
+                    setTimeout(() => {
+                        showKibyMessage(kibyMessages.completed[currentLanguage]);
+                        changeKibyExpression('excited');
+                        
+                        // Make Kiby bounce more excitedly
+                        kiby.style.animation = 'bounce 0.5s infinite';
+                        
+                        setTimeout(() => {
+                            gameScreen.classList.add('hidden');
+                            completionScreen.classList.remove('hidden');
+                            kiby.style.animation = 'bounce 2s infinite'; // Reset normal bounce
+                        }, 3000);
+                    }, 500);
+                } else if (correctMatches === 3) {
+                    showKibyMessage(kibyMessages.almostDone[currentLanguage]);
+                    changeKibyExpression('excited');
+                } else if (correctMatches > 0) {
+                    // Encourage after each correct match
+                    setTimeout(() => {
+                        showKibyMessage(kibyMessages.encouragement[currentLanguage], 2000);
+                    }, 1500);
+                }
+            }
+            
+            // Set language
+            function setLanguage(lang) {
+                currentLanguage = lang;
+                
+                document.querySelectorAll('.en').forEach(el => {
+                    el.classList.toggle('hidden', lang !== 'en');
+                });
+                
+                document.querySelectorAll('.es').forEach(el => {
+                    el.classList.toggle('hidden', lang !== 'es');
+                });
+                
+                // Update smartboard text
+                const smartboardText = document.getElementById('smartboard-text');
+                smartboardText.textContent = lang === 'en' ? 'Interactive Smartboard' : 'Pizarra Interactiva';
+            }
+            
+            // Event Listeners
+            playButton.addEventListener('click', () => {
+                welcomeScreen.classList.add('hidden');
+                gameScreen.classList.remove('hidden');
+                initGame();
+            });
+            
+            englishButton.addEventListener('click', () => {
+                setLanguage('en');
+            });
+            
+            spanishButton.addEventListener('click', () => {
+                setLanguage('es');
+            });
+            
+            languageToggle.addEventListener('click', () => {
+                setLanguage(currentLanguage === 'en' ? 'es' : 'en');
+            });
+            
+            resetButton.addEventListener('click', initGame);
+            
+            hintButton.addEventListener('click', provideHint);
+            
+            playAgainButton.addEventListener('click', () => {
+                completionScreen.classList.add('hidden');
+                gameScreen.classList.remove('hidden');
+                initGame();
+            });
+            
+            // Drag and drop functionality
+            draggables.forEach(draggable => {
+                draggable.addEventListener('mousedown', startDrag);
+                draggable.addEventListener('touchstart', startDrag, { passive: false });
+            });
+            
+            function startDrag(e) {
+                if (e.type === 'touchstart') {
+                    e.preventDefault(); // Prevent scrolling on touch devices
+                }
+                
+                isDragging = true;
+                currentDragElement = this;
+                
+                // Create a clone for dragging
+                const clone = this.cloneNode(true);
+                clone.id = 'dragging-clone';
+                clone.style.position = 'absolute';
+                clone.style.zIndex = 1000;
+                clone.style.opacity = '0.8';
+                clone.style.pointerEvents = 'none';
+                document.body.appendChild(clone);
+                
+                // Position the clone at the cursor/touch point
+                const event = e.type === 'touchstart' ? e.touches[0] : e;
+                const rect = this.getBoundingClientRect();
+                const offsetX = event.clientX - rect.left;
+                const offsetY = event.clientY - rect.top;
+                
+                // Store offset for later use
+                clone.offsetX = offsetX;
+                clone.offsetY = offsetY;
+                
+                // Position the clone
+                updateClonePosition(event);
+                
+                // Add event listeners for drag movement and end
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('touchmove', dragMove, { passive: false });
+                document.addEventListener('mouseup', dragEnd);
+                document.addEventListener('touchend', dragEnd);
+            }
+            
+            function dragMove(e) {
+                if (!isDragging) return;
+                
+                e.preventDefault();
+                const event = e.type === 'touchmove' ? e.touches[0] : e;
+                updateClonePosition(event);
+                
+                // Highlight drop zones
+                dropZones.forEach(zone => {
+                    const rect = zone.getBoundingClientRect();
+                    if (event.clientX >= rect.left && event.clientX <= rect.right &&
+                        event.clientY >= rect.top && event.clientY <= rect.bottom) {
+                        zone.classList.add('highlight');
+                    } else {
+                        zone.classList.remove('highlight');
+                    }
+                });
+            }
+            
+            function updateClonePosition(event) {
+                const clone = document.getElementById('dragging-clone');
+                if (!clone) return;
+                
+                clone.style.left = (event.clientX - clone.offsetX) + 'px';
+                clone.style.top = (event.clientY - clone.offsetY) + 'px';
+            }
+            
+            function dragEnd(e) {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                const clone = document.getElementById('dragging-clone');
+                if (!clone) return;
+                
+                const event = e.type === 'touchend' ? e.changedTouches[0] : e;
+                
+                // Check if dropped on a valid drop zone
+                let dropped = false;
+                dropZones.forEach(zone => {
+                    zone.classList.remove('highlight');
+                    
+                    const rect = zone.getBoundingClientRect();
+                    if (event.clientX >= rect.left && event.clientX <= rect.right &&
+                        event.clientY >= rect.top && event.clientY <= rect.bottom) {
+                        
+                        // Check if this zone is already matched
+                        if (zone.hasAttribute('data-matched')) {
+                            showKibyMessage(kibyMessages.incorrect[currentLanguage]);
+                            changeKibyExpression('sad');
+                        } else {
+                            // Check if correct match
+                            const zoneItem = zone.getAttribute('data-item');
+                            const labelItem = currentDragElement.getAttribute('data-label');
+                            
+                            if (zoneItem === labelItem) {
+                                // Correct match
+                                zone.setAttribute('data-matched', 'true');
+                                zone.classList.add('glow');
+                                const star = zone.querySelector('.star');
+                                star.classList.remove('hidden');
+                                
+                                // Hide the original draggable
+                                currentDragElement.style.visibility = 'hidden';
+                                
+                                correctMatches++;
+                                starCounter.textContent = `${correctMatches}/4`;
+                                
+                                showKibyMessage(kibyMessages.correct[currentLanguage]);
+                                changeKibyExpression('happy');
+                                
+                                // Check if game is complete
+                                checkCompletion();
+                            } else {
+                                // Incorrect match
+                                wrongAttempts++;
+                                
+                                // Make the draggable wiggle to show it's wrong
+                                currentDragElement.classList.add('wiggle');
+                                setTimeout(() => currentDragElement.classList.remove('wiggle'), 500);
+                                
+                                // Provide increasingly helpful feedback
+                                if (wrongAttempts === 1) {
+                                    showKibyMessage(kibyMessages.incorrect[currentLanguage]);
+                                    changeKibyExpression('sad');
+                                } else if (wrongAttempts === 2) {
+                                    showKibyMessage("🤔 Try looking at the colors! Each item has a different color!", 4000);
+                                    changeKibyExpression('surprised');
+                                } else {
+                                    // After 3 wrong attempts, provide a specific hint
+                                    const correctZone = Array.from(dropZones).find(z => 
+                                        z.getAttribute('data-item') === currentDragElement.getAttribute('data-label') && 
+                                        !z.hasAttribute('data-matched')
+                                    );
+                                    if (correctZone) {
+                                        correctZone.classList.add('correct-hint');
+                                        setTimeout(() => correctZone.classList.remove('correct-hint'), 2000);
+                                        showKibyMessage("✨ Look! I'm showing you exactly where it goes!", 4000);
+                                        changeKibyExpression('excited');
+                                    }
+                                }
+                            }
+                        }
+                        
+                        dropped = true;
+                    }
+                });
+                
+                // If not dropped on a valid zone, show hint
+                if (!dropped && correctMatches < 4) {
+                    showKibyMessage(kibyMessages.hint[currentLanguage]);
+                    changeKibyExpression('surprised');
+                }
+                
+                // Remove the clone
+                clone.remove();
+                
+                // Remove event listeners
+                document.removeEventListener('mousemove', dragMove);
+                document.removeEventListener('touchmove', dragMove);
+                document.removeEventListener('mouseup', dragEnd);
+                document.removeEventListener('touchend', dragEnd);
+            }
+            
+            // Initialize with English
+            setLanguage('en');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c2ccc5f620e993',t:'MTc2MDA2NDUxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
