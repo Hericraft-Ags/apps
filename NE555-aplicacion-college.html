@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="es">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aprende el Integrado 555</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        .circuit-diagram {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .pin-diagram {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .calculator-input {
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            width: 100%;
+        }
+        .calculator-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .result-box {
+            background: #ecfdf5;
+            border: 2px solid #10b981;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #065f46;
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            background: #3b82f6;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .section-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        .section-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-full">
+  <main class="container mx-auto px-4 py-8 max-w-6xl">
+   <header class="text-center mb-8">
+    <h1 id="main-title" class="text-4xl font-bold text-gray-800 mb-4">🔌 Aprende el Integrado 555</h1>
+    <p class="text-lg text-gray-600">Guía completa del temporizador más versátil de la electrónica</p>
+   </header><!-- Navegación por pestañas -->
+   <nav class="flex flex-wrap justify-center gap-4 mb-8"><button id="tab1" class="tab-button px-6 py-3 rounded-lg font-semibold bg-white text-gray-700 hover:bg-gray-50 transition-all duration-300" onclick="showSection(1)"> 📋 <span id="section1-title">Características</span> </button> <button id="tab2" class="tab-button px-6 py-3 rounded-lg font-semibold bg-white text-gray-700 hover:bg-gray-50 transition-all duration-300" onclick="showSection(2)"> 🧮 <span id="section2-title">Calculadoras</span> </button> <button id="tab3" class="tab-button px-6 py-3 rounded-lg font-semibold bg-white text-gray-700 hover:bg-gray-50 transition-all duration-300" onclick="showSection(3)"> ⚡ <span id="section3-title">Circuitos</span> </button>
+   </nav><!-- Sección 1: Características -->
+   <section id="section1" class="section-content active">
+    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+     <h2 class="text-3xl font-bold text-gray-800 mb-6">📋 Características del Integrado 555</h2>
+     <div class="grid md:grid-cols-2 gap-8">
+      <div>
+       <h3 class="text-xl font-semibold text-blue-600 mb-4">🔍 Descripción General</h3>
+       <p class="text-gray-700 mb-4">El NE555 es un circuito integrado temporizador de precisión que puede operar en modo monoestable o astable. Fue diseñado por Hans Camenzind en 1971 y sigue siendo uno de los ICs más populares.</p>
+       <h4 class="font-semibold text-gray-800 mb-2">✨ Características principales:</h4>
+       <ul class="list-disc list-inside text-gray-700 space-y-1">
+        <li>Voltaje de alimentación: 4.5V a 15V</li>
+        <li>Corriente de salida: hasta 200mA</li>
+        <li>Temperatura de operación: 0°C a 70°C</li>
+        <li>Precisión de temporización: ±50ppm/°C</li>
+        <li>Salida TTL compatible</li>
+       </ul>
+      </div>
+      <div>
+       <h3 class="text-xl font-semibold text-blue-600 mb-4">📌 Diagrama de Pines</h3>
+       <div class="circuit-diagram">
+        <svg viewbox="0 0 400 280" class="w-full h-64"><!-- Fondo del chip con gradiente --> <defs>
+          <lineargradient id="chipGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+           <stop offset="0%" style="stop-color:#4a5568;stop-opacity:1" />
+           <stop offset="100%" style="stop-color:#2d3748;stop-opacity:1" />
+          </lineargradient>
+          <lineargradient id="pinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+           <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+           <stop offset="100%" style="stop-color:#b8860b;stop-opacity:1" />
+          </lineargradient>
+          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+           <fedropshadow dx="3" dy="3" stddeviation="2" flood-color="#000000" flood-opacity="0.3" />
+          </filter>
+         </defs> <!-- Sombra del chip --> <rect x="125" y="75" width="150" height="130" fill="#000000" opacity="0.2" rx="8" transform="translate(3,3)" /> <!-- Cuerpo principal del IC --> <rect x="125" y="75" width="150" height="130" fill="url(#chipGradient)" stroke="#1a202c" stroke-width="2" rx="8" filter="url(#shadow)" /> <!-- Texto del chip --> <text x="200" y="125" text-anchor="middle" fill="white" font-size="14" font-weight="bold" font-family="monospace">
+          NE555
+         </text> <text x="200" y="145" text-anchor="middle" fill="#cbd5e0" font-size="10" font-family="monospace">
+          TIMER
+         </text> <text x="200" y="165" text-anchor="middle" fill="#cbd5e0" font-size="8" font-family="monospace">
+          DIP-8
+         </text> <!-- Pines lado izquierdo --> <!-- Pin 1 --> <rect x="110" y="90" width="15" height="6" fill="url(#pinGradient)" stroke="#8b4513" stroke-width="0.5" /> <circle cx="117" cy="93" r="2" fill="#ffd700" /> <!-- Marca identificadora del pin 1 en el chip --> <circle cx="140" cy="93" r="3" fill="white" stroke="#2d3748" stroke-width="1" /> <text x="105" y="97" text-anchor="end" font-size="11" font-weight="bold" fill="#2d3748">
+          1
+         </text> <text x="95" y="97" text-anchor="end" font-size="10" fill="#4a5568">
+          GND
+         </text> <!-- Pin 2 --> <rect x="110" y="115" width="15" height="6" fill="url(#pinGradient)" stroke="#8b4513" stroke-width="0.5" /> <circle cx="117" cy="118" r="2" fill="#ffd700" /> <text x="105" y="122" text-anchor="end" font-size="11" font-weight="bold" fill="#2d3748">
+          2
+         </text> <text x="95" y="122" text-anchor="end" font-size="10" fill="#4a5568">
+          TRIG
+         </text> <!-- Pin 3 --> <rect x="110" y="140" width="15" height="6" fill="url(#pinGradient)" stroke="#8b4513" stroke-width="0.5" /> <circle cx="117" cy="143" r="2" fill="#ffd700" /> <text x="105" y="147" text-anchor="end" font-size="11" font-weight="bold" fill="#2d3748">
+          3
+         </text> <text x="95" y="147" text-anchor="end" font-size="10" fill="#4a5568">
+          OUT
+         </text> <!-- Pin 4 --> <rect x="110" y="165" width="15" height="6" fill="url(#pinGradient)" stroke="#8b4513" stroke-width="0.5" /> <circle cx="117" cy="168" r="2" fill="#ffd700" /> <text x="105" y="172" text-anchor="end" font-size="11" font-weight="bold" fill="#2d3748">
+          4
+         </text> <text x="95" y="172" text-anchor="end" font-size="10" fill="#4a5568">
+          RST
+         </text> <!-- Pines lado derecho --> <!-- Pin 8 --> <rect x="275" y="90" width="15" height="6" fill="url(#pinGradient)" stroke="#8b4513" stroke-width="0.5" /> <circle cx="282" cy="93" r="2" fill="#ffd700" /> <text x="295" y="97" text-anchor="start" font-size="11" font-weight="bold" fill="#2d3748">
+          8
+         </text> <text x="305" y="97" text-anchor="start" font-size="10" fill="#4a5568">
+          VCC
+         </text> <!-- Pin 7 --> <rect x="275" y="115" width="15" height="6" fill="url(#pinGradient)" stroke="#8b4513" stroke-width="0.5" /> <circle cx="282" cy="118" r="2" fill="#ffd700" /> <text x="295" y="122" text-anchor="start" font-size="11" font-weight="bold" fill="#2d3748">
+          7
+         </text> <text x="305" y="122" text-anchor="start" font-size="10" fill="#4a5568">
+          DIS
+         </text> <!-- Pin 6 --> <rect x="275" y="140" width="15" height="6" fill="url(#pinGradient)" stroke="#8b4513" stroke-width="0.5" /> <circle cx="282" cy="143" r="2" fill="#ffd700" /> <text x="295" y="147" text-anchor="start" font-size="11" font-weight="bold" fill="#2d3748">
+          6
+         </text> <text x="305" y="147" text-anchor="start" font-size="10" fill="#4a5568">
+          THR
+         </text> <!-- Pin 5 --> <rect x="275" y="165" width="15" height="6" fill="url(#pinGradient)" stroke="#8b4513" stroke-width="0.5" /> <circle cx="282" cy="168" r="2" fill="#ffd700" /> <text x="295" y="172" text-anchor="start" font-size="11" font-weight="bold" fill="#2d3748">
+          5
+         </text> <text x="305" y="172" text-anchor="start" font-size="10" fill="#4a5568">
+          CV
+         </text> <!-- Líneas de conexión internas (decorativas) --> <line x1="125" y1="93" x2="135" y2="93" stroke="#718096" stroke-width="1" opacity="0.5" /> <line x1="125" y1="118" x2="135" y2="118" stroke="#718096" stroke-width="1" opacity="0.5" /> <line x1="125" y1="143" x2="135" y2="143" stroke="#718096" stroke-width="1" opacity="0.5" /> <line x1="125" y1="168" x2="135" y2="168" stroke="#718096" stroke-width="1" opacity="0.5" /> <line x1="265" y1="93" x2="275" y2="93" stroke="#718096" stroke-width="1" opacity="0.5" /> <line x1="265" y1="118" x2="275" y2="118" stroke="#718096" stroke-width="1" opacity="0.5" /> <line x1="265" y1="143" x2="275" y2="143" stroke="#718096" stroke-width="1" opacity="0.5" /> <line x1="265" y1="168" x2="275" y2="168" stroke="#718096" stroke-width="1" opacity="0.5" /> <!-- Voltajes de referencia --> <text x="50" y="240" font-size="9" fill="#666" font-style="italic">
+          Voltajes típicos:
+         </text> <text x="50" y="255" font-size="8" fill="#666">
+          VCC = 5V-15V
+         </text> <text x="150" y="255" font-size="8" fill="#666">
+          Trigger &lt; VCC/3
+         </text> <text x="250" y="255" font-size="8" fill="#666">
+          Threshold &gt; 2VCC/3
+         </text>
+        </svg>
+       </div>
+      </div>
+     </div>
+     <div class="mt-8">
+      <h3 class="text-xl font-semibold text-blue-600 mb-4">🔧 Función de cada Pin</h3>
+      <div class="grid md:grid-cols-2 gap-4">
+       <div class="pin-diagram"><span class="font-semibold text-red-600">Pin 1 (GND)</span> <span class="text-gray-700">Tierra del circuito</span> <span class="text-sm text-gray-500">0V</span>
+       </div>
+       <div class="pin-diagram"><span class="font-semibold text-red-600">Pin 2 (TRIGGER)</span> <span class="text-gray-700">Entrada de disparo</span> <span class="text-sm text-gray-500">&lt; Vcc/3</span>
+       </div>
+       <div class="pin-diagram"><span class="font-semibold text-red-600">Pin 3 (OUTPUT)</span> <span class="text-gray-700">Salida del temporizador</span> <span class="text-sm text-gray-500">0V/Vcc</span>
+       </div>
+       <div class="pin-diagram"><span class="font-semibold text-red-600">Pin 4 (RESET)</span> <span class="text-gray-700">Reset activo bajo</span> <span class="text-sm text-gray-500">Normalmente Vcc</span>
+       </div>
+       <div class="pin-diagram"><span class="font-semibold text-red-600">Pin 5 (CV)</span> <span class="text-gray-700">Control de voltaje</span> <span class="text-sm text-gray-500">2Vcc/3</span>
+       </div>
+       <div class="pin-diagram"><span class="font-semibold text-red-600">Pin 6 (THRESHOLD)</span> <span class="text-gray-700">Entrada de umbral</span> <span class="text-sm text-gray-500">&gt; 2Vcc/3</span>
+       </div>
+       <div class="pin-diagram"><span class="font-semibold text-red-600">Pin 7 (DISCHARGE)</span> <span class="text-gray-700">Descarga del capacitor</span> <span class="text-sm text-gray-500">Colector abierto</span>
+       </div>
+       <div class="pin-diagram"><span class="font-semibold text-red-600">Pin 8 (VCC)</span> <span class="text-gray-700">Alimentación positiva</span> <span class="text-sm text-gray-500">4.5V-15V</span>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Sección 2: Calculadoras -->
+   <section id="section2" class="section-content">
+    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+     <h2 class="text-3xl font-bold text-gray-800 mb-6">🧮 Calculadoras para el 555</h2>
+     <div class="grid lg:grid-cols-2 gap-8"><!-- Calculadora Monoestable -->
+      <div class="bg-blue-50 rounded-lg p-6">
+       <h3 class="text-xl font-semibold text-blue-600 mb-4">⏱️ Modo Monoestable</h3>
+       <p class="text-gray-700 mb-4">Calcula el tiempo de pulso de salida</p>
+       <div class="space-y-4">
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Resistencia R (kΩ):</label> <input type="number" id="mono-r" class="calculator-input" placeholder="10" step="0.1">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Capacitor C (μF):</label> <input type="number" id="mono-c" class="calculator-input" placeholder="100" step="0.1">
+        </div><button onclick="calculateMono()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"> Calcular Tiempo </button>
+        <div id="mono-result" class="result-box" style="display: none;">
+         <div>
+          Tiempo de pulso: <span id="mono-time"></span>
+         </div>
+         <div class="text-sm mt-1">
+          Fórmula: T = 1.1 × R × C
+         </div>
+        </div>
+       </div>
+      </div><!-- Calculadora Astable -->
+      <div class="bg-green-50 rounded-lg p-6">
+       <h3 class="text-xl font-semibold text-green-600 mb-4">🔄 Modo Astable</h3>
+       <p class="text-gray-700 mb-4">Calcula frecuencia y ciclo de trabajo</p>
+       <div class="space-y-4">
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Resistencia R1 (kΩ):</label> <input type="number" id="astable-r1" class="calculator-input" placeholder="10" step="0.1">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Resistencia R2 (kΩ):</label> <input type="number" id="astable-r2" class="calculator-input" placeholder="10" step="0.1">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Capacitor C (μF):</label> <input type="number" id="astable-c" class="calculator-input" placeholder="10" step="0.1">
+        </div><button onclick="calculateAstable()" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"> Calcular Frecuencia </button>
+        <div id="astable-result" class="result-box" style="display: none;">
+         <div>
+          Frecuencia: <span id="astable-freq"></span>
+         </div>
+         <div>
+          Período: <span id="astable-period"></span>
+         </div>
+         <div>
+          Ciclo de trabajo: <span id="astable-duty"></span>
+         </div>
+         <div class="text-sm mt-1">
+          f = 1.44 / ((R1 + 2×R2) × C)
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Calculadora de Componentes -->
+     <div class="mt-8 bg-purple-50 rounded-lg p-6">
+      <h3 class="text-xl font-semibold text-purple-600 mb-4">🎯 Calcular Componentes</h3>
+      <p class="text-gray-700 mb-4">Encuentra los valores de R y C para una frecuencia deseada (modo astable)</p>
+      <div class="grid md:grid-cols-3 gap-4">
+       <div><label class="block text-sm font-medium text-gray-700 mb-1">Frecuencia deseada (Hz):</label> <input type="number" id="target-freq" class="calculator-input" placeholder="1000" step="0.1">
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-1">Capacitor C (μF):</label> <input type="number" id="fixed-c" class="calculator-input" placeholder="10" step="0.1">
+       </div>
+       <div class="flex items-end"><button onclick="calculateComponents()" class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors"> Calcular R1 y R2 </button>
+       </div>
+      </div>
+      <div id="components-result" class="result-box mt-4" style="display: none;">
+       <div>
+        R1 sugerido: <span id="suggested-r1"></span>
+       </div>
+       <div>
+        R2 sugerido: <span id="suggested-r2"></span>
+       </div>
+       <div>
+        Frecuencia real: <span id="real-freq"></span>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Sección 3: Ejemplos de Circuitos -->
+   <section id="section3" class="section-content">
+    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+     <h2 class="text-3xl font-bold text-gray-800 mb-6">⚡ Ejemplos de Circuitos</h2>
+     <div class="space-y-8"><!-- LED Intermitente -->
+      <div class="border-l-4 border-blue-500 pl-6">
+       <h3 class="text-xl font-semibold text-gray-800 mb-3">💡 LED Intermitente (Astable)</h3>
+       <p class="text-gray-700 mb-4">Circuito básico para hacer parpadear un LED</p>
+       <div class="bg-gray-50 p-4 rounded-lg mb-4">
+        <h4 class="font-semibold mb-2">📝 Lista de Componentes:</h4>
+        <ul class="text-sm text-gray-700 space-y-1">
+         <li>• 1x NE555</li>
+         <li>• 1x Resistencia R1 (valor calculado según frecuencia deseada)</li>
+         <li>• 1x Resistencia R2 (valor calculado según frecuencia deseada)</li>
+         <li>• 1x Resistencia 330Ω (fija para LED)</li>
+         <li>• 1x Capacitor electrolítico C1 (valor fijo: 10μF)</li>
+         <li>• 1x Capacitor cerámico 10nF (C2 - filtro en pin 5)</li>
+         <li>• 1x LED</li>
+         <li>• 1x Protoboard</li>
+         <li>• Fuente 9V</li>
+        </ul>
+       </div>
+       <div class="bg-blue-50 p-4 rounded-lg mb-4">
+        <h4 class="font-semibold text-blue-800 mb-3">🔧 Pasos para construir en TinkerCAD:</h4>
+        <ol class="text-sm text-gray-700 space-y-2">
+         <li><strong>Paso 1:</strong> Abre TinkerCAD y crea un nuevo circuito. Busca y coloca un protoboard en el área de trabajo.</li>
+         <li><strong>Paso 2:</strong> Busca "555" en los componentes y arrastra un NE555 al protoboard. Colócalo en el centro para tener espacio alrededor.</li>
+         <li><strong>Paso 3:</strong> Agrega una fuente de 9V y conecta el terminal positivo a la línea roja del protoboard (VCC) y el negativo a la línea azul (GND).</li>
+         <li><strong>Paso 4:</strong> Conecta el pin 8 (VCC) del 555 a la línea positiva y el pin 1 (GND) a la línea negativa del protoboard.</li>
+         <li><strong>Paso 5:</strong> Conecta el pin 4 (RESET) al pin 8 (VCC) para mantener el chip activo.</li>
+         <li><strong>Paso 6:</strong> <strong>Capacitor de temporización:</strong> Conecta C1 (10μF) entre el pin 6 (THRESHOLD) y GND. Respeta la polaridad: negativo a GND.</li>
+         <li><strong>Paso 7:</strong> <strong>Capacitor de filtro:</strong> Conecta C2 (10nF) entre el pin 5 (CONTROL VOLTAGE) y GND para estabilizar el circuito.</li>
+         <li><strong>Paso 8:</strong> Conecta el pin 6 (THRESHOLD) al pin 2 (TRIGGER) con un cable directo.</li>
+         <li><strong>Paso 9:</strong> <strong>Resistencia R1:</strong> Conecta R1 (valor calculado) entre el pin 8 (VCC) y el pin 7 (DISCHARGE).</li>
+         <li><strong>Paso 10:</strong> <strong>Resistencia R2:</strong> Conecta R2 (valor calculado) entre el pin 7 (DISCHARGE) y el pin 6 (THRESHOLD).</li>
+         <li><strong>Paso 11:</strong> Agrega un LED y conecta su ánodo (pata larga) al pin 3 (OUTPUT) a través de una resistencia de 330Ω (fija).</li>
+         <li><strong>Paso 12:</strong> Conecta el cátodo del LED (pata corta) a GND.</li>
+         <li><strong>Paso 13:</strong> Inicia la simulación y observa cómo parpadea el LED. Usa la calculadora para determinar R1 y R2 según la frecuencia deseada.</li>
+        </ol>
+       </div>
+       <div class="bg-gray-50 p-4 rounded-lg mb-4">
+        <h4 class="font-semibold mb-2">⚡ Configuración de Componentes:</h4>
+        <ul class="text-sm text-gray-700 space-y-1">
+         <li>• <strong>C1 (10μF):</strong> Valor fijo que determina el rango de temporización</li>
+         <li>• <strong>C2 (10nF):</strong> Valor fijo para filtrado y estabilidad</li>
+         <li>• <strong>R1 y R2:</strong> Valores calculados según la frecuencia deseada usando la calculadora</li>
+         <li>• <strong>330Ω:</strong> Valor fijo para limitar corriente del LED</li>
+         <li>• <strong>Ejemplo:</strong> Para 1Hz, usar R1=47kΩ y R2=68kΩ con C1=10μF</li>
+         <li>• <strong>Fórmula:</strong> f = 1.44 / ((R1 + 2×R2) × C)</li>
+        </ul>
+       </div>
+       <div class="bg-blue-50 p-4 rounded-lg">
+        <h4 class="font-semibold text-blue-800 mb-3">🔍 Visualización del Circuito en TinkerCAD</h4>
+        <p class="text-sm text-gray-700 mb-3">Aquí puedes ver el circuito LED intermitente completamente armado y funcionando. Haz clic en "Start Simulation" para ver el LED parpadear:</p>
+        <div class="bg-white p-2 rounded-lg shadow-inner"><iframe width="725" height="453" src="https://www.tinkercad.com/embed/eiq1cwIwABQ?editbtn=1" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" class="w-full rounded"></iframe>
+        </div>
+        <div class="mt-3 text-xs text-gray-600">
+         💡 <strong>Tip:</strong> Puedes hacer clic en "Edit" para abrir el circuito en TinkerCAD y experimentar con diferentes valores de componentes.
+        </div>
+       </div>
+      </div><!-- Sirena -->
+      <div class="border-l-4 border-green-500 pl-6">
+       <h3 class="text-xl font-semibold text-gray-800 mb-3">🚨 Sirena de Dos Tonos</h3>
+       <p class="text-gray-700 mb-4">Dos 555 en cascada para generar una sirena</p>
+       <div class="bg-gray-50 p-4 rounded-lg mb-4">
+        <h4 class="font-semibold mb-2">📝 Lista de Componentes:</h4>
+        <ul class="text-sm text-gray-700 space-y-1">
+         <li>• 2x NE555 (IC1 e IC2)</li>
+         <li>• 2x Resistencias 100kΩ (R1, R3)</li>
+         <li>• 2x Resistencias 10kΩ (R2, R4)</li>
+         <li>• 1x Capacitor 100μF (C1)</li>
+         <li>• 1x Capacitor 10nF (C2)</li>
+         <li>• 1x Altavoz 8Ω</li>
+         <li>• 1x Protoboard grande</li>
+         <li>• Fuente 9V</li>
+        </ul>
+       </div>
+       <div class="bg-green-50 p-4 rounded-lg mb-4">
+        <h4 class="font-semibold text-green-800 mb-3">🔧 Pasos para construir en TinkerCAD:</h4>
+        <ol class="text-sm text-gray-700 space-y-2">
+         <li><strong>Paso 1:</strong> Coloca un protoboard grande y dos chips NE555. Etiquétalos como IC1 (oscilador lento) e IC2 (oscilador rápido).</li>
+         <li><strong>Paso 2:</strong> Conecta la alimentación: pines 8 de ambos ICs a VCC, pines 1 a GND, pines 4 a VCC.</li>
+         <li><strong>Paso 3:</strong> <strong>Configura IC1 (oscilador lento):</strong> Conecta R1 (100kΩ) entre pin 7 y VCC, R2 (10kΩ) entre pin 7 y pin 6.</li>
+         <li><strong>Paso 4:</strong> Conecta pin 6 de IC1 al pin 2 de IC1. Conecta C1 (100μF) entre pin 2 de IC1 y GND.</li>
+         <li><strong>Paso 5:</strong> <strong>Configura IC2 (oscilador rápido):</strong> Conecta R3 (100kΩ) entre pin 7 y pin 8 de IC2.</li>
+         <li><strong>Paso 6:</strong> Conecta R4 (10kΩ) entre pin 7 y pin 6 de IC2. Conecta pin 6 al pin 2 de IC2.</li>
+         <li><strong>Paso 7:</strong> Conecta C2 (10nF) entre pin 2 de IC2 y GND.</li>
+         <li><strong>Paso 8:</strong> <strong>Conexión de control:</strong> Conecta el pin 3 (salida) de IC1 al pin 8 (VCC) de IC2. Esto hace que IC1 controle IC2.</li>
+         <li><strong>Paso 9:</strong> Conecta el altavoz entre el pin 3 de IC2 y GND.</li>
+         <li><strong>Paso 10:</strong> Inicia la simulación y escucha el sonido de sirena que se enciende y apaga rítmicamente.</li>
+        </ol>
+       </div>
+       <div class="bg-green-50 p-4 rounded-lg">
+        <h4 class="font-semibold text-green-800 mb-3">🔍 Visualización del Circuito en TinkerCAD</h4>
+        <p class="text-sm text-gray-700 mb-3">Aquí puedes ver el circuito de sirena de dos tonos completamente armado y funcionando. Haz clic en "Start Simulation" para escuchar el sonido de sirena:</p>
+        <div class="bg-white p-2 rounded-lg shadow-inner"><iframe width="725" height="453" src="https://www.tinkercad.com/embed/9mFYdHpHetA?editbtn=1" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" class="w-full rounded"></iframe>
+        </div>
+        <div class="mt-3 text-xs text-gray-600">
+         💡 <strong>Tip:</strong> Puedes hacer clic en "Edit" para abrir el circuito en TinkerCAD y experimentar con diferentes valores de componentes para cambiar el tono y ritmo de la sirena.
+        </div>
+       </div>
+       <div class="bg-gray-50 p-4 rounded-lg mt-4">
+        <h4 class="font-semibold mb-2">🔧 Funcionamiento:</h4>
+        <p class="text-sm text-gray-700">El primer 555 oscila lentamente (1-2 Hz) y controla la alimentación del segundo 555, que oscila rápidamente (800-1200 Hz) generando el tono audible. El resultado es una sirena que se enciende y apaga rítmicamente.</p>
+       </div>
+      </div><!-- Temporizador -->
+      <div class="border-l-4 border-purple-500 pl-6">
+       <h3 class="text-xl font-semibold text-gray-800 mb-3">⏰ Temporizador con LED (Monoestable)</h3>
+       <p class="text-gray-700 mb-4">555 en modo monoestable para controlar tiempo de encendido</p>
+       <div class="bg-gray-50 p-4 rounded-lg mb-4">
+        <h4 class="font-semibold mb-2">📝 Lista de Componentes:</h4>
+        <ul class="text-sm text-gray-700 space-y-1">
+         <li>• 1x NE555</li>
+         <li>• 1x Resistencia R1 (valor calculado según tiempo deseado)</li>
+         <li>• 1x Resistencia 10kΩ (R2 - pull-up fija)</li>
+         <li>• 1x Resistencia 330Ω (R3 - fija para LED)</li>
+         <li>• 1x Capacitor electrolítico C1 (valor fijo: 100μF)</li>
+         <li>• 1x Capacitor cerámico 10nF (C2 - filtro en pin 5)</li>
+         <li>• 1x Pulsador (botón)</li>
+         <li>• 1x LED</li>
+         <li>• 1x Protoboard</li>
+         <li>• Fuente 9V</li>
+        </ul>
+       </div>
+       <div class="bg-purple-50 p-4 rounded-lg mb-4">
+        <h4 class="font-semibold text-purple-800 mb-3">🔧 Pasos para construir en TinkerCAD:</h4>
+        <ol class="text-sm text-gray-700 space-y-2">
+         <li><strong>Paso 1:</strong> Coloca el protoboard y el NE555. Conecta la alimentación básica (pin 8 a VCC, pin 1 a GND).</li>
+         <li><strong>Paso 2:</strong> Conecta el pin 4 (RESET) al pin 8 (VCC) para mantener el chip activo.</li>
+         <li><strong>Paso 3:</strong> <strong>Capacitor de temporización:</strong> Conecta C1 (100μF) entre el pin 6 (THRESHOLD) y GND. Respeta la polaridad: negativo a GND.</li>
+         <li><strong>Paso 4:</strong> <strong>Capacitor de filtro:</strong> Conecta C2 (10nF) entre el pin 5 (CONTROL VOLTAGE) y GND para estabilizar el circuito.</li>
+         <li><strong>Paso 5:</strong> Conecta el pin 7 (DISCHARGE) al pin 6 (THRESHOLD) con un cable directo.</li>
+         <li><strong>Paso 6:</strong> <strong>Resistencia de temporización:</strong> Conecta R1 (valor calculado) entre el pin 8 (VCC) y el pin 6 (THRESHOLD).</li>
+         <li><strong>Paso 7:</strong> <strong>Configura el pulsador:</strong> Conecta un terminal del pulsador a GND y el otro al pin 2 (TRIGGER).</li>
+         <li><strong>Paso 8:</strong> <strong>Resistencia pull-up:</strong> Conecta R2 (10kΩ fija) entre el pin 2 (TRIGGER) y VCC.</li>
+         <li><strong>Paso 9:</strong> Conecta el LED: ánodo al pin 3 (OUTPUT) a través de R3 (330Ω fija), cátodo a GND.</li>
+         <li><strong>Paso 10:</strong> Inicia la simulación y presiona el pulsador. El LED se encenderá por el tiempo calculado.</li>
+         <li><strong>Paso 11:</strong> <strong>Experimenta:</strong> Usa la calculadora monoestable para determinar R1 según el tiempo deseado.</li>
+        </ol>
+       </div>
+       <div class="bg-purple-50 p-4 rounded-lg">
+        <h4 class="font-semibold text-purple-800 mb-3">🔍 Visualización del Circuito en TinkerCAD</h4>
+        <p class="text-sm text-gray-700 mb-3">Aquí puedes ver el circuito temporizador monoestable completamente armado y funcionando. Haz clic en "Start Simulation" y luego presiona el botón para activar el temporizador:</p>
+        <div class="bg-white p-2 rounded-lg shadow-inner"><iframe width="725" height="453" src="https://www.tinkercad.com/embed/egukNOeEdLF?editbtn=1" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" class="w-full rounded"></iframe>
+        </div>
+        <div class="mt-3 text-xs text-gray-600">
+         💡 <strong>Tip:</strong> Puedes hacer clic en "Edit" para abrir el circuito en TinkerCAD y experimentar con diferentes valores de R1 para cambiar el tiempo de encendido del LED.
+        </div>
+       </div>
+       <div class="bg-gray-50 p-4 rounded-lg mt-4">
+        <h4 class="font-semibold mb-2">⚡ Configuración de Componentes:</h4>
+        <ul class="text-sm text-gray-700 space-y-1">
+         <li>• <strong>C1 (100μF):</strong> Valor fijo que determina el rango de temporización</li>
+         <li>• <strong>C2 (10nF):</strong> Valor fijo para filtrado y estabilidad</li>
+         <li>• <strong>R1:</strong> Valor calculado según el tiempo deseado usando la calculadora</li>
+         <li>• <strong>R2 (10kΩ):</strong> Valor fijo para pull-up del trigger</li>
+         <li>• <strong>R3 (330Ω):</strong> Valor fijo para limitar corriente del LED</li>
+         <li>• <strong>Ejemplo:</strong> Para 10 segundos, usar R1=91kΩ con C1=100μF</li>
+         <li>• <strong>Fórmula:</strong> T = 1.1 × R × C (R en kΩ, C en μF, T en segundos)</li>
+        </ul>
+       </div>
+       <div class="bg-purple-50 p-4 rounded-lg mt-4">
+        <h4 class="font-semibold mb-2">⚡ Aplicaciones y Cálculos:</h4>
+        <ul class="text-sm text-gray-700 space-y-1">
+         <li>• <strong>Fórmula:</strong> T = 1.1 × R1 × C1</li>
+         <li>• <strong>Temporizador de escaleras (30s):</strong> R1 = 273kΩ con C1=100μF</li>
+         <li>• <strong>Luz de seguridad (60s):</strong> R1 = 545kΩ con C1=100μF</li>
+         <li>• <strong>Control de riego (5 min):</strong> R1 = 2.7MΩ con C1=100μF</li>
+        </ul>
+       </div>
+      </div><!-- Consejos generales -->
+      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mt-8">
+       <h4 class="font-semibold text-yellow-800 mb-3">💡 Consejos para TinkerCAD:</h4>
+       <ul class="text-sm text-gray-700 space-y-2">
+        <li>• <strong>Organización:</strong> Mantén los cables ordenados y usa colores diferentes para VCC (rojo) y GND (negro/azul)</li>
+        <li>• <strong>Simulación:</strong> Siempre verifica las conexiones antes de iniciar la simulación</li>
+        <li>• <strong>Mediciones:</strong> Usa el multímetro virtual para verificar voltajes en diferentes puntos</li>
+        <li>• <strong>Experimentación:</strong> Cambia valores de componentes y observa cómo afecta el comportamiento</li>
+        <li>• <strong>Documentación:</strong> Toma capturas de pantalla de tus circuitos funcionando</li>
+       </ul>
+      </div>
+     </div>
+    </div>
+   </section>
+  </main><!-- Pie de página con derechos de autor -->
+  <footer class="bg-gray-800 text-white py-6 mt-12">
+   <div class="container mx-auto px-4 max-w-6xl">
+    <div class="text-center">
+     <div class="border-t border-gray-600 pt-4">
+      <p class="text-sm text-gray-300 mb-2">© 2024 <strong>Hericraft Soluciones Integrales en Educación 4.0</strong>. Todos los derechos reservados.</p>
+      <p class="text-xs text-gray-400 leading-relaxed max-w-4xl mx-auto">Esta aplicación educativa, incluyendo su diseño, contenido, código fuente, metodología pedagógica y recursos didácticos, es propiedad intelectual exclusiva de Hericraft Soluciones Integrales en Educación 4.0. Queda prohibida la reproducción, distribución, modificación, uso comercial o cualquier forma de explotación sin autorización previa y por escrito del titular de los derechos. El uso no autorizado constituye una violación a las leyes de propiedad intelectual y derechos de autor aplicables.</p>
+      <p class="text-xs text-gray-500 mt-3">📧 Para consultas sobre licencias y permisos de uso: <span class="text-blue-400">contacto@soluciones-hericraft.com</span></p>
+     </div>
+    </div>
+   </div>
+  </footer>
+  <script>
+        // Configuración por defecto
+        const defaultConfig = {
+            main_title: "🔌 Aprende el Integrado 555",
+            section1_title: "Características",
+            section2_title: "Calculadoras", 
+            section3_title: "Circuitos"
+        };
+
+        // Función para mostrar secciones
+        function showSection(sectionNum) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remover clase active de todos los botones
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(`section${sectionNum}`).classList.add('active');
+            document.getElementById(`tab${sectionNum}`).classList.add('active');
+        }
+
+        // Calculadora Monoestable
+        function calculateMono() {
+            const r = parseFloat(document.getElementById('mono-r').value);
+            const c = parseFloat(document.getElementById('mono-c').value);
+            
+            if (!r || !c) {
+                alert('Por favor ingresa valores válidos para R y C');
+                return;
+            }
+            
+            const time = 1.1 * r * c; // tiempo en ms
+            let timeStr;
+            
+            if (time < 1) {
+                timeStr = `${(time * 1000).toFixed(2)} μs`;
+            } else if (time < 1000) {
+                timeStr = `${time.toFixed(2)} ms`;
+            } else {
+                timeStr = `${(time / 1000).toFixed(2)} s`;
+            }
+            
+            document.getElementById('mono-time').textContent = timeStr;
+            document.getElementById('mono-result').style.display = 'block';
+        }
+
+        // Calculadora Astable
+        function calculateAstable() {
+            const r1 = parseFloat(document.getElementById('astable-r1').value);
+            const r2 = parseFloat(document.getElementById('astable-r2').value);
+            const c = parseFloat(document.getElementById('astable-c').value);
+            
+            if (!r1 || !r2 || !c) {
+                alert('Por favor ingresa valores válidos para R1, R2 y C');
+                return;
+            }
+            
+            const frequency = 1.44 / ((r1 + 2 * r2) * c); // frecuencia en Hz
+            const period = 1 / frequency; // período en segundos
+            const dutyCycle = ((r1 + r2) / (r1 + 2 * r2)) * 100; // ciclo de trabajo en %
+            
+            let freqStr, periodStr;
+            
+            if (frequency < 1) {
+                freqStr = `${(frequency * 1000).toFixed(2)} mHz`;
+            } else if (frequency < 1000) {
+                freqStr = `${frequency.toFixed(2)} Hz`;
+            } else {
+                freqStr = `${(frequency / 1000).toFixed(2)} kHz`;
+            }
+            
+            if (period < 0.001) {
+                periodStr = `${(period * 1000000).toFixed(2)} μs`;
+            } else if (period < 1) {
+                periodStr = `${(period * 1000).toFixed(2)} ms`;
+            } else {
+                periodStr = `${period.toFixed(2)} s`;
+            }
+            
+            document.getElementById('astable-freq').textContent = freqStr;
+            document.getElementById('astable-period').textContent = periodStr;
+            document.getElementById('astable-duty').textContent = `${dutyCycle.toFixed(1)}%`;
+            document.getElementById('astable-result').style.display = 'block';
+        }
+
+        // Calculadora de Componentes
+        function calculateComponents() {
+            const targetFreq = parseFloat(document.getElementById('target-freq').value);
+            const c = parseFloat(document.getElementById('fixed-c').value);
+            
+            if (!targetFreq || !c) {
+                alert('Por favor ingresa valores válidos para la frecuencia y el capacitor');
+                return;
+            }
+            
+            // Asumiendo ciclo de trabajo del 50% (R1 = R2)
+            const totalR = 1.44 / (targetFreq * c);
+            const r2 = totalR / 3; // R2 = totalR / 3 para 50% duty cycle
+            const r1 = r2; // R1 = R2 para 50% duty cycle
+            
+            // Frecuencia real con los valores calculados
+            const realFreq = 1.44 / ((r1 + 2 * r2) * c);
+            
+            document.getElementById('suggested-r1').textContent = `${r1.toFixed(2)} kΩ`;
+            document.getElementById('suggested-r2').textContent = `${r2.toFixed(2)} kΩ`;
+            document.getElementById('real-freq').textContent = `${realFreq.toFixed(2)} Hz`;
+            document.getElementById('components-result').style.display = 'block';
+        }
+
+        // Función de renderizado
+        async function render(config) {
+            document.getElementById('main-title').textContent = config.main_title || defaultConfig.main_title;
+            document.getElementById('section1-title').textContent = config.section1_title || defaultConfig.section1_title;
+            document.getElementById('section2-title').textContent = config.section2_title || defaultConfig.section2_title;
+            document.getElementById('section3-title').textContent = config.section3_title || defaultConfig.section3_title;
+        }
+
+        // Inicialización del SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                render: render,
+                mapToCapabilities: (config) => ({
+                    recolorables: [],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (config) => new Map([
+                    ["main_title", config.main_title || defaultConfig.main_title],
+                    ["section1_title", config.section1_title || defaultConfig.section1_title],
+                    ["section2_title", config.section2_title || defaultConfig.section2_title],
+                    ["section3_title", config.section3_title || defaultConfig.section3_title]
+                ])
+            });
+        }
+
+        // Inicializar la primera sección como activa
+        showSection(1);
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'991d93bb22b56c13',t:'MTc2MTAxNjM4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
